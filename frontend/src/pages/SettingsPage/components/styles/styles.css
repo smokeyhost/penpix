@@ -1,0 +1,12 @@
+.group:hover .overlay {
+  opacity: 1;
+}
+
+.overlay {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.bg-opacity-50 {
+  background-color: rgba(0, 0, 0, 0.5);
+}

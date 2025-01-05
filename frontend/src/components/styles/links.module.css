@@ -1,0 +1,11 @@
+.container{
+  @apply flex gap-5 font-semibold max-md:flex-col max-md:text-sm max-md:gap-3
+}
+
+.link{
+  @apply hover:underline hover:text-primaryColor
+}
+
+.active{
+  @apply text-primaryColor
+}

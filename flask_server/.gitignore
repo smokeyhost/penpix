@@ -1,0 +1,8 @@
+venv/
+pycache/
+runs/
+*.pyc
+static/
+runs/
+flask_server/sys_main_modules/weight/best.pt
+flask_server/traced_model.pt

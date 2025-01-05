@@ -1,0 +1,7 @@
+.title{
+  @apply text-4xl font-bold text-red-600 mb-4
+}
+
+.desc{
+  @apply text-xl text-gray-700 mb-6
+}

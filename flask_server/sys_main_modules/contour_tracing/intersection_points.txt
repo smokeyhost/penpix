@@ -1,0 +1,198 @@
+sample_02 intersection points = [
+
+	{
+        "x": 160,
+        "y": 303,
+        "width": 10,
+        "height": 7,
+        "confidence": 0.4533223509788513,
+        "class": "intersection",
+        "class_id": 2,
+        "detection_id": "fe8832c1-67ef-4ba4-936a-3a50c80ace11",
+        "color": [
+            0,
+            128,
+            255
+        ],
+        "id": "I1"
+    },
+	 {
+        "x": 189,
+        "y": 386,
+        "width": 10,
+        "height": 7,
+        "confidence": 0.35924747586250305,
+        "class": "intersection",
+        "class_id": 2,
+        "detection_id": "f85df718-717c-47a7-baa2-5cbe38cdb772",
+        "color": [
+            0,
+            128,
+            255
+        ],
+        "id": "I2"
+    },
+	{
+        "x": 185,
+        "y": 218,
+        "width": 10,
+        "height": 7,
+        "confidence": 0.4716586470603943,
+        "class": "intersection",
+        "class_id": 2,
+        "detection_id": "8b62025b-d066-4117-95fb-73e98c2d092a",
+        "color": [
+            0,
+            128,
+            255
+        ],
+        "id": "I3"
+    },
+	{
+        "x": 188,
+        "y": 283,
+        "width": 8,
+        "height": 6,
+        "confidence": 0.4836213290691376,
+        "class": "intersection",
+        "class_id": 2,
+        "detection_id": "358482ca-5cd2-4e89-bc1b-f7d4c3a8646d",
+        "color": [
+            0,
+            128,
+            255
+        ],
+        "id": "I4"
+    },
+	{
+        "x": 188,
+        "y": 302,
+        "width": 8,
+        "height": 6,
+        "confidence": 0.5114865303039551,
+        "class": "intersection",
+        "class_id": 2,
+        "detection_id": "e27d84d6-a7e2-4bdb-888b-dce4559bff65",
+        "color": [
+            0,
+            128,
+            255
+        ],
+        "id": "I5"
+    },
+	{
+        "x": 185,
+        "y": 132,
+        "width": 9,
+        "height": 7,
+        "confidence": 0.5514320731163025,
+        "class": "intersection",
+        "class_id": 2,
+        "detection_id": "4dde5820-a4b7-4d01-b63b-a14e1692629b",
+        "color": [
+            0,
+            128,
+            255
+        ],
+        "id": "I6"
+    },
+	{
+        "x": 157,
+        "y": 220,
+        "width": 8,
+        "height": 7,
+        "confidence": 0.5971083045005798,
+        "class": "intersection",
+        "class_id": 2,
+        "detection_id": "a4c7457f-4c3e-49da-bc9d-5debc87beae7",
+        "color": [
+            0,
+            128,
+            255
+        ],
+        "id": "I7"
+    }
+
+]
+
+
+
+
+
+sample 04 = [
+
+	{
+        "x": 170,
+        "y": 432,
+        "width": 15,
+        "height": 12,
+        "confidence": 0.38752758502960205,
+        "class": "intersection",
+        "class_id": 2,
+        "detection_id": "d17129da-e285-4269-a34a-223bf6ca61da",
+        "color": [
+            0,
+            128,
+            255
+        ],
+        "id": "I1"
+    },
+	  {
+        "x": 449,
+        "y": 440,
+        "width": 14,
+        "height": 11,
+        "confidence": 0.7551890015602112,
+        "class": "intersection",
+        "class_id": 2,
+        "detection_id": "353855fc-c9ad-4d05-9dcf-d8630a61738b",
+        "color": [
+            0,
+            128,
+            255
+        ],
+        "id": "I2"
+    },
+	 {
+        "x": 174,
+        "y": 273,
+        "width": 16,
+        "height": 13,
+        "confidence": 0.48846060037612915,
+        "class": "intersection",
+        "class_id": 2,
+        "detection_id": "58684b24-636c-4560-b56a-76f879649b83",
+        "color": [
+            0,
+            128,
+            255
+        ],
+        "id": "I3"
+    },
+	   {
+        "x": 233,
+        "y": 433,
+        "width": 17,
+        "height": 12,
+        "confidence": 0.6505081653594971,
+        "class": "intersection",
+        "class_id": 2,
+        "detection_id": "5d6723a2-33df-498e-a669-c2263e934050",
+        "color": [
+            0,
+            128,
+            255
+        ],
+        "id": "I4"
+    },
+
+]
+
+
+
+
+
+
+
+
+

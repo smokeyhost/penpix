@@ -1,0 +1,8 @@
+/* AuthPage.css */
+.bg_cover {
+  @apply bg-cover bg-center bg-no-repeat;
+}
+
+.bg_image {
+  background-image: url('/images/PenPix-bg.jpg');
+}
