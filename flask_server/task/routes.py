@@ -9,6 +9,7 @@ from datetime import datetime
 import shutil
 import os
 import pytz
+import stat
 
 @login_required
 @task_bp.route('/create-task', methods=['POST'])
@@ -50,10 +51,6 @@ def create_task():
     return jsonify(task.to_dict()), 201
 
 import datetime
-from flask import jsonify, session
-from model import db, Task, Notification
-from task import task_bp
-from utils.auth_helpers import login_required
 
 @login_required
 @task_bp.route('/get-tasks', methods=['GET'])
@@ -136,6 +133,10 @@ def edit_task(task_id):
         print(f"An error occurred: {e}")  # Log the error
         return jsonify({"message": "An error occurred while updating the task"}), 500
 
+def remove_readonly(func, path, excinfo):
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
 @login_required
 @task_bp.route('/delete-task/<int:task_id>', methods=['DELETE'])
 def delete_task(task_id):
@@ -146,8 +147,7 @@ def delete_task(task_id):
 
         TASK_FOLDER = os.path.join('static', 'images', str(task_id))
         if os.path.exists(TASK_FOLDER):
-            shutil.rmtree(TASK_FOLDER) 
-
+            shutil.rmtree(TASK_FOLDER, onerror=remove_readonly)
         db.session.delete(task)
         db.session.commit()
 
