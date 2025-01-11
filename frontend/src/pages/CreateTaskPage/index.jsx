@@ -262,12 +262,7 @@ const CreateTaskPage = () => {
           <div className="mt-4">
             <div className="flex justify-between items-center">
               <h2 className="text-md font-medium">Answer Keys</h2>
-              <button
-                className="flex items-center gap-2 text-blue-500 mt-2 text-sm"
-                onClick={handleAddItem}
-              >
-                <IoIosAddCircle size={18} /> Add Item
-              </button>
+              
             </div>
             <div className="flex flex-col gap-4 mt-3">
               {errors.noAnswerKeys && <p className="text-red-500 text-sm">{errors.noAnswerKeys}</p>}
@@ -329,6 +324,12 @@ const CreateTaskPage = () => {
                 </div>
               ))}
             </div>
+            <button
+                className="flex items-center gap-2 text-blue-500 mt-2 text-sm"
+                onClick={handleAddItem}
+              >
+                <IoIosAddCircle size={18} /> Add Item
+              </button>
           </div>
           <div className="flex gap-4 mt-5">
             <button
