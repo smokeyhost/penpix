@@ -6,6 +6,8 @@ from . import boolean_function
 
 from io import BytesIO
 import numpy as np
+import os
+import datetime
 
 def get_class_count(json_data, classname):
     # Count the number of elements with the class 'input'
@@ -45,45 +47,54 @@ def print_consolidated_truth_table(boolean_functions, input_count):
 
 def process_circuit_connection(image_bytes: BytesIO, predictions: list) -> tuple:
     """Analyze the circuit based on the image and predictions."""
-    # Read the image from the BytesIO object
-    img_array = np.frombuffer(image_bytes.read(), np.uint8)
-    image = cv.imdecode(img_array, cv.IMREAD_COLOR)
-    
-    if image is None:
-        raise ValueError("Image data could not be decoded.")
-    
-    data = predictions
-    if data is None:
-        raise ValueError("Predictions data is not provided.")
-    
-    image_copy = image.copy()
-    data_copy = copy.deepcopy(data)
+    try:
+        # Read the image from the BytesIO object
+        img_array = np.frombuffer(image_bytes.read(), np.uint8)
+        image = cv.imdecode(img_array, cv.IMREAD_COLOR)
+        
+        if image is None:
+            raise ValueError("Image data could not be decoded.")
+        
+        data = predictions
+        if data is None:
+            raise ValueError("Predictions data is not provided.")
+        
+        image_copy = image.copy()
+        data_copy = copy.deepcopy(data)
 
-    # Get all points necessary to trace contours
-    stop_points = contour_tracing.get_endpoints(image_copy, data_copy)
-    start_points = contour_tracing.get_startpoints(image_copy, data_copy)
-    junction_points = contour_tracing.get_junction_points(image_copy, data_copy)
-    intersection_points = contour_tracing.get_intersection_points(image_copy, data_copy)
+        # Get all points necessary to trace contours
+        stop_points = contour_tracing.get_endpoints(image_copy, data_copy)
+        start_points = contour_tracing.get_startpoints(image_copy, data_copy)
+        junction_points = contour_tracing.get_junction_points(image_copy, data_copy)
+        intersection_points = contour_tracing.get_intersection_points(image_copy, data_copy)
+        print(stop_points)
+        # Proceed to trace the contours using the points
+        line_boundary, connections = contour_tracing.line_boundary_tracing(image_copy, start_points, stop_points, intersection_points, junction_points)
 
-    # Proceed to trace the contours using the points
-    line_boundary, connections = contour_tracing.line_boundary_tracing(image_copy, start_points, stop_points, intersection_points, junction_points)
+        # Draw the end-to-end line points to the connected pins
+        # for connection in connections:
+        #     start = connection['connected_points'][0]
+        #     end = connection['connected_points'][1]
+        #     cv.line(image_copy, start, end, (0,0,255), 2)
+        
+        
 
-    # Draw the end-to-end line points to the connected pins
-    # for connection in connections:
-    #     start = connection['connected_points'][0]
-    #     end = connection['connected_points'][1]
-    #     cv.line(image_copy, start, end, (0,0,255), 2)
+        # for point in line_boundary:
+        #     cv.circle(image_copy, point, 1, (0, 0, 255), -1)
+        
+        # Get the boolean function and display truth table
+        
+        # cv.imshow('Processed Image', image_copy)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
+        boolean_functions = contour_tracing.get_boolean_function(connections)
+        input_count = get_class_count(data_copy, 'input')
+        # # Save the processed image
+        # filename = 'processed_image.png'  # Adjust as needed
+        # output_path = os.path.join("./images/connection_images/", filename)
+        # cv.imwrite(output_path, image_copy)
 
-    for point in line_boundary:
-        cv.circle(image_copy, point, 1, (0, 0, 255), -1)
-    
-    # Get the boolean function and display truth table
-    boolean_functions = contour_tracing.get_boolean_function(connections)
-    input_count = get_class_count(data_copy, 'input')
-
-    # # Save the processed image
-    # filename = 'processed_image.png'  # Adjust as needed
-    # output_path = os.path.join("./images/connection_images/", filename)
-    # cv.imwrite(output_path, image_copy)
-
-    return boolean_functions, input_count
+        return boolean_functions, input_count
+    except Exception as e:
+        print(f"An error occurred while processing the circuit connection: {e}")
+        raise

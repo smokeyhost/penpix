@@ -379,7 +379,7 @@ def get_endpoints(image, data):
         if prediction['class_name'] in exclude_class:
             continue
         
-        if prediction['class_name'] == 'not':
+        elif prediction['class_name'] == 'not':
             x_copy, y_copy, width_copy, height_copy = x, y, width, height 
 
             while (True):
@@ -464,90 +464,90 @@ def get_boolean_function(data):
     input_types = []
     expression_mapping = {}
 
+    # Build the input_types list
     for value in data:
-        
         component = {
             'object_id': value['to']['object_id'],
             'type': value['to']['type'],
         }
-        if value['to']['type'] == 'junction': continue
+        # Skip junctions as they don't contribute directly to boolean logic
+        if value['to']['type'] == 'junction':
+            continue
 
+        # Check if component already exists
         existing_component = next((obj for obj in input_types if obj['object_id'] == component['object_id']), None)
 
         if existing_component:
-            if value['to']['pin'] == 'input1':
-                existing_component['input1'] = value['from']['label'] if value['from']['type'] == 'input' else value['from']['object_id']
-            elif value['to']['pin'] == 'input2':
-                existing_component['input2'] = value['from']['label'] if value['from']['type'] == 'input' else value['from']['object_id']
+            if 'pin' in value['to']:
+                if value['to']['pin'] == 'input1':
+                    existing_component['input1'] = value['from']['label'] if value['from']['type'] == 'input' else value['from']['object_id']
+                elif value['to']['pin'] == 'input2':
+                    existing_component['input2'] = value['from']['label'] if value['from']['type'] == 'input' else value['from']['object_id']
         else:
-            if value['to']['pin'] == 'input1':
-                component['input1'] = value['from']['label'] if value['from']['type'] == 'input' else value['from']['object_id']
-            elif value['to']['pin'] == 'input2':
-                component['input2'] = value['from']['label'] if value['from']['type'] == 'input' else value['from']['object_id']
-            
+            if 'pin' in value['to']:
+                if value['to']['pin'] == 'input1':
+                    component['input1'] = value['from']['label'] if value['from']['type'] == 'input' else value['from']['object_id']
+                elif value['to']['pin'] == 'input2':
+                    component['input2'] = value['from']['label'] if value['from']['type'] == 'input' else value['from']['object_id']
             input_types.append(component)
-    
+
+    # Map components to boolean expressions
     def get_expression(component):
+        if 'input1' not in component:
+            raise ValueError(f"Incomplete component data: {component}")
         if component['type'] == 'not':
             return f"Not({component['input1']})"
-        elif component['type'] == 'and':
-            return f"And({component['input1']},{component['input2']})"
-        elif component['type'] == 'or':
-            return f"Or({component['input1']},{component['input2']})"
-        elif component['type'] == 'nand':
-            return f"Nand({component['input1']}, {component['input2']})"
-        elif component['type'] == 'nor':
-            return f"Nor({component['input1']}, {component['input2']})"
-        elif component['type'] == 'xnor':
-            return f"Xnor({component['input1']}, {component['input2']})"
-        elif component['type'] == 'xor':
-            return f"Xor({component['input1']}, {component['input2']})"
-        elif component['type'] == 'output':
+        if component['type'] in ['and', 'or', 'nand', 'nor', 'xor', 'xnor']:
+            if 'input2' not in component:
+                raise ValueError(f"Incomplete component data: {component}")
+            op = component['type'].capitalize()
+            return f"{op}({component['input1']}, {component['input2']})"
+        if component['type'] == 'output':
             return f"{component['input1']}"
-    
+        raise ValueError(f"Unsupported component type: {component['type']}")
+
     for component in input_types:
         expression_mapping[component['object_id']] = get_expression(component)
-    
+
+    # Resolve expressions recursively
     def resolve_expression(mapping, signal, visited=None):
-        """Recursively resolve the boolean expression for a given signal."""
         if visited is None:
             visited = set()
-
-        if signal.startswith('X') or signal not in mapping:
-            return signal
-
         if signal in visited:
-            return mapping[signal]
+            return mapping.get(signal, signal)  # Prevent infinite recursion
+        if signal.startswith('X') or signal not in mapping:
+            return signal  # Return as-is for input signals
 
         visited.add(signal)
-
         expression = mapping[signal]
         resolved_expression = ""
         i = 0
         while i < len(expression):
-            if expression[i].isalpha():  # If the character is alphabetic, it's part of a signal name
+            if expression[i].isalpha():  # Parse signal names
                 j = i
                 while j < len(expression) and (expression[j].isalnum() or expression[j] == '_'):
                     j += 1
                 part = expression[i:j]
-                if part in mapping:
-                    resolved_expression += resolve_expression(mapping, part, visited)
-                else:
-                    resolved_expression += part
+                resolved_expression += resolve_expression(mapping, part, visited) if part in mapping else part
                 i = j
             else:
                 resolved_expression += expression[i]
                 i += 1
-        
+
         return resolved_expression
 
+    # Generate final expressions for outputs
     def get_final_expressions(mapping):
-        """Get the final boolean expressions for each output in the mapping."""
         final_expressions = {}
         for key in mapping:
             if key.startswith('OUT'):
                 final_expressions[key] = resolve_expression(mapping, key)
         return final_expressions
-            
-    mapped_data = get_final_expressions(expression_mapping)    
+
+    # Get and return final mapped data
+    try:
+        mapped_data = get_final_expressions(expression_mapping)
+    except ValueError as e:
+        print(f"Error while processing: {e}")
+        mapped_data = {}
     return mapped_data

@@ -12,6 +12,7 @@ import useClassData from '../../hooks/useClassData';
 import TaskLinkModal from './components/TaskLinkModal'; 
 import UploadModal from "./components/UploadModal";
 import useToast from "../../hooks/useToast";
+import useGetTask from "../../hooks/useGetTask"
 import useTemplateDownloader from "../../hooks/useTemplateDownloader"
 
 const TaskPage = () => {
@@ -27,6 +28,7 @@ const TaskPage = () => {
   const { handleDeleteTask: deleteTask } = useDeleteTask();
   const {toastSuccess, toastError} = useToast()
   const {downloadTemplate} = useTemplateDownloader(); 
+  const { getTask } = useGetTask()
 
   const items = task.answer_keys?.map((key) => key.item) || [];
   
@@ -41,19 +43,20 @@ const TaskPage = () => {
   }, [taskId, setFiles]);
 
   useEffect(() => {
-    const getTask = async () => {
+
+    const getSelectedTask = async () => {
       try {
-        const response = await axios.get(`/task/get-task/${taskId}`, {
-          withCredentials: true,
-        });
-        setTask(response.data);
-        console.log(response.data);
+        if (taskId){
+          const task = await getTask(taskId)
+          setTask(task);
+          console.log(task);
+        }
       } catch (error) {
         console.log(error);
       }
     };
 
-    getTask();
+    getSelectedTask();
     fetchFiles(); 
 
   }, [taskId, fetchFiles]);
@@ -93,8 +96,10 @@ const TaskPage = () => {
     navigate(`/edit-task/${task?.id}`);
   };
 
-  const handleDeleteTask = async () => {
-    await deleteTask(taskId);
+  const handleDeleteTask = async (event) => {
+    event.preventDefault()
+    const isDeleted = await deleteTask(taskId);
+    if (!isDeleted) return
     navigate(`/dashboard/${currentUser.id}`);
   };
 

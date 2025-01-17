@@ -20,16 +20,20 @@ def login():
     remember = request.json.get("remember", False)
     
     user = User.query.filter_by(email=email).first()
-    if user and user.check_password(password):
-        if not user.email_verified:
-            return jsonify({"error": "Email not verified. Please verify your email first."}), 403
+    
+    if user:
+        if user.check_password(password):
+            if not user.email_verified:
+                return jsonify({"error": "Email not verified. Please verify your email first."}), 403
 
-        session['user_id'] = user.id
-        if remember:
-            session.permanent = True 
-        return jsonify({"message": "User logged in successfully", "user": user.to_dict()})
+            session['user_id'] = user.id
+            if remember:
+                session.permanent = True 
+            return jsonify({"message": "User logged in successfully", "user": user.to_dict()})
+        else:
+            return jsonify({"error": "Incorrect password. Please try again."}), 401
     else:
-        return jsonify({"error": "Unauthorized"}), 401
+        return jsonify({"error": "Email is not registered."}), 404
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
@@ -166,13 +170,13 @@ def verify_reset_token():
         return jsonify({"message": "Token is valid"})
     else:
         return jsonify({"error": "Invalid or expired token"}), 400
-    
+
 @auth_bp.route("/verify-email", methods=["POST"])
 def verify_email():
     token = request.json.get("token")
 
     if not token:
-        return jsonify({"error": "Token is required"}), 400
+        return jsonify({"success": False, "error": "Token is required"}), 400
 
     user = User.query.filter_by(verification_token=token).first()
 
@@ -181,9 +185,9 @@ def verify_email():
         user.verification_token = None  
         user.verification_token_expiry = None  
         db.session.commit()
-        return jsonify({"message": "Email has been verified successfully."})
+        return jsonify({"success": True, "message": "Email has been verified successfully."})
     
-    return jsonify({"error": "Invalid or expired token."}), 400
+    return jsonify({"success": False, "error": "Invalid or expired token."}), 400
 
 @auth_bp.route("/validate-password", methods=["POST"])
 def validate_password():

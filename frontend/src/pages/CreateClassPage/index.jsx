@@ -23,10 +23,31 @@ const CreateClassPage = () => {
   });
 
   const [studentId, setStudentId] = useState(''); 
+  const [errors, setErrors] = useState({});
   const user = useRecoilValue(UserAtom);
   const navigate = useNavigate();
 
   const handleCreateClass = async () => {
+    const newErrors = {};
+
+    if (!classData.classCode.trim()) {
+      newErrors.classCode = "Course Code is required.";
+    }
+
+    if (!classData.classGroup) {
+      newErrors.classGroup = "Class Group is required.";
+    }
+
+    if (!classData.classSchedule.trim()) {
+      newErrors.classSchedule = "Class Schedule is required.";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+
     const classPayload = {
       classCode: classData.classCode,
       classGroup: classData.classGroup,
@@ -69,16 +90,23 @@ const CreateClassPage = () => {
     }));
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleAddStudent();
+    }
+  };
+
   return (
     <div className="flex flex-col p-5 gap-4 md:w-[800px] mx-auto">
       <h1 className="text-[28px] font-medium mt-2">Create Class</h1>
       <div className="flex flex-col gap-2">
-        <label className="text-md font-medium">Class Name</label>
+        <label className="text-md font-medium">Class Details</label>
         <div className="flex gap-4">
           <input
             type="text"
             placeholder="Course Code"
-            className="flex-1 placeholder-gray-500 placeholder-opacity-75 focus:placeholder-opacity-50 border border-gray-300 rounded-lg px-2 py-1 focus:outline-none text-md"
+            maxLength={30}
+            className={`flex-1 placeholder-gray-500 placeholder-opacity-75 focus:placeholder-opacity-50 border ${errors.classCode ? 'border-red-500' : 'border-gray-300'} rounded-lg px-2 py-1 focus:outline-none text-md`}
             value={classData.classCode}
             onChange={(e) => setClassData({ ...classData, classCode: e.target.value })}
           />
@@ -91,13 +119,17 @@ const CreateClassPage = () => {
             />
           </div>
         </div>
+          {errors.classCode && <p className="text-red-500 text-sm">{errors.classCode}</p>}
+          {errors.classGroup && <p className="text-red-500 text-sm">{errors.classGroup}</p>}
         <input
           type="text"
           placeholder="Class Schedule"
-          className="placeholder-gray-500 placeholder-opacity-75 focus:placeholder-opacity-50 border border-gray-300 rounded-lg px-2 py-1 focus:outline-none text-md"
+          maxLength={50}
+          className={`placeholder-gray-500 placeholder-opacity-75 focus:placeholder-opacity-50 border ${errors.classSchedule ? 'border-red-500' : 'border-gray-300'} rounded-lg px-2 py-1 focus:outline-none text-md`}
           value={classData.classSchedule}
           onChange={(e) => setClassData({ ...classData, classSchedule: e.target.value })}
         />
+        {errors.classSchedule && <p className="text-red-500 text-sm">{errors.classSchedule}</p>}
       </div>
       <div className="flex flex-col gap-2">
         <label className="text-md font-medium">Student ID Number</label>
@@ -105,9 +137,11 @@ const CreateClassPage = () => {
           <input
             type="text"
             placeholder="Id Number"
+            maxLength={10}
             className="placeholder-gray-500 placeholder-opacity-75 focus:placeholder-opacity-50 border border-gray-300 rounded-lg px-2 py-1 focus:outline-none text-md"
             value={studentId}
             onChange={(e) => setStudentId(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
           <BsThreeDots />
         </div>

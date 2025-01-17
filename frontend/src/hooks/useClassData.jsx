@@ -1,4 +1,3 @@
-// src/hooks/useClassData.js
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -7,25 +6,29 @@ const useClassData = (classId) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const getClassData = async (classId) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.get(`/classes/get-class/${classId}`);
+      setClassData(response.data);
+      return response.data;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await axios.get(`/classes/get-class/${classId}`);
-        setClassData(response.data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    if (classId) {
+      getClassData(classId);
+    }
   }, [classId]);
 
-  return {classData, error, loading};
+  return { classData, error, loading, getClassData };
 };
 
 export default useClassData;

@@ -206,7 +206,6 @@ def analyze_circuit(file_id):
             return jsonify({"error": "Circuit analysis not found"}), 404
 
         source_file = os.path.join('static', uploaded_file.filepath)
-
         try:
             img_io = apply_threshold_to_image(source_file, threshold_value=circuit_analysis.threshold_value)
         except Exception as e:

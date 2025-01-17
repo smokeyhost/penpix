@@ -1,9 +1,14 @@
 import { FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useConfirm } from "../../../contexts/ConfirmContext"
+import useToast from '../../../hooks/useToast'
+import { truncateText } from '../../../utils/helpers'
 import axios from "axios";
 
 const ClassCard = ({ classData, onDelete, recentTasks }) => {
   const navigate = useNavigate();
+  const confirm = useConfirm();
+  const {toastSuccess} = useToast();
 
   const handleCardClick = () => {
     navigate(`/edit-class/${classData.id}`);
@@ -11,12 +16,17 @@ const ClassCard = ({ classData, onDelete, recentTasks }) => {
 
   const handleDeleteTask = async (e) => {
     e.stopPropagation();
+    const verificationText = `${classData.class_code}_${classData.class_schedule}_remove`;
+
+    const message =`Deleting the class will remove all the tasks associated to it. Please type "${verificationText}" to confirm deletion.`
+    const result = await confirm(message, true, verificationText);
+    if (!result) return
+
     try {
       const response = await axios.delete(`/classes/delete-class/${classData.id}`);
       if (response.status === 200) {
-        alert(`Class ${classData.class_code} deleted successfully.`);
+        toastSuccess(`Class ${classData.class_code} deleted successfully.`)
         onDelete(classData.id); 
-        console.log("Class deleted successfully.")
       }
     } catch (error) {
       console.error("Error deleting class:", error);
@@ -37,10 +47,10 @@ const ClassCard = ({ classData, onDelete, recentTasks }) => {
       </div>
 
       <div>
-        <span className="text-xs sm:text-sm font-light text-gray-500">{classData.class_schedule}</span>
+        <span className="text-xs sm:text-sm font-light text-gray-500">{truncateText(classData.class_schedule, 20)}</span>
         <div className="mt-2">
           <h3 className="font-semibold text-xl sm:text-2xl lg:text-3xl inline-block">{`Group ${classData.class_group}`}</h3>
-          <span className="ml-2 text-xs sm:text-sm font-medium">{classData.class_code}</span>
+          <span className="ml-2 text-xs sm:text-sm font-medium">{truncateText(classData.class_code, 15)}</span>
         </div>
       </div>
 
@@ -51,7 +61,7 @@ const ClassCard = ({ classData, onDelete, recentTasks }) => {
             <li>No tasks available</li> 
           ) : (
             recentTasks.map((taskTitle, index) => (
-              <li key={index}>{taskTitle}</li> 
+              <li key={index}>{truncateText(taskTitle, 13)}</li> 
             ))
           )}
         </ul>

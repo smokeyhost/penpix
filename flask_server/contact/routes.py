@@ -14,8 +14,8 @@ def send_user_details():
         return jsonify({"error": "First name, last name, and email are required"}), 400
 
     msg = EmailMessage(
-        "User Information",
-        f"Here are the details of the user:\n\Full Name: {first_name} {last_name}\nEmail: {email}\n\n Message:\n {message}", Config.MAIL_USERNAME, ["markcernal21@gmail.com"]
+        "PenPix Inquiry from User",
+        f"Here are the details of the user:\nFull Name: {first_name} {last_name}\nEmail: {email}\n\n Message:\n {message}", Config.MAIL_USERNAME, ["markcernal21@gmail.com"]
     )
 
     try:

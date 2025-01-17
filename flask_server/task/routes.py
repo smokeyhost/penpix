@@ -192,7 +192,7 @@ def get_template(task_id):
     data = {
         'task_id': task.id,
         'class_id': task.class_id,
-        'task_title': task.title,
+        # 'task_title': task.title,
     }
     
     TASK_FOLDER = os.path.join('static', 'images', str(task_id), 'grid_template')

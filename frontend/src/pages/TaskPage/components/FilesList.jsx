@@ -1,14 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { useConfirm } from "../../../contexts/ConfirmContext";
+import useToast from '../../../hooks/useToast';
 
 const FilesList = ({ files, refreshFiles, task }) => {
   const [sortOption, setSortOption] = useState('desc');
   const [filterOption, setFilterOption] = useState('all');
-  const navigate = useNavigate()
+  const [similarFiles, setSimilarFiles] = useState([]);
+  const navigate = useNavigate();
+  const confirm = useConfirm();
+  const { toastInfo } = useToast();
 
-  // Calculate the total grade for each item in answer_keys
+  useEffect(() => {
+    const storedSimilarFiles = JSON.parse(localStorage.getItem('similarFiles')) || [];
+    setSimilarFiles(storedSimilarFiles);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('similarFiles', JSON.stringify(similarFiles));
+  }, [similarFiles]);
+
   const calculateTotalGrade = () => {
     const grades = {};
     task?.answer_keys?.forEach((item) => {
@@ -19,27 +32,64 @@ const FilesList = ({ files, refreshFiles, task }) => {
   };
 
   const totalGrades = calculateTotalGrade();
-  const handleDeleteFile = async (fileId) => {
-    const isConfirmed = window.confirm('Are you sure you want to delete this file?');
-  
-    if (isConfirmed) {
-      try {
-        await axios.delete(`/files/delete-file/${fileId}`);
-        refreshFiles();
-      } catch (error) {
-        console.error('Error deleting file:', error);
-        alert('An error occurred while deleting the file.');
-      }
-    } else {
-      console.log('File deletion canceled.');
+
+  const handleDeleteFile = async (event, fileId) => {
+    event.preventDefault();
+
+    const isConfirmed = await confirm('Are you sure you want to delete this file?', false, '');
+    if (!isConfirmed) return;
+
+    try {
+      await axios.delete(`/files/delete-file/${fileId}`);
+      refreshFiles();
+      setSimilarFiles((prev) => prev.filter((id) => id !== fileId));
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      alert('An error occurred while deleting the file.');
     }
   };
-  
+
+  const handleComparePredictions = async () => {
+    try {
+      const predictionsMap = new Map();
+      const similarFileIds = [];
+
+      for (const file of files) {
+        const response = await axios.get(`/detect-gates/get-circuit-data/${file.id}`);
+        const { circuit_analysis } = response.data;
+
+        if (circuit_analysis && circuit_analysis.predictions) {
+          const key = JSON.stringify(circuit_analysis.predictions);
+          if (predictionsMap.has(key)) {
+            predictionsMap.get(key).push(file.id);
+          } else {
+            predictionsMap.set(key, [file.id]);
+          }
+        }
+      }
+
+      predictionsMap.forEach((ids) => {
+        if (ids.length > 1) {
+          similarFileIds.push(...ids);
+        }
+      });
+
+      if (similarFileIds.length === 0) {
+        toastInfo('No predictions to compare.');
+      } else {
+        setSimilarFiles(similarFileIds);
+      }
+    } catch (error) {
+      console.error('Error comparing predictions:', error);
+      toastInfo('An error occurred while comparing predictions.', 'error');
+    }
+  };
 
   const filteredFiles = files
     .filter((file) => {
       if (filterOption === 'graded') return file.graded;
       if (filterOption === 'ungraded') return !file.graded;
+      if (filterOption === 'similar') return similarFiles.includes(file.id);
       return true;
     })
     .sort((a, b) => {
@@ -63,13 +113,16 @@ const FilesList = ({ files, refreshFiles, task }) => {
     if (filterOption === 'ungraded') {
       return <p className="text-yellow-600 text-sm">All files are already graded.</p>;
     }
+    if (filterOption === 'similar') {
+      return <p className="text-yellow-600 text-sm">No similar submissions found.</p>;
+    }
     return <p className="text-sm">No submissions available.</p>;
   };
 
-  const handleNavigate = (fileIndex) =>{
+  const handleNavigate = (fileIndex) => {
     localStorage.setItem("fileIndex", JSON.stringify(fileIndex));
-    navigate(`/circuit-evaluator/${task.id}`)
-  }
+    navigate(`/circuit-evaluator/${task.id}`);
+  };
 
   return (
     <div className="bg-white shadow-md p-4 rounded-md">
@@ -97,8 +150,15 @@ const FilesList = ({ files, refreshFiles, task }) => {
             <option value="all">All</option>
             <option value="graded">Graded</option>
             <option value="ungraded">Ungraded</option>
+            <option value="similar">Similar</option>
           </select>
         </div>
+        <button
+          onClick={handleComparePredictions}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Compare Predictions
+        </button>
       </div>
 
       {Object.keys(groupedFiles).length === 0 ? (
@@ -120,17 +180,17 @@ const FilesList = ({ files, refreshFiles, task }) => {
               </thead>
               <tbody>
                 {files.map((file, index) => (
-                  <tr key={file.id} className="text-center">
+                  <tr
+                    key={file.id}
+                    className={`text-center ${similarFiles.includes(file.id) ? 'bg-yellow-100' : ''}`}
+                  >
                     <td
                       className="border border-gray-300 px-2 py-1 text-left truncate"
                       style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
                     >
                       <span
-                        // href={file.file_url}
-                        // target="_blank"
-                        // rel="noopener noreferrer"
                         className="text-blue-500 hover:underline cursor-pointer"
-                        title={formatFilename(file.filename)} // Tooltip for full filename
+                        title={formatFilename(file.filename)}
                         onClick={() => handleNavigate(index)}
                       >
                         {formatFilename(file.filename)}
@@ -147,7 +207,7 @@ const FilesList = ({ files, refreshFiles, task }) => {
                       {file.graded ? `${file.total_grade} / ${totalGrades[`Item ${itemNumber}`] || 0}` : '—'}
                     </td>
                     <td className="border border-gray-300 px-2 py-1">
-                      <button onClick={() => handleDeleteFile(file.id)} className="text-red-500 hover:text-red-700">
+                      <button onClick={(e) => handleDeleteFile(e, file.id)} className="text-red-500 hover:text-red-700">
                         <FaTrash />
                       </button>
                     </td>

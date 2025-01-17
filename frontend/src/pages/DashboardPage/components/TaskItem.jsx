@@ -1,5 +1,5 @@
 import useClassData from '../../../hooks/useClassData'
-import { formatDueDateTime } from "../../../utils/helpers";
+import { formatDueDateTime, truncateText } from "../../../utils/helpers";
 
 const TaskItem = ({task}) => {
   const {classData, loading} = useClassData(Number(task.class_id))
@@ -11,8 +11,8 @@ const TaskItem = ({task}) => {
   if (loading) return
   return (
     <>
-      <div className="text-left pl-3 font-semibold text-gray-500">{classData?.class_code} | {classData?.class_group}</div>
-      <div className="col-span-2 font-semibold text-left">{task.title}</div>
+      <div className="text-left pl-3 font-semibold text-gray-500">{classData?.class_code} | {truncateText(classData?.class_group, 10)}</div>
+      <div className="col-span-2 font-semibold text-left">{truncateText(task.title, 15)}</div>
       <div className="text-center border border-gray-300 rounded-md w-16 py-1 mx-auto">
         <p>{gradedFilesCount}/{task.total_submissions}</p>
       </div>

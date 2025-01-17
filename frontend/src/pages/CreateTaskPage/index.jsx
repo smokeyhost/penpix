@@ -1,5 +1,4 @@
-// import { FaPencil } from "react-icons/fa6";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaInfoCircle } from "react-icons/fa";
 import { IoMdRemoveCircle } from "react-icons/io";
 import { IoIosAddCircle } from "react-icons/io";
 import Combobox from "./components/Combobox";
@@ -27,13 +26,6 @@ const getLabelFromValue = (value, options) => {
   const option = options.find(option => option.value === value);
   return option ? option.label : null;
 };
-
-const scoreOptions = [
-  { value: 5, label: "5" },
-  { value: 10, label: "10" },
-  { value: 15, label: "15" },
-  { value: 20, label: "20" },
-];
 
 const CreateTaskPage = () => {
   const [next, setNext] = useState(false);
@@ -148,6 +140,12 @@ const CreateTaskPage = () => {
     updateErrorState(errors, itemIndex, keyIndex, field);
     setFormData((prev) => ({ ...prev, answerKeys: updatedAnswerKeys }));
   };
+
+  const handleGradeChange = (itemIndex, keyIndex, value) => {
+    if (/^\d*$/.test(value)) { // Ensure the value is an integer
+      handleExpressionChange(itemIndex, keyIndex, "grade", value);
+    }
+  };
   
   const handleRemoveExpression = (itemIndex, keyIndex) => {
     const updatedAnswerKeys = [...formData.answerKeys];
@@ -187,6 +185,8 @@ const CreateTaskPage = () => {
   
     if (!formData.title.trim()) {
       newErrors.title = "Title is required.";
+    } else if (formData.title.length > 30) {
+      newErrors.title = "Title cannot exceed 30 characters.";
     }
   
     if (!formData.classId) {
@@ -194,7 +194,7 @@ const CreateTaskPage = () => {
     }
   
     if (!formData.examType) {
-      newErrors.examType = "examType of Task is required.";
+      newErrors.examType = "Type of Task is required.";
     }
   
     formData.answerKeys.forEach((item, itemIndex) => {
@@ -205,6 +205,9 @@ const CreateTaskPage = () => {
         if (!key.expression.trim()) {
           newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
             `Expression is required for ${item.item} - Answer Key ${keyIndex + 1}.`;
+        } else if (key.expression.length > 100) {
+          newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
+            `Expression cannot exceed 100 characters for ${item.item} - Answer Key ${keyIndex + 1}.`;
         }
         if (!key.grade) {
           newErrors[`answerKeyGrade-${itemIndex}-${keyIndex}`] =
@@ -234,6 +237,7 @@ const CreateTaskPage = () => {
                 value={formData.title}
                 onChange={handleInputChange}
                 placeholder="Laboratory Exercise #1"
+                maxLength={30}
                 className={`placeholder-gray-500 placeholder-opacity-75 focus:placeholder-opacity-50 border ${errors.title ? 'border-red-500' : 'border-gray-300'} rounded-lg px-2 py-1 focus:outline-none text-md`}
               />
               {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
@@ -260,9 +264,16 @@ const CreateTaskPage = () => {
             {errors.examType && <p className="text-red-500 text-sm">{errors.examType}</p>}
           </div>
           <div className="mt-4">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
               <h2 className="text-md font-medium">Answer Keys</h2>
-              
+              <div className="relative group">
+                <FaInfoCircle className="text-gray-500 cursor-pointer" />
+                <div className="absolute left-0 bottom-full mb-2 w-64 p-2 bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-sm text-gray-700">Accepted symbols: ~ | & ^</p>
+                  <p className="text-sm text-gray-700">Inputs should start with X1, X2, etc.</p>
+                  <p className="text-sm text-gray-700">Example: X1 ^ X2 | (X3 & X1)</p>
+                </div>
+              </div>
             </div>
             <div className="flex flex-col gap-4 mt-3">
               {errors.noAnswerKeys && <p className="text-red-500 text-sm">{errors.noAnswerKeys}</p>}
@@ -288,18 +299,18 @@ const CreateTaskPage = () => {
                           onChange={(e) =>
                             handleExpressionChange(itemIndex, keyIndex, "expression", e.target.value)
                           }
+                          maxLength={100}
                           className={`border rounded-lg px-2 py-1 w-full ${errors[`answerKeyExpression-${itemIndex}-${keyIndex}`] ? 'border-red-500' : 'border-gray-300'}`}
                         />
-                        <div className="w-1/4">
-                          <Combobox
-                            options={scoreOptions}
-                            placeholder="Set Score"
-                            value={key.grade}
-                            onChange={(selected) =>
-                              handleExpressionChange(itemIndex, keyIndex, "grade", selected?.value || "")
-                            }
-                          />
-                        </div>
+                        <input
+                          type="text"
+                          placeholder="Set Score"
+                          value={key.grade}
+                          onChange={(e) =>
+                            handleGradeChange(itemIndex, keyIndex, e.target.value)
+                          }
+                          className={`border rounded-lg px-2 py-1 w-1/4 ${errors[`answerKeyGrade-${itemIndex}-${keyIndex}`] ? 'border-red-500' : 'border-gray-300'}`}
+                        />
                         <button
                           className="text-black-500"
                           onClick={() => handleRemoveExpression(itemIndex, keyIndex)}
@@ -325,10 +336,10 @@ const CreateTaskPage = () => {
               ))}
             </div>
             <button
-                className="flex items-center gap-2 text-blue-500 mt-2 text-sm"
+                className="flex items-center gap-2 text-blue-500 mt-2 "
                 onClick={handleAddItem}
               >
-                <IoIosAddCircle size={18} /> Add Item
+                <IoIosAddCircle size={20} /> Add Item
               </button>
           </div>
           <div className="flex gap-4 mt-5">
@@ -349,7 +360,7 @@ const CreateTaskPage = () => {
       )}
       {next && (
         <div className="flex flex-col gap-5">
-          <h2 className="text-md font-medium">{getLabelFromValue(formData.examType, taskTypeOptions)}</h2>
+          <h2 className="text-md font-medium"><span className="text-md font-medium">Task Type: </span>{getLabelFromValue(formData.examType, taskTypeOptions)}</h2>
           <div>
             <div className="flex justify-between items-center">
               <h2 className="text-md font-medium">Class Group</h2>

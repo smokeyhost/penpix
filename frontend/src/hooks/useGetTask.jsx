@@ -20,28 +20,32 @@ const useGetTask = (taskId) => {
     }
   }, [taskId]);
 
-  useEffect(() => {
-    const getTask = async () => {
-      try {
-        const response = await axios.get(`/task/get-task/${taskId}`, {
-          withCredentials: true,
-        });
-        setTask(response.data);
-      } catch (error) {
-        setError(error);
-        console.error('Error fetching task:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const getTask = async (taskId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(`/task/get-task/${taskId}`, {
+        withCredentials: true,
+      });
+      setTask(response.data);
+      return response.data;
+    } catch (error) {
+      setError(error);
+      console.error('Error fetching task:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (taskId) {
-      getTask();
+      getTask(taskId);
       fetchFiles();
     }
   }, [taskId, fetchFiles]);
 
-  return { task, setTask, loading, error, fetchFiles};
+  return { task, setTask, loading, error, fetchFiles, getTask};
 };
 
 export default useGetTask;

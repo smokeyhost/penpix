@@ -10,7 +10,7 @@ export const ToastProvider = ({ children }) => {
   const showToast = (message, type) => {
     setToast({ message, type });
     // Automatically hide toast after 3 seconds
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 4000);
   };
 
   const handleClose = () => {

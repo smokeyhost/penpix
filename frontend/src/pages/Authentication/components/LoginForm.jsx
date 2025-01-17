@@ -3,20 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { UserAtom } from '../../../atoms/UserAtom';
 import { useSetRecoilState } from "recoil";
 import axios from "axios";
-import useToast from '../../../hooks/useToast';
 
 const LoginForm = ({ onViewChange }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
-  const { toastSuccess, toastError } = useToast();
+  const [error, setError] = useState(null); // State for error message
   const setUser = useSetRecoilState(UserAtom);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null); // Clear previous errors
 
     const rememberMe = document.getElementById('remember_me').checked;
 
@@ -24,25 +24,27 @@ const LoginForm = ({ onViewChange }) => {
       const response = await axios.post('/auth/login', { email, password, remember: rememberMe }, { withCredentials: true });
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
-      toastSuccess(response.data.message);
       navigate(`/dashboard/${response.data.user.id}`);
     } catch (error) {
       console.error('There was an error logging in:', error.response?.data || error.message);
-      toastError(error.response?.data?.error || error.message);
+      setError(error.response?.data?.error || error.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-full">
+    <div 
+      id="login-form"
+      className="flex justify-center items-center h-full login-form">
       <div className="bg-white shadow-lg shadow-black/10 p-10 rounded-xl">
         <img src="/icons/PenPix-logo.png" alt="PenPix Logo" className="mb-5 max-w-full h-auto" />
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <input
               type="email"
-              id="email"
+              maxLength={30}
+              id="login-email"
               name="email"
               placeholder="Email"
               value={email}
@@ -53,8 +55,9 @@ const LoginForm = ({ onViewChange }) => {
           </div>
           <div className="mb-4 relative">
             <input
-              type={showPassword ? "text" : "password"} // Show/Hide password based on state
-              id="password"
+              type={showPassword ? "text" : "password"}
+              maxLength={15}
+              id="login-password"
               name="password"
               placeholder="Password"
               value={password}
@@ -70,6 +73,9 @@ const LoginForm = ({ onViewChange }) => {
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
+          {error && (
+            <p className="text-red-500 text-sm mb-4">{error}</p>
+          )}
           <div className="flex items-center mb-6">
             <input
               type="checkbox"
@@ -83,6 +89,7 @@ const LoginForm = ({ onViewChange }) => {
             </div>
           </div>
           <button
+            id="login-button"
             type="submit"
             className={`w-full h-12 rounded-lg cursor-pointer transition duration-300 ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#953867] hover:bg-black'} text-white`}
             disabled={loading}
@@ -90,7 +97,9 @@ const LoginForm = ({ onViewChange }) => {
             {loading ? "Loading..." : "Login"}
           </button>
           <div className="text-right mt-5 mb-4 text-xs">
-            <p className="text-customGray2">No Account? <span className="text-[#953867] hover:underline cursor-pointer" onClick={() => onViewChange('register')}>Sign Up</span></p>
+            <p className="text-customGray2">No Account? <span 
+            id="register-link"
+            className="text-[#953867] hover:underline cursor-pointer" onClick={() => onViewChange('register')}>Sign Up</span></p>
             <br />
           </div>
         </form>

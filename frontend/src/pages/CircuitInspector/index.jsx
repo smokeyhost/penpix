@@ -83,8 +83,8 @@ const CircuitInspectorPage = () => {
       toastSuccess("Circuit Analysis is Completed.")
       console.log("Boolean Expressions:", response.data)
     } catch (error) {
-      toastError("Error in Analyzing the Circuit.")
-      console.log(error)
+      toastError(error?.response?.data?.error)
+      console.log("Unable to process circuit", error?.response?.data.error)
     }finally{
       setLoading(false)
     }

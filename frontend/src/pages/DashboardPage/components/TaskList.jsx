@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TaskMenu from "./TaskMenu";
 import TaskItem from "./TaskItem";
-import { formatDueDateTime } from "../../../utils/helpers";
+import { formatDueDateTime, truncateText } from "../../../utils/helpers";
 import useDeleteTask from '../../../hooks/useDeleteTask';
 import TaskLinkModal from "./TaskLinkModal";
 import useTemplateDownloader from "../../../hooks/useTemplateDownloader";
@@ -31,7 +31,8 @@ const TaskList = ({ filter, tasks, refreshTasks }) => {
   };
 
   const handleDeleteTask = async (taskId) => {
-    await deleteTask(taskId);
+    const isDeleted = await deleteTask(taskId);
+    if (!isDeleted) return
     refreshTasks();
   };
 
@@ -55,7 +56,7 @@ const TaskList = ({ filter, tasks, refreshTasks }) => {
         <div className="grid grid-cols-7 gap-4 font-semibold text-sm border-b-2 pb-2">
           <div className="text-left text-gray-500">Course | Group</div>
           <div className="text-left col-span-2">Title</div>
-          <div className="text-center ">No. of Submissions</div>
+          <div className="text-center ">Graded Submissions</div>
           <div className="text-center ">Due Date</div>
           <div className="text-center ">Type of Task</div>
           <div className="text-right  pr-3"></div>
@@ -91,8 +92,7 @@ const TaskList = ({ filter, tasks, refreshTasks }) => {
             className="border border-gray-300 rounded-lg p-4 mb-4 hover:bg-gray-100 cursor-pointer mt-5 relative"
             onClick={() => handleSelectedTask(task.id)}
           >
-            <h3 className="font-semibold text-lg">{task.title}</h3>
-            <p className="text-gray-600">Group: {task.class_group}</p>
+            <h3 className="font-semibold text-lg">{truncateText(task.title, 20)}</h3>
             <p className="text-gray-600">Due Date: {formatDueDateTime(task.due_date)}</p>
             <p
               className={`font-semibold ${
