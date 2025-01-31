@@ -121,7 +121,7 @@ def upload_files():
         
         # Create Notification
         title = "File Uploaded"
-        notification_message = f"File '{filename}' uploaded successfully for task {task_id}, item {item_number}."
+        notification_message = f"File '{filename}' uploaded successfully for task {task.title}, item {item_number}."
         notification_type = "new_submission"
         notification = Notification(title=title, message=notification_message, type=notification_type, is_read=False,  user_id=task.user_id, task_id=task_id)
         db.session.add(notification)
@@ -134,8 +134,10 @@ def upload_files():
         
     db.session.add(task)
 
-    submitted_student_ids = {file.filename.split('_')[0] for file in task.attached_files}
-    if set(student_list) == submitted_student_ids:
+    # Calculate the expected total submissions
+    expected_total_submissions = len(student_list) * len(task.answer_keys)
+    # submitted_student_ids = {file.filename.split('_')[0] for file in task.attached_files}
+    if total_submissions == expected_total_submissions:
         title = "All Submissions Completed"
         notification_message = f"All students have submitted their files for task {task_id}."
         notification_type = "completed_submission"

@@ -18,11 +18,14 @@ const LoginForm = ({ onViewChange }) => {
     setLoading(true);
     setError(null); // Clear previous errors
 
-    const rememberMe = document.getElementById('remember_me').checked;
+    const rememberMe = document.getElementById('remember-me').checked;
 
     try {
       const response = await axios.post('/auth/login', { email, password, remember: rememberMe }, { withCredentials: true });
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      if (rememberMe){
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
+      
       setUser(response.data.user);
       navigate(`/dashboard/${response.data.user.id}`);
     } catch (error) {
@@ -74,18 +77,18 @@ const LoginForm = ({ onViewChange }) => {
             </button>
           </div>
           {error && (
-            <p className="text-red-500 text-sm mb-4">{error}</p>
+            <p className="text-red-500 text-sm mb-4" id="error-container">{error}</p>
           )}
           <div className="flex items-center mb-6">
             <input
               type="checkbox"
-              id="remember_me"
+              id="remember-me"
               name="remember_me"
               className="mr-2"
             />
             <div className="flex justify-between items-center w-full">
               <label htmlFor="remember_me" className="text-gray-700">Remember Me</label>
-              <span className=" text-sm text-[#828282] hover:text-[#953867] hover:underline cursor-pointer" onClick={() => navigate('/forgot-password')}>Forgot Password?</span>
+              <span id="forgot-password-link" className=" text-sm text-[#828282] hover:text-[#953867] hover:underline cursor-pointer" onClick={() => navigate('/forgot-password')}>Forgot Password?</span>
             </div>
           </div>
           <button

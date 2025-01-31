@@ -17,7 +17,7 @@ def mask_image(image_bytes: BytesIO, data: list) -> BytesIO:
         cv.rectangle(image_copy, top_left, bottom_right, (255,255,255), -1)
 
         # Uncomment this line if you want to add text
-        # cv.putText(image_copy, value['id'], (value['x'] + value['width']//3, value['y'] + value['height']//2), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+        # cv.putText(image_copy, str(value['object_id']), (value['x'] + value['width']//3, value['y'] + value['height']//2), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
    
     _, encoded_img = cv.imencode('.png', image_copy)
     output_bytes = BytesIO(encoded_img.tobytes())

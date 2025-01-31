@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from 'recoil';
 import { UserAtom } from '../../atoms/UserAtom';
 import { useEffect, useState } from "react";
+import useToast from "../../hooks/useToast";
 import axios from "axios";
 
 let options = [
@@ -26,6 +27,7 @@ const EditClassPage = () => {
   const [studentId, setStudentId] = useState(''); 
   const [errors, setErrors] = useState({});
   const user = useRecoilValue(UserAtom);
+  const {toastSuccess} = useToast()
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,6 +81,7 @@ const EditClassPage = () => {
     try {
       const response = await axios.put(`/classes/edit-class/${classId}`, classPayload);
       console.log(response);
+      toastSuccess("The class was updated successfully.")
       navigate(`/classes/${user?.id}`);
     } catch (error) {
       console.error("Error updating class:", error);

@@ -50,10 +50,6 @@ def create_task():
     return jsonify(task.to_dict()), 201
 
 import datetime
-from flask import jsonify, session
-from model import db, Task, Notification
-from task import task_bp
-from utils.auth_helpers import login_required
 
 @login_required
 @task_bp.route('/get-tasks', methods=['GET'])

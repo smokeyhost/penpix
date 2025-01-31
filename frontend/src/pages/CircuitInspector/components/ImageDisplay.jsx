@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import ClassSelector from './ClassSelector';
-import axios from 'axios'
+import axios from 'axios';
 
 const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confidenceThreshold, onSetPredictions }) => {
   const canvasRef = useRef(null);
@@ -8,11 +8,11 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [startDrag, setStartDrag] = useState(null);
   const [isInside, setIsInside] = useState(true);
-  const [selectedPrediction, setSelectedPrediction] = useState({})
-  const [position, setPosition] = useState(0)
-  const [isClassSelectorOpen, setIsClassSelectorOpen] = useState(false)
-  const [isUpdatedPrediction, setIsUpdatedPrediction] = useState(false)
-  
+  const [selectedPrediction, setSelectedPrediction] = useState({});
+  const [position, setPosition] = useState(0);
+  const [isClassSelectorOpen, setIsClassSelectorOpen] = useState(false);
+  const [isUpdatedPrediction, setIsUpdatedPrediction] = useState(false);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -45,7 +45,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
 
         if (isPredictionVisible && predictions && predictions.length) {
           predictions.forEach((prediction) => {
-            const { x: bx, y: by, width, height, class_name, confidence, color } = prediction;
+            const { x: bx, y: by, width, height, class_name, confidence, color, object_id, label } = prediction;
             const scaledX = x + (bx * (drawWidth / img.width));
             const scaledY = y + (by * (drawHeight / img.height));
             const scaledWidth = width * (drawWidth / img.width);
@@ -75,6 +75,21 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
               scaledX,
               scaledY - 5
             );
+
+            // Add object_id at the bottom of the box
+            if (class_name === 'input'){
+              ctx.fillText(
+                `${label}`,
+                scaledX,
+                scaledY + scaledHeight + 15
+              );
+            }else{
+              ctx.fillText(
+                `${object_id}`,
+                scaledX,
+                scaledY + scaledHeight + 15
+              );
+            }
 
             prediction.clickData = {
               scaledX,
@@ -113,7 +128,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
     const clickY = e.clientY - canvasRect.top;
 
     predictions.forEach((prediction) => {
-      const { clickData, confidence } = prediction
+      const { clickData, confidence } = prediction;
       if (
         clickData &&
         confidence * 100 < confidenceThreshold &&
@@ -164,16 +179,16 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
         console.error("No prediction selected or missing ID");
         return;
       }
-  
+
       const response = await axios.put(`/detect-gates/edit-prediction/${selectedPrediction.circuit_analysis_id}`, {
         className: selectedClass,
         predictionId: selectedPrediction.id
       });
-  
+
       if (response.status === 200) {
         console.log("Class updated successfully:", response.data);
         onSetPredictions(response.data.filtered_predictions);
-        setIsUpdatedPrediction(!isUpdatedPrediction)
+        setIsUpdatedPrediction(!isUpdatedPrediction);
         setIsClassSelectorOpen(false);
       } else {
         console.error("Failed to update class:", response.statusText);
@@ -182,7 +197,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
       console.error("Error updating class:", error.message);
     }
   };
-  
+
   const handleCloseClassSelector = () => {
     setIsClassSelectorOpen(false);
   };
@@ -190,15 +205,15 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
   const handleRemoveClass = async (predictionId) => {
     console.log("Remove class", predictionId);
     try {
-      const response = await axios.delete(`detect-gates/delete-prediction/${predictionId}`)
-      console.log("Response:", response.data)
+      const response = await axios.delete(`detect-gates/delete-prediction/${predictionId}`);
+      console.log("Response:", response.data);
       onSetPredictions(response.data.filtered_predictions);
-      setIsUpdatedPrediction(!isUpdatedPrediction)
+      setIsUpdatedPrediction(!isUpdatedPrediction);
       setIsClassSelectorOpen(false);
     } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
     }
-  }
+  };
 
   const handleMouseUp = () => setStartDrag(null);
 
@@ -212,7 +227,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
       onMouseUp={handleMouseUp}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-    > 
+    >
       <div className='w-full '>
         <canvas ref={canvasRef} width={950} height={800} />
       </div>

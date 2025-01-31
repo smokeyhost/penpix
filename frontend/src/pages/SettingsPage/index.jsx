@@ -6,14 +6,16 @@ import AccountDisplay from "./components/AccountDisplay";
 import { IoIosClose } from "react-icons/io";
 import { UserAtom } from "../../atoms/UserAtom";
 import { useRecoilValue } from "recoil"; // Import useSetRecoilState
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useToast from "../../hooks/useToast";
+import axios from "axios";
 
 const SettingsPage = () => {
   const currentUser = useRecoilValue(UserAtom);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const [isChangeRecoveryEmail, setIsChangeRecoveryEmail] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { toastSuccess } = useToast();
 
   const [profile, setProfile] = useState({
     id: currentUser?.id,
@@ -33,6 +35,7 @@ const SettingsPage = () => {
       setProfile(prevProfile => ({ ...prevProfile, recoveryEmail: updatedUserProfile.recovery_email }));
       localStorage.setItem("user", JSON.stringify(response.data.user));
       setIsChangeRecoveryEmail(false);
+      toastSuccess("Recovery email updated successfully");
     } catch (error) {
       console.log(error.message);
     }
@@ -40,11 +43,12 @@ const SettingsPage = () => {
 
   const handleSavePassword = async (newPassword) => {
     try {
-      await axios.post("/auth/change-password", {newPassword})
-      console.log("password changed successfully")
+      await axios.post("/auth/change-password", {newPassword});
+      console.log("password changed successfully");
       setIsChangePassword(false);
+      toastSuccess("Password changed successfully");
     } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
     }
   };
 
@@ -57,6 +61,7 @@ const SettingsPage = () => {
       const updatedUserProfile = response.data.user;
       setProfile(prevProfile => ({ ...prevProfile, name: updatedUserProfile.name, contactNumber: updatedUserProfile.contact_number}));
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      toastSuccess("Profile name updated successfully");
     } catch (error) {
       console.log(error.message);
     }
@@ -73,10 +78,11 @@ const SettingsPage = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      const updatedUserProfile = response.data.user
+      const updatedUserProfile = response.data.user;
       setProfile(prevProfile => ({ ...prevProfile, profileImageUrl: updatedUserProfile.profile_image_url}));
       localStorage.setItem("user", JSON.stringify(updatedUserProfile));
-      console.log("USER",response.data.user)
+      console.log("USER", response.data.user);
+      toastSuccess("Profile image uploaded successfully");
     } catch (error) {
       console.error("Error uploading image:", error.response ? error.response.data : error.message);
     }

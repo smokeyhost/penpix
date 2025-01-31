@@ -7,7 +7,7 @@ from sys_main_modules.contour_tracing.threshold_image import apply_threshold_to_
 from sys_main_modules.contour_tracing.binary_image import binarize_image
 from sys_main_modules.contour_tracing.mask_image import mask_image
 from sys_main_modules.contour_tracing.netlist import process_circuit_connection, get_class_count
-from sys_main_modules.contour_tracing.boolean_function import convert_to_sympy_expression, evaluate_boolean_expression, generate_truth_table, string_to_sympy_expression, count_inputs
+from sys_main_modules.contour_tracing.boolean_function import convert_to_sympy_expression, evaluate_boolean_expression, generate_truth_table, string_to_sympy_expression, count_inputs, is_expression_valid
 from sys_main_modules.contour_tracing.export_netlist import export_to_verilog, generate_ltspice_netlist
 from sys_main_modules.model_inference import infer_image
 from sys_main_modules.filter_json import filter_detections
@@ -198,7 +198,7 @@ def analyze_circuit(file_id):
     try:
         uploaded_file = UploadedFile.query.get(file_id)
         circuit_analysis = CircuitAnalysis.query.filter_by(uploaded_file_id=file_id).first()
-        
+
         if not uploaded_file:
             return jsonify({"error": "File not found"}), 404
 
@@ -229,6 +229,7 @@ def analyze_circuit(file_id):
         try:
             expressions = []
             for key, value in boolean_functions.items():
+                print(f"Processing key: {key}, value: {value}")
                 symp_expression = convert_to_sympy_expression(value, input_count)
                 expressions.append({key: str(symp_expression)})
             circuit_analysis.boolean_expressions = expressions
@@ -261,6 +262,13 @@ def analyze_circuit(file_id):
 
     except Exception as e:
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+@login_required
+@detect_gates_bp.route('/validate-expression', methods=['POST'])
+def validate_expression():
+    expression = request.json.get('expression')
+    result = is_expression_valid(expression)
+    return jsonify({"valid": result})
 
 @login_required
 @detect_gates_bp.route('/generate-truth-table', methods=['POST'])

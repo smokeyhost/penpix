@@ -121,7 +121,7 @@ const RegisterForm = ({ onViewChange }) => {
           </button>
         </div>
         {passwordError && (
-          <p className="text-red-500 text-sm mb-4">{passwordError}</p>
+          <p className="text-red-500 text-sm mb-4" id="error-container">{passwordError}</p>
         )}
 
         {/* Re-Enter Password field */}

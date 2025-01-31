@@ -202,6 +202,7 @@ const TaskPage = () => {
           onClose={() => setUploadModalOpen(false)}
           items={items}
           onUploadFiles={handleUploadFiles}
+          task={task}
         />
       )}
     </div>

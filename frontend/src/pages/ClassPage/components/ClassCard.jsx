@@ -25,7 +25,7 @@ const ClassCard = ({ classData, onDelete, recentTasks }) => {
     try {
       const response = await axios.delete(`/classes/delete-class/${classData.id}`);
       if (response.status === 200) {
-        toastSuccess(`Class ${classData.class_code} deleted successfully.`)
+        toastSuccess(`Class ${classData.class_code} was deleted successfully.`)
         onDelete(classData.id); 
       }
     } catch (error) {

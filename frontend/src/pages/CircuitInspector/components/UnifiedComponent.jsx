@@ -36,7 +36,14 @@ const UnifiedComponent = ({ relevantAnswerKey, circuitData }) => {
         <div>
           <h3 className="font-bold text-gray-700 mb-2">Boolean Results</h3>
           {booleanExpressions.length > 0 ? (
-            booleanExpressions.map((expressionObj, index) => {
+            booleanExpressions
+            .sort((a, b) => {
+              const labelA = Object.keys(a)[0];
+              const labelB = Object.keys(b)[0];
+              const numA = parseInt(labelA.replace('OUT', ''), 10);
+              const numB = parseInt(labelB.replace('OUT', ''), 10);
+              return numA - numB;
+            }).map((expressionObj, index) => {
               const [label, expression] = Object.entries(expressionObj)[0];
               return (
                 <div

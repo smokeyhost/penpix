@@ -76,3 +76,20 @@ def get_unread_notifications():
 
     notifications_data = [notification.to_dict() for notification in notifications]
     return jsonify({"notifications": notifications_data})
+
+
+@login_required
+@notification_bp.route('/get-all-notifications', methods=['GET'])
+def get_all_notifications():
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return jsonify({"message": "User ID is missing"}), 400
+
+    notifications = Notification.query.filter_by(user_id=user_id).all()
+
+    if not notifications:
+        return jsonify({"notifications": []})
+
+    notifications_data = [notification.to_dict() for notification in notifications]
+    return jsonify({"notifications": notifications_data})

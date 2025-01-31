@@ -16,7 +16,17 @@ const ForgotPassword = () => {
   const navigate = useNavigate()
 
   const handleGetRecoveryInfo = async () => {
-    if (!email || !isValidEmail(email)) return; // Only proceed if email is valid
+    if (!email) {
+      setError("Email field is required.")
+      return
+    }
+
+    if (!isValidEmail(email)) {
+      setError("Not a valid email address")
+      return
+    } 
+
+    setError("")
     setLoading(true); 
     try {
       const response = await axios.post("/auth/check-recovery-info", {
@@ -26,7 +36,6 @@ const ForgotPassword = () => {
       const { recovery_email, contact_number } = response.data;
       setRecoveryEmail(recovery_email);
       setContactNumber(contact_number);
-      setError(""); 
       setShowComponent('verifyEmail');
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong. Please try again.");
@@ -57,7 +66,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div>
+    <div id="forgot-password-page">
       {showComponent === 'getEmail' && (
         <div className="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-md">
           <h1 className="text-2xl font-bold mb-5 text-center">Password Recovery</h1>
@@ -72,7 +81,10 @@ const ForgotPassword = () => {
               placeholder="Enter your email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                                  setEmail(e.target.value);
+                                  if (error) setError("");
+                                }}
               className="w-full h-10 p-2 border border-gray-400 rounded-lg outline-none focus:border-teal-400"
             />
           </div>
@@ -85,9 +97,10 @@ const ForgotPassword = () => {
               Cancel
             </button>
             <button
+              id="confirm-button"
               className={`w-full h-12 rounded-lg cursor-pointer transition duration-300 mb-4 bg-[#953867] hover:bg-customGray3 text-white`}
               onClick={handleGetRecoveryInfo}
-              disabled={loading || !isValidEmail(email)}
+              // disabled={loading || !isValidEmail(email)}
             >
               {loading ? "Loading..." : "Confirm"}
             </button>

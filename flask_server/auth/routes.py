@@ -5,6 +5,7 @@ from model import User, db
 from flask_mailman import EmailMessage
 from config import Config
 import os
+from datetime import datetime
 
 @auth_bp.route('/check-session',methods=["GET"])
 def check_session():
@@ -45,7 +46,7 @@ def register():
     
     user = User.query.filter_by(email=email).first()
     if user:
-        return jsonify({"error": "User already exists"}), 400
+        return jsonify({"error": "Email is already registered."}), 400
     else:
         new_user = User(email=email)
         new_user.set_password(password)
@@ -106,12 +107,19 @@ def reset_password():
 
     user = User.query.filter_by(reset_token=token).first()
 
-    if user and user.verify_reset_token(token):
-        user.set_password(new_password)
-        user.reset_token = None  # Clear the reset token
-        user.reset_token_expiry = None  # Clear the token expiry
-        db.session.commit()
-        return jsonify({"message": "Password has been reset successfully."})
+    if user:
+        if user.verify_reset_token(token):
+            if user.reset_token_expiry and user.reset_token_expiry < datetime.utcnow():
+                return jsonify({"error": "Token has expired"}), 400
+            user.set_password(new_password)
+            user.reset_token = None  # Clear the reset token
+            user.reset_token_expiry = None  # Clear the token expiry
+            db.session.commit()
+            return jsonify({"message": "Password has been reset successfully."})
+        else:
+            return jsonify({"error": "Invalid token"}), 400
+    else:
+        return jsonify({"error": "Invalid token"}), 400
     
 
 @auth_bp.route("/change-password", methods=["POST"])

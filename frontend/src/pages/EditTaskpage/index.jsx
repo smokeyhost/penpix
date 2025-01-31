@@ -1,10 +1,12 @@
-import { FaTrash } from "react-icons/fa";
+import { FaInfoCircle, FaTrash } from "react-icons/fa";
 import { IoMdRemoveCircle } from "react-icons/io";
 import { IoIosAddCircle } from "react-icons/io";
 import Combobox from "./components/Combobox";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
+import useToast from "../../hooks/useToast";
 import axios from 'axios';
+import { isExpressionValid } from "../../utils/helpers";
 
 const taskTypeOptions = [
   { value: "quiz", label: "Quiz" },
@@ -30,6 +32,7 @@ const EditTaskPage = () => {
   const navigate = useNavigate();
   const [classOptions, setClassOptions] = useState([]);
   const [errors, setErrors] = useState({});
+  const { toastSuccess } = useToast();
   const { taskId } = useParams();
 
   const [formData, setFormData] = useState({
@@ -70,9 +73,9 @@ const EditTaskPage = () => {
       try {
         const response = await axios.get(`/task/get-task/${taskId}`);
         const task = response.data;
-        console.log(task); 
-  
-        setFormData({
+        console.log(task);
+
+        const initialData = {
           title: task.title || "",
           classId: Number(task.class_id) || "",
           examType: task.exam_type || "",
@@ -86,16 +89,16 @@ const EditTaskPage = () => {
           totalSubmissions: task.total_submissions || 0,
           reviewedSubmissions: task.reviewed_submissions || 0,
           status: task.status || "Ongoing",
-        });
+        };
+
+        setFormData(initialData);
       } catch (error) {
         console.log(error);
       }
     };
-  
+
     getTask();
-  
   }, [taskId]);
-  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -103,7 +106,7 @@ const EditTaskPage = () => {
       ...prev,
       [name]: value,
     }));
-  
+
     if (errors[name]) {
       setErrors((prevErrors) => {
         const newErrors = { ...prevErrors };
@@ -112,17 +115,17 @@ const EditTaskPage = () => {
       });
     }
   };
-  
+
   const handleComboBoxChange = (selected, fieldName) => {
     setFormData((prev) => ({
       ...prev,
       [fieldName]: selected?.value || "",
     }));
-  
+
     if (errors[fieldName]) {
       setErrors((prevErrors) => {
         const newErrors = { ...prevErrors };
-        delete newErrors[fieldName]; 
+        delete newErrors[fieldName];
         return newErrors;
       });
     }
@@ -152,11 +155,11 @@ const EditTaskPage = () => {
     if (field === "expression") {
       newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] = null;
     }
-    
+
     if (field === "grade") {
       newErrors[`answerKeyGrade-${itemIndex}-${keyIndex}`] = null;
     }
-    
+
     setErrors(newErrors);
   };
 
@@ -173,7 +176,7 @@ const EditTaskPage = () => {
       handleExpressionChange(itemIndex, keyIndex, "grade", value);
     }
   };
-  
+
   const handleRemoveExpression = (itemIndex, keyIndex) => {
     const updatedAnswerKeys = [...formData.answerKeys];
     updatedAnswerKeys[itemIndex].keys = updatedAnswerKeys[itemIndex].keys.filter((_, i) => i !== keyIndex);
@@ -186,70 +189,83 @@ const EditTaskPage = () => {
       ...answer,
       item: `Item ${index + 1}`,
     }));
-  
+
     setFormData((prev) => ({ ...prev, answerKeys: renumberedAnswerKeys }));
   };
 
   const handleUpdateTask = async () => {
-    console.log(formData)
+    console.log(formData);
     try {
       const response = await axios.patch(`/task/edit-task/${taskId}`, formData);
       console.log(response);
+      toastSuccess("The task was updated successfully.");
       navigate(`/task/${taskId}`);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleNext = () => {
-    if (isFormValid()) {
+  const handleNext = async () => {
+    const isValid = await isFormValid();
+    if (isValid) {
       setNext(true);
     }
   };
 
-  const isFormValid = () => {
+  const isFormValid = async () => {
     const newErrors = {};
-  
+
     if (!formData.title.trim()) {
       newErrors.title = "Title is required.";
     } else if (formData.title.length > 30) {
       newErrors.title = "Title cannot exceed 30 characters.";
     }
-  
+
     if (!formData.classId) {
       newErrors.classId = "Class Group is required.";
     }
-  
+
     if (!formData.examType) {
       newErrors.examType = "Type of Task is required.";
     }
-  
-    formData.answerKeys.forEach((item, itemIndex) => {
+
+    if (!formData.dueDate) {
+      newErrors.dueDate = "Due Date is required.";
+    }
+
+    for (const [itemIndex, item] of formData.answerKeys.entries()) {
       if (item.keys.length === 0) {
         newErrors[`missingAnswerKey${itemIndex}`] = `Each answer key should have at least one expression and grade.`;
       }
-      item.keys.forEach((key, keyIndex) => {
+      for (const [keyIndex, key] of item.keys.entries()) {
         if (!key.expression.trim()) {
           newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
             `Expression is required for ${item.item} - Answer Key ${keyIndex + 1}.`;
         } else if (key.expression.length > 100) {
           newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
             `Expression cannot exceed 100 characters for ${item.item} - Answer Key ${keyIndex + 1}.`;
+        } else {
+          const isValid = await isExpressionValid(key.expression);
+          console.log(isValid);
+          if (!isValid) {
+            newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
+              `Invalid expression for ${item.item} - Answer Key ${keyIndex + 1}. Accepted symbols: ~ | & ^. Inputs should be labeled as X1, X2, X3 ...X7.`;
+          }
         }
         if (!key.grade) {
           newErrors[`answerKeyGrade-${itemIndex}-${keyIndex}`] =
             `Grade is required for ${item.item} - Answer Key ${keyIndex + 1}.`;
         }
-      });
-    });
-  
+      }
+    }
+
     if (formData.answerKeys.length === 0) {
       newErrors.noAnswerKeys = "At least one answer key is required.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
   return (
     <div className="flex flex-col p-5 gap-4 md:w-[800px] mx-auto">
       <h1 className="text-[28px] font-medium mt-2">Edit Task</h1>
@@ -293,8 +309,16 @@ const EditTaskPage = () => {
           </div>
 
           <div className="mt-4">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
               <h2 className="text-md font-medium">Answer Keys</h2>
+              <div className="relative group">
+                <FaInfoCircle className="text-gray-500 cursor-pointer" />
+                <div className="absolute left-0 bottom-full mb-2 w-64 p-2 bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-sm text-gray-700">Accepted symbols: ~ | & ^</p>
+                  <p className="text-sm text-gray-700">Inputs should be labeled as X1, X2,...X7</p>
+                  <p className="text-sm text-gray-700">Example: X1 ^ X2 | (X3 & X1)</p>
+                </div>
+              </div>
             </div>
             <div className="flex flex-col gap-4 mt-3">
               {errors.noAnswerKeys && <p className="text-red-500 text-sm">{errors.noAnswerKeys}</p>}
@@ -321,7 +345,7 @@ const EditTaskPage = () => {
                           onChange={(e) =>
                             handleExpressionChange(itemIndex, keyIndex, "expression", e.target.value)
                           }
-                          maxLength={100}
+                          maxLength={500}
                           className={`border rounded-lg px-2 py-1 w-full ${
                             errors[`answerKeyExpression-${itemIndex}-${keyIndex}`]
                               ? 'border-red-500'

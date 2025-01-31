@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from 'recoil';
 import { UserAtom } from '../../atoms/UserAtom';
 import { useState } from "react";
+import useToast from "../../hooks/useToast"
 import axios from "axios";
 
 let options = [
@@ -25,6 +26,7 @@ const CreateClassPage = () => {
   const [studentId, setStudentId] = useState(''); 
   const [errors, setErrors] = useState({});
   const user = useRecoilValue(UserAtom);
+  const {toastSuccess} = useToast()
   const navigate = useNavigate();
 
   const handleCreateClass = async () => {
@@ -58,6 +60,7 @@ const CreateClassPage = () => {
     try {
       const response = await axios.post('/classes/create-class', classPayload);
       console.log(response);
+      toastSuccess("New class is created successfully.")
       navigate(`/classes/${user?.id}`);
     } catch (error) {
       console.error("Error creating class:", error);

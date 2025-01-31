@@ -67,8 +67,11 @@ def process_circuit_connection(image_bytes: BytesIO, predictions: list) -> tuple
         start_points = contour_tracing.get_startpoints(image_copy, data_copy)
         junction_points = contour_tracing.get_junction_points(image_copy, data_copy)
         intersection_points = contour_tracing.get_intersection_points(image_copy, data_copy)
-        print(stop_points)
         # Proceed to trace the contours using the points
+        # print("START POINTS", start_points)
+        # print("STOT POINTS", stop_points)
+        # print("JUNCTION POINTS", junction_points)
+        
         line_boundary, connections = contour_tracing.line_boundary_tracing(image_copy, start_points, stop_points, intersection_points, junction_points)
 
         # Draw the end-to-end line points to the connected pins
@@ -77,16 +80,21 @@ def process_circuit_connection(image_bytes: BytesIO, predictions: list) -> tuple
         #     end = connection['connected_points'][1]
         #     cv.line(image_copy, start, end, (0,0,255), 2)
         
-        
 
-        # for point in line_boundary:
-        #     cv.circle(image_copy, point, 1, (0, 0, 255), -1)
+        for point in line_boundary:
+            cv.circle(image_copy, point, 1, (0, 0, 255), -1)
         
         # Get the boolean function and display truth table
         
-        # cv.imshow('Processed Image', image_copy)
+        # desired_width = 800
+        # desired_height = 900
+        # resized_image = cv.resize(image_copy, (desired_width, desired_height))
+
+        # # Display the resized image
+        # cv.imshow('Processed Image', resized_image)
         # cv.waitKey(0)
         # cv.destroyAllWindows()
+        
         boolean_functions = contour_tracing.get_boolean_function(connections)
         input_count = get_class_count(data_copy, 'input')
         # # Save the processed image

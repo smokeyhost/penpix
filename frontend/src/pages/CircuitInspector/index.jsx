@@ -94,6 +94,7 @@ const CircuitInspectorPage = () => {
     setCurrentPredictions(updatedPredictions)
   }
 
+
   useEffect(() => {
     if (files.length > 0) {
       setCurrentFile(files[fileIndex]);

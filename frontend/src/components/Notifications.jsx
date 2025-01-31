@@ -8,7 +8,7 @@ const Notifications = ({ onClose, notificationsList, fetchUnreadNotifications })
   const handleNotificationClick = async (notification) => {
     try {
       await axios.patch(`/notification/mark-as-read/${notification.id}`);
-      navigate(`/task/${notification.task_id}`);
+      // navigate(`/task/${notification.task_id}`);
       fetchUnreadNotifications();
       onClose();
     } catch (error) {

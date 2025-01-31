@@ -1,4 +1,5 @@
-from sympy import symbols, Not, Xor, Or, And, simplify_logic, simplify, false, true
+from sympy import symbols, Not, Xor, Or, And, simplify_logic, sympify, false, true
+from sympy.core.sympify import SympifyError
 from sympy.logic.boolalg import Nor, Xnor, Nand
 import itertools
 import re
@@ -76,3 +77,24 @@ def count_inputs(equations: list):
             max_x = max(max_x, max(int(match) for match in matches))
     
     return max_x
+
+
+def is_expression_valid(expression):
+    try:
+        X1, X2, X3, X4, X5, X6, X7, X8 = symbols('X1 X2 X3 X4 X5 X6 X7 X8')
+        
+        eval_expr = sympify(expression)
+        
+        simplified_expr = simplify_logic(eval_expr)
+        
+        allowed_symbols = {X1, X2, X3, X4, X5, X6, X7, X8}
+        if not all(symbol in allowed_symbols for symbol in simplified_expr.free_symbols):
+            return False
+        
+        # Ensure the expression contains at least one allowed symbol
+        if not any(symbol in allowed_symbols for symbol in eval_expr.free_symbols):
+            return False
+        
+        return True
+    except (SympifyError, TypeError):
+        return False

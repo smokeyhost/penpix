@@ -473,10 +473,9 @@ def get_boolean_function(data):
         # Skip junctions as they don't contribute directly to boolean logic
         if value['to']['type'] == 'junction':
             continue
-
+        
         # Check if component already exists
         existing_component = next((obj for obj in input_types if obj['object_id'] == component['object_id']), None)
-
         if existing_component:
             if 'pin' in value['to']:
                 if value['to']['pin'] == 'input1':
@@ -490,7 +489,7 @@ def get_boolean_function(data):
                 elif value['to']['pin'] == 'input2':
                     component['input2'] = value['from']['label'] if value['from']['type'] == 'input' else value['from']['object_id']
             input_types.append(component)
-
+            
     # Map components to boolean expressions
     def get_expression(component):
         if 'input1' not in component:
@@ -509,10 +508,14 @@ def get_boolean_function(data):
     for component in input_types:
         expression_mapping[component['object_id']] = get_expression(component)
 
-    # Resolve expressions recursively
-    def resolve_expression(mapping, signal, visited=None):
+    def resolve_expression(mapping, signal, resolved_cache=None, visited=None):
+        if resolved_cache is None:
+            resolved_cache = {}
         if visited is None:
             visited = set()
+
+        if signal in resolved_cache:
+            return resolved_cache[signal]
         if signal in visited:
             return mapping.get(signal, signal)  # Prevent infinite recursion
         if signal.startswith('X') or signal not in mapping:
@@ -528,21 +531,23 @@ def get_boolean_function(data):
                 while j < len(expression) and (expression[j].isalnum() or expression[j] == '_'):
                     j += 1
                 part = expression[i:j]
-                resolved_expression += resolve_expression(mapping, part, visited) if part in mapping else part
+                resolved_expression += resolve_expression(mapping, part, resolved_cache, visited) if part in mapping else part
                 i = j
             else:
                 resolved_expression += expression[i]
                 i += 1
 
+        resolved_cache[signal] = resolved_expression
         return resolved_expression
 
-    # Generate final expressions for outputs
     def get_final_expressions(mapping):
         final_expressions = {}
+        resolved_cache = {}
         for key in mapping:
             if key.startswith('OUT'):
-                final_expressions[key] = resolve_expression(mapping, key)
+                final_expressions[key] = resolve_expression(mapping, key, resolved_cache)
         return final_expressions
+
 
     # Get and return final mapped data
     try:
@@ -551,3 +556,7 @@ def get_boolean_function(data):
         print(f"Error while processing: {e}")
         mapped_data = {}
     return mapped_data
+
+def resolve_expression(mapping, key):
+    print(mapping)
+    

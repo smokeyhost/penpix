@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 export const formatDueDateTime = (dateString) => {
   const date = new Date(dateString);
   const formattedDate = date.toLocaleDateString(undefined, {
@@ -41,4 +43,24 @@ export const truncateText = (text, maxLength) => {
     return `${text.substring(0, maxLength)}...`;
   }
   return text;
+};
+
+export const isExpressionValid = async (expression) => {
+  const validSymbols = /^[X\d\s~|&^()]+$/;
+  if (!validSymbols.test(expression)) {
+    return false;
+  }
+
+  const containsAllowedSymbol = /X\d/.test(expression);
+  if (!containsAllowedSymbol) {
+    return false;
+  }
+
+  try {
+    const response = await axios.post('/detect-gates/validate-expression', { expression });
+    return response.data.valid;
+  } catch (error) {
+    console.error("Error validating expression:", error);
+    return false;
+  }
 };

@@ -13,6 +13,7 @@ import useNotifications from "../hooks/useNotifications";
 import { useRecoilValue } from "recoil";
 import { UserAtom } from "../atoms/UserAtom";
 
+
 const Header = () => {
   const {notifications, fetchUnreadNotifications} = useNotifications();
   const currentUser = useRecoilValue(UserAtom);
@@ -45,7 +46,7 @@ const Header = () => {
   return (
     <div className="flex justify-between items-center h-[50px] border-b-2 px-5 py-7 relative w-full bg-white">
       <div className="flex items-center">
-        <Link to={`/dashboard/${currentUser.id}`}>
+        <Link to={`/dashboard/${currentUser?.id}`}>
           <img src="/icons/PenPix-txt.png" alt="Logo" />
         </Link>
       </div>

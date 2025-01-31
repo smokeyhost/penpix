@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { UserAtom } from '../../atoms/UserAtom';
+import useToast from "../../hooks/useToast";
+import { isExpressionValid } from "../../utils/helpers";
 import axios from 'axios';
 
 const taskTypeOptions = [
@@ -32,10 +34,11 @@ const CreateTaskPage = () => {
   const navigate = useNavigate();
   const user = useRecoilValue(UserAtom);
   const [classOptions, setClassOptions] = useState([]);
+  const { toastSuccess } = useToast();
   const [errors, setErrors] = useState({});
 
-  let initialDueDate = new Date()
-  initialDueDate.setHours(31, 59, 59, 999);
+  let initialDueDate = new Date();
+  initialDueDate.setHours(23, 59, 59, 999);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -76,7 +79,7 @@ const CreateTaskPage = () => {
       ...prev,
       [name]: value,
     }));
-  
+
     if (errors[name]) {
       setErrors((prevErrors) => {
         const newErrors = { ...prevErrors };
@@ -85,17 +88,17 @@ const CreateTaskPage = () => {
       });
     }
   };
-  
+
   const handleComboBoxChange = (selected, fieldName) => {
     setFormData((prev) => ({
       ...prev,
       [fieldName]: selected?.value || "",
     }));
-  
+
     if (errors[fieldName]) {
       setErrors((prevErrors) => {
         const newErrors = { ...prevErrors };
-        delete newErrors[fieldName]; 
+        delete newErrors[fieldName];
         return newErrors;
       });
     }
@@ -125,11 +128,11 @@ const CreateTaskPage = () => {
     if (field === "expression") {
       newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] = null;
     }
-    
+
     if (field === "grade") {
       newErrors[`answerKeyGrade-${itemIndex}-${keyIndex}`] = null;
     }
-    
+
     setErrors(newErrors);
   };
 
@@ -146,7 +149,7 @@ const CreateTaskPage = () => {
       handleExpressionChange(itemIndex, keyIndex, "grade", value);
     }
   };
-  
+
   const handleRemoveExpression = (itemIndex, keyIndex) => {
     const updatedAnswerKeys = [...formData.answerKeys];
     updatedAnswerKeys[itemIndex].keys = updatedAnswerKeys[itemIndex].keys.filter((_, i) => i !== keyIndex);
@@ -159,28 +162,23 @@ const CreateTaskPage = () => {
       ...answer,
       item: `Item ${index + 1}`,
     }));
-  
+
     setFormData((prev) => ({ ...prev, answerKeys: renumberedAnswerKeys }));
   };
 
   const handleCreateTask = async () => {
-    console.log(formData)
+    console.log(formData);
     try {
       const response = await axios.post("/task/create-task", formData);
       console.log(response.data);
+      toastSuccess("The new task was created successfully.");
       navigate(`/dashboard/${user.id}`);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleNext = () => {
-    if (isFormValid()) {
-      setNext(true);
-    }
-  };
-
-  const isFormValid = () => {
+  const isFormValid = async () => {
     const newErrors = {};
   
     if (!formData.title.trim()) {
@@ -197,24 +195,35 @@ const CreateTaskPage = () => {
       newErrors.examType = "Type of Task is required.";
     }
   
-    formData.answerKeys.forEach((item, itemIndex) => {
+    if (!formData.dueDate) {
+      newErrors.dueDate = "Due Date is required.";
+    }
+  
+    for (const [itemIndex, item] of formData.answerKeys.entries()) {
       if (item.keys.length === 0) {
         newErrors[`missingAnswerKey${itemIndex}`] = `Each answer key should have at least one expression and grade.`;
       }
-      item.keys.forEach((key, keyIndex) => {
+      for (const [keyIndex, key] of item.keys.entries()) {
         if (!key.expression.trim()) {
           newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
             `Expression is required for ${item.item} - Answer Key ${keyIndex + 1}.`;
         } else if (key.expression.length > 100) {
           newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
             `Expression cannot exceed 100 characters for ${item.item} - Answer Key ${keyIndex + 1}.`;
+        } else {
+          const isValid = await isExpressionValid(key.expression);
+          console.log(isValid)
+          if (!isValid) {
+            newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
+              `Invalid expression for ${item.item} - Answer Key ${keyIndex + 1}. Accepted symbols: ~ | & ^. Inputs should be labeled as X1, X2, X3 ...X7.`;
+          }
         }
         if (!key.grade) {
           newErrors[`answerKeyGrade-${itemIndex}-${keyIndex}`] =
             `Grade is required for ${item.item} - Answer Key ${keyIndex + 1}.`;
         }
-      });
-    });
+      }
+    }
   
     if (formData.answerKeys.length === 0) {
       newErrors.noAnswerKeys = "At least one answer key is required.";
@@ -222,7 +231,14 @@ const CreateTaskPage = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+
+  const handleNext = async() => {
+    const isValid = await isFormValid()
+    if (isValid) {
+      setNext(true);
+    }
+  };
+
   return (
     <div className="flex flex-col p-5 gap-4 md:w-[800px] mx-auto">
       <h1 className="text-[28px] font-medium mt-2">Create Task</h1>
@@ -270,7 +286,7 @@ const CreateTaskPage = () => {
                 <FaInfoCircle className="text-gray-500 cursor-pointer" />
                 <div className="absolute left-0 bottom-full mb-2 w-64 p-2 bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <p className="text-sm text-gray-700">Accepted symbols: ~ | & ^</p>
-                  <p className="text-sm text-gray-700">Inputs should start with X1, X2, etc.</p>
+                  <p className="text-sm text-gray-700">Inputs should be labeled X1, X2,...X7</p>
                   <p className="text-sm text-gray-700">Example: X1 ^ X2 | (X3 & X1)</p>
                 </div>
               </div>
@@ -299,7 +315,7 @@ const CreateTaskPage = () => {
                           onChange={(e) =>
                             handleExpressionChange(itemIndex, keyIndex, "expression", e.target.value)
                           }
-                          maxLength={100}
+                          maxLength={500}
                           className={`border rounded-lg px-2 py-1 w-full ${errors[`answerKeyExpression-${itemIndex}-${keyIndex}`] ? 'border-red-500' : 'border-gray-300'}`}
                         />
                         <input

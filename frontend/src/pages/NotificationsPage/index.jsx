@@ -1,25 +1,24 @@
 import { IoIosClose } from "react-icons/io";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { FaRegBellSlash } from "react-icons/fa"; // Add the empty notification icon
-import { useRecoilState } from 'recoil';
-import { NotificationsAtom } from "../../atoms/Notifications";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useErrorHandler from '../../hooks/useErrorHandler';
-import { formatDueDateTime } from "../../utils/helpers";
+import { formatDueDateTime, truncateText } from "../../utils/helpers";
 import { Link, useNavigate } from "react-router-dom";
 
 const NotificationPage = () => {
-  const [notifications, setNotifications] = useRecoilState(NotificationsAtom);
+  const [notifications, setNotifications] = useState([]);
   const { handleError } = useErrorHandler();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [notificationsPerPage] = useState(8); // Number of notifications per page
+  const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get('/notification/get-unread-notifications'); // Adjust the URL if necessary
+        const response = await axios.get('/notification/get-all-notifications'); // Adjust the URL if necessary
         const fetchedNotifications = response.data.notifications;
 
         const sortedNotifications = fetchedNotifications.sort((a, b) => {
@@ -38,7 +37,23 @@ const NotificationPage = () => {
       }
     };
 
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get('/task/get-tasks', { withCredentials: true });
+        setTasks(response.data);
+      } catch (error) {
+        if (error.response?.status === 401) {
+          handleError('unauthorized', 'Your session has expired. Login again.');
+        } else if (error.response?.status === 404) {
+          handleError('404', 'The resource you are looking for could not be found.');
+        } else {
+          handleError('default', 'An unexpected error occurred.');
+        }
+      }
+    };
+
     fetchNotifications();
+    fetchTasks();
   }, []);
 
   // Calculate total pages
@@ -64,6 +79,11 @@ const NotificationPage = () => {
     }
   };
 
+  const getTaskTitle = (taskId) => {
+    const task = tasks.find((task) => task.id === taskId);
+    return task ? task.title : 'Unknown Task';
+  };
+
   return (
     <div className="bg-[#EFEFEF] min-h-screen w-full p-10">
       <div className="relative w-full h-full text-customBlack1 bg-white rounded-lg px-10 pt-10 pb-4">
@@ -74,7 +94,7 @@ const NotificationPage = () => {
         <h2 className="text-customGray2 text-3xl font-medium">Notifications</h2>
 
         <div className="grid grid-cols-5 gap-4 mt-5 font-bold border-b-2 border-customGray1 pb-3">
-          <div>Class | Group</div>
+          <div>Task</div>
           <div className="col-span-3">Notification</div>
           <div>Date</div>
         </div>
@@ -87,8 +107,8 @@ const NotificationPage = () => {
             </div>
           ) : (
             currentNotifications.map((notification, index) => (
-              <Link to={`/task/${notification.task_id}`} key={index} className="grid grid-cols-5 gap-4 py-3 border-b">
-                <div>{notification.task_id}</div>
+              <Link to="#" key={index} className="grid grid-cols-5 gap-4 py-3 border-b">
+                <div>{truncateText(getTaskTitle(notification.task_id), 10)}</div>
                 <div className="col-span-3">{notification.message}</div>
                 <div>{formatDueDateTime(notification.created_at)}</div>
               </Link>
