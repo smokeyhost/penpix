@@ -31,6 +31,8 @@ python-dateutil
 kiwisolver
 six
 pytz
+reportlab
+pymupdf
 
 pandas>=1.1.4
 seaborn>=0.11.0

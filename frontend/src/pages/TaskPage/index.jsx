@@ -6,6 +6,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { UserAtom } from '../../atoms/UserAtom';
 import { FilesAtom } from '../../atoms/FilesAtom'
 import FilesList from './components/FilesList';
+import InvalidFilesList from './components/InvalidFilesList';
 import { formatDueDateTime } from '../../utils/helpers';
 import useDeleteTask from '../../hooks/useDeleteTask';
 import useClassData from '../../hooks/useClassData';
@@ -21,10 +22,12 @@ const TaskPage = () => {
   const [isModalOpen, setModalOpen] = useState(false); 
   const [modalData, setModalData] = useState(null); 
   const [isUploadModalOpen, setUploadModalOpen] = useState(false);
+  const [invalidFiles, setInvalidFiles] = useState({ notEnrolled: [], notBelonging: [] });
+  const [showInvalidFiles, setShowInvalidFiles] = useState(false);
   const currentUser = useRecoilValue(UserAtom);
   const { taskId } = useParams();
   const navigate = useNavigate();
-  const { classData, loading } = useClassData(taskId);
+  const { classData, loading, getClassData } = useClassData();
   const { handleDeleteTask: deleteTask } = useDeleteTask();
   const {toastSuccess, toastError} = useToast()
   const {downloadTemplate} = useTemplateDownloader(); 
@@ -48,6 +51,7 @@ const TaskPage = () => {
       try {
         if (taskId){
           const task = await getTask(taskId)
+          await getClassData(task.class_id);
           setTask(task);
           console.log(task);
         }
@@ -69,28 +73,29 @@ const TaskPage = () => {
     formData.append("task_id", taskId);
     formData.append("item_number", item); 
   
-    // for (let pair of formData.entries()) {
-    //   console.log(`${pair[0]}:`, pair[1]);
-    // }
-  
     try {
       const response = await axios.post("/files/upload-files", formData, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true, 
       });
-      
-      if(response.data.invalid_files.length > 0){
-        toastError(`Student Id(s) not enrolled in the class: ${response.data.invalid_files} `)
-      }else{
-        toastSuccess("Files Uploaded Successfully.")
+  
+      const { invalid_files_not_enrolled, invalid_files_not_belonging } = response.data;
+  
+      if (invalid_files_not_enrolled.length > 0 || invalid_files_not_belonging.length > 0) {
+        setInvalidFiles({
+          notEnrolled: invalid_files_not_enrolled,
+          notBelonging: invalid_files_not_belonging,
+        });
+        setShowInvalidFiles(true);
+      } else {
+        toastSuccess("Files Uploaded Successfully.");
       }
       fetchFiles();
     } catch (error) {
-      console.error("Error uploading files:", error);
-      alert("An error occurred while uploading the files. Please try again.");
+      console.error("Error uploading files:", error?.response?.message);
+      toastError(error?.response?.data?.message);
     }
   };
-  
 
   const handleEditTask = () => {
     navigate(`/edit-task/${task?.id}`);
@@ -123,6 +128,11 @@ const TaskPage = () => {
   const closeModal = () => {
     setModalOpen(false);
     setModalData(null);
+  };
+
+  const closeInvalidFilesList = () => {
+    setShowInvalidFiles(false);
+    setInvalidFiles({ notEnrolled: [], notBelonging: [] });
   };
 
   if (loading) return;
@@ -187,6 +197,14 @@ const TaskPage = () => {
       <div className="w-full bg-white shadow-lg p-4 mt-4 md:mt-6 rounded-lg">
         <FilesList files={files} refreshFiles={refreshFiles} task={task}/>
       </div>
+
+      {/* Invalid Files List Section */}
+      {showInvalidFiles && (
+        <InvalidFilesList
+          invalidFiles={invalidFiles}
+          onClose={closeInvalidFilesList}
+        />
+      )}
 
       {/* Modals */}
       {isModalOpen && (

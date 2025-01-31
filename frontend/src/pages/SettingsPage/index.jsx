@@ -19,11 +19,11 @@ const SettingsPage = () => {
 
   const [profile, setProfile] = useState({
     id: currentUser?.id,
-    name: currentUser.name || "Default Name",  
-    email: currentUser.email || "default@example.com",  
-    profileImageUrl: currentUser.profile_image_url || "",
-    contactNumber: currentUser.contact_number || "000-000-0000",  
-    recoveryEmail: currentUser.recovery_email || "recovery@example.com"
+    name: currentUser?.name || "Default Name",  
+    email: currentUser?.email || "default@example.com",  
+    profileImageUrl: currentUser?.profile_image_url || "",
+    contactNumber: currentUser?.contact_number || "000-000-0000",  
+    recoveryEmail: currentUser?.recovery_email || "recovery@example.com"
   });
 
   const handleSaveRecoveryEmail = async (newRecoveryEmail) => {

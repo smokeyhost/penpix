@@ -6,7 +6,9 @@ import numpy as np
 import qrcode
 import json
 import os
-
+import fitz  # PyMuPDF
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 def rotate_image(image, angle):
     """Rotate the image by the specified angle."""
@@ -23,12 +25,6 @@ def extract_qr_code_data(image):
     
     if qr_data is None:
         return None, None
-
-    # try:
-    #     qr_data = json.loads(qr_data)
-    #     print("Qr Data", qr_data)
-    # except json.JSONDecodeError:
-    #     qr_data = None
     
     return qr_data, qr_code
 
@@ -58,7 +54,7 @@ def determine_rotation_from_orientation(orientation):
         'LEFT': -90
     }
     return orientation_mapping.get(orientation, 0)
-  
+
 def determine_proper_orientation(image):
     """Analyze and correct the orientation of the QR code in the image."""
     qr_data, qr_code = extract_qr_code_data(image)
@@ -73,7 +69,6 @@ def determine_proper_orientation(image):
 
     rotated_image = rotate_image(image, angle)
     return rotated_image, qr_data
-
 
 def save_image(image, output_path):
     """Save the image to the specified path."""
@@ -96,53 +91,81 @@ def generate_qr_code_from_dict(data_dict, size, output_file):
     img.save(output_file)
 
 def append_qr_code_to_template(data, size, template_path, output_path, position):
-    """Append a QR code to a template image at the specified position."""
+    """Append a QR code to a template image and save as a PDF."""
+    
     qr_code = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4
+        box_size=5,
+        border=2
     )
+    task_id = data.split('|')[0]
     qr_code.add_data(data)
     qr_code.make(fit=True)
     qr_img = qr_code.make_image(fill_color="black", back_color="white")
-
-    template = Image.open(template_path)
     qr_img = qr_img.resize((size, size))
 
-    filename = secure_filename(f'template-{data['task_id']}.png')
-    filepath = os.path.join(output_path, filename)
-    
-    template.paste(qr_img, position)
-    template.save(filepath)
-    
-    return filepath
+    template = Image.open(template_path)
 
+    if template.mode in ("RGBA", "LA"):
+        white_bg = Image.new("RGB", template.size, (255, 255, 255)) 
+        white_bg.paste(template, mask=template.split()[3])  
+        template = white_bg  
+
+    template.paste(qr_img, position)
+
+    temp_image_path = os.path.join(output_path, 'temp_image.jpg') 
+    template.save(temp_image_path, format="JPEG", quality=95)
+
+    pdf_filename = secure_filename(f'template-{task_id}.pdf')
+    pdf_filepath = os.path.join(output_path, pdf_filename)
+    
+    c = canvas.Canvas(pdf_filepath, pagesize=letter)
+    c.drawImage(temp_image_path, 0, 0, width=letter[0], height=letter[1])
+    c.save()
+
+    os.remove(temp_image_path)
+    
+    return pdf_filepath
+
+def extract_qr_code_from_pdf(pdf_path):
+    """Extract QR code data from a PDF file."""
+    doc = fitz.open(pdf_path)
+    for page_num in range(len(doc)):
+        page = doc.load_page(page_num)
+        pix = page.get_pixmap()
+        img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+        qr_data, qr_code = extract_qr_code_data(img)
+        if qr_data:
+            return qr_data, qr_code
+    return None, None
 
 # if __name__ == "__main__":
-#     input_image_path = 'sampleImage.png'  
-#     output_image_path = 'rotatedImage.png'
+#     input_file_path = './output/template-1000_AM.pdf'  
 
-#     image = Image.open(input_image_path)
-#     corrected_image, qr_data = determine_proper_orientation(image)
+#     if input_file_path.lower().endswith('.pdf'):
+#         qr_data, qr_code = extract_qr_code_from_pdf(input_file_path)
+#     else:
+#         image = Image.open(input_file_path)
+#         corrected_image, qr_data = determine_proper_orientation(image)
 
 #     if qr_data is None:
-#         print("No QR codes found.")
+#         print("No QR codes found.")s
 #     else:
-#         save_image(corrected_image, output_image_path)
 #         print("QR Code Data:", qr_data)
-#         print("Image rotated and saved successfully.")
+#         if not input_file_path.lower().endswith('.pdf'):
+#             print("Image rotated and saved successfully.")
 
-    # data = {
-    #     "course": "CPE 2301",
-    #     "schedule": "1230123u819u312u8hubfdhjf2iyhki3uiffui2gfukfdjsfiuwfbdsjfgui",
-    #     "instructor": "Dr. Smith",
-    #     "time": "10:00 AM - 12:00 PM"
-    # }
+    # data = "10:00 AM|12:00 PM"
     
-    # template_path = 'template.jpg'
+    # template_path = 'template.png'
     # output_path = 'sampleImage.png'
-    # position = (124, 18)  # Adjust position as needed
+    
+    # output_dir = 'output'  # Ensure this directory exists
+    # position = (200, 80)  # Adjust position as needed
 
-    # append_qr_code_to_template(data, size=150, template_path=template_path, output_path=output_path, position=position)
+    # if not os.path.exists(output_dir):
+    #     os.makedirs(output_dir)
+
+    # append_qr_code_to_template(data, size=220, template_path=template_path, output_path=output_dir, position=position)
     # print('QR code appended to template successfully!')

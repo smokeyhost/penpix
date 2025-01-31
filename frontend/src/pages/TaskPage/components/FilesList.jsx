@@ -9,17 +9,19 @@ const FilesList = ({ files, refreshFiles, task }) => {
   const [sortOption, setSortOption] = useState('desc');
   const [filterOption, setFilterOption] = useState('all');
   const [similarFiles, setSimilarFiles] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filesPerPage] = useState(5);
   const navigate = useNavigate();
   const confirm = useConfirm();
   const { toastInfo } = useToast();
 
   useEffect(() => {
-    const storedSimilarFiles = JSON.parse(localStorage.getItem('similarFiles')) || [];
+    const storedSimilarFiles = JSON.parse(sessionStorage.getItem('similarFiles')) || [];
     setSimilarFiles(storedSimilarFiles);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('similarFiles', JSON.stringify(similarFiles));
+    sessionStorage.setItem('similarFiles', JSON.stringify(similarFiles));
   }, [similarFiles]);
 
   const calculateTotalGrade = () => {
@@ -50,34 +52,66 @@ const FilesList = ({ files, refreshFiles, task }) => {
   };
 
   const handleComparePredictions = async () => {
+    const marginOfError = 20; // Margin of error for position and confidence level
+  
+    const arePredictionsSimilar = (pred1, pred2) => {
+      return (
+        pred1.class_id === pred2.class_id &&
+        Math.abs(pred1.x - pred2.x) <= marginOfError &&
+        Math.abs(pred1.y - pred2.y) <= marginOfError &&
+        Math.abs(pred1.confidence - pred2.confidence) <= marginOfError / 100
+      );
+    };
+  
+    const areAllPredictionsSimilar = (predictions1, predictions2) => {
+      if (predictions1.length !== predictions2.length) return false;
+  
+      for (let i = 0; i < predictions1.length; i++) {
+        if (!arePredictionsSimilar(predictions1[i], predictions2[i])) {
+          return false;
+        }
+      }
+      return true;
+    };
+  
     try {
       const predictionsMap = new Map();
       const similarFileIds = [];
-
+  
       for (const file of files) {
         const response = await axios.get(`/detect-gates/get-circuit-data/${file.id}`);
         const { circuit_analysis } = response.data;
-
+  
         if (circuit_analysis && circuit_analysis.predictions) {
-          const key = JSON.stringify(circuit_analysis.predictions);
-          if (predictionsMap.has(key)) {
-            predictionsMap.get(key).push(file.id);
-          } else {
-            predictionsMap.set(key, [file.id]);
+          const predictions = circuit_analysis.predictions;
+          console.log(`File ID: ${file.id}, Predictions:`, predictions);
+  
+          let foundSimilar = false;
+          for (const [key, value] of predictionsMap.entries()) {
+            if (areAllPredictionsSimilar(predictions, key)) {
+              value.push(file.id);
+              foundSimilar = true;
+              break;
+            }
+          }
+  
+          if (!foundSimilar) {
+            predictionsMap.set(predictions, [file.id]);
           }
         }
       }
-
+  
       predictionsMap.forEach((ids) => {
         if (ids.length > 1) {
           similarFileIds.push(...ids);
         }
       });
-
+  
       if (similarFileIds.length === 0) {
-        toastInfo('No predictions to compare.');
+        toastInfo('No similarities found.');
       } else {
         setSimilarFiles(similarFileIds);
+        toastInfo('Similarities detected in submissions.');
       }
     } catch (error) {
       console.error('Error comparing predictions:', error);
@@ -114,15 +148,21 @@ const FilesList = ({ files, refreshFiles, task }) => {
       return <p className="text-yellow-600 text-sm">All files are already graded.</p>;
     }
     if (filterOption === 'similar') {
-      return <p className="text-yellow-600 text-sm">No graded submissions to compare.</p>;
+      return <p className="text-yellow-600 text-sm">No similar files. Click Check for similar submissions button.</p>;
     }
     return <p className="text-sm">No submissions available.</p>;
   };
 
   const handleNavigate = (fileIndex) => {
-    localStorage.setItem("fileIndex", JSON.stringify(fileIndex));
+    sessionStorage.setItem("fileIndex", JSON.stringify(fileIndex));
     navigate(`/circuit-evaluator/${task.id}`);
   };
+
+  const indexOfLastFile = currentPage * filesPerPage;
+  const indexOfFirstFile = indexOfLastFile - filesPerPage;
+  const currentFiles = similarFiles.slice(indexOfFirstFile, indexOfLastFile);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="bg-white shadow-md p-4 rounded-md">
@@ -155,11 +195,50 @@ const FilesList = ({ files, refreshFiles, task }) => {
         </div>
         <button
           onClick={handleComparePredictions}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          className="bg-primaryColor text-white px-4 py-2 rounded"
         >
           Check For Similar Submissions
         </button>
       </div>
+
+      {filterOption === 'all' && similarFiles.length > 0 && (
+        <p className="text-red-600 text-sm mb-4">
+          Reminder: If you filter all submissions, click the Check For Similar Submissions button again to refresh the similar files data.
+        </p>
+      )}
+
+      {filterOption === 'similar' && similarFiles.length > 0 && (
+        <div className="mb-4">
+          <h3 className="text-md font-medium mb-2">Similar Files</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {currentFiles.map((fileId) => {
+              const file = files.find((f) => f.id === fileId);
+              return (
+                <div key={file.id} className="border p-2 rounded">
+                  <img src={file.file_url} alt={file.filename} className="w-full h-48 object-cover mb-2" />
+                  <p className="text-sm">{file.filename}</p>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-1 border rounded-l bg-gray-200 hover:bg-gray-300"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={indexOfLastFile >= similarFiles.length}
+              className="px-3 py-1 border rounded-r bg-gray-200 hover:bg-gray-300"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {Object.keys(groupedFiles).length === 0 ? (
         renderEmptyMessage()

@@ -186,21 +186,23 @@ def delete_expression(task_id):
 @task_bp.route('/get-template/<int:task_id>', methods=['GET'])
 def get_template(task_id):
     task = Task.query.get(task_id)
-    template_path = './template.jpg'
-    position = (124, 18)  
+    template_path = './template.png'
+    position = (200, 80)  
 
-    data = {
-        'task_id': task.id,
-        'class_id': task.class_id,
-        # 'task_title': task.title,
-    }
+    # data = {
+    #     'task_id': task.id,
+    #     'class_id': task.class_id,
+    #     # 'task_title': task.title,
+    # }
     
+    data = f"{task.id}|{task.class_id}"
     TASK_FOLDER = os.path.join('static', 'images', str(task_id), 'grid_template')
 
     if not os.path.exists(TASK_FOLDER):
         os.makedirs(TASK_FOLDER)
         
-    filepath = append_qr_code_to_template(data, size=150, template_path=template_path, output_path=TASK_FOLDER, position=position)
+    filepath = append_qr_code_to_template(data, size=220, template_path=template_path, output_path=TASK_FOLDER, position=position)
+    print(filepath)
     
     # file_url = url_for('static', filename=os.path.join('images', str(task_id), 'grid_template', os.path.basename(filepath)).replace('\\', '/'), _external=True)
     # print(file_url)

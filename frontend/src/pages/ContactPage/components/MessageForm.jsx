@@ -64,7 +64,7 @@ const MessageForm = () => {
         data-aos-duration="1000"
       >
         <div>
-          <h1 className="text-3xl text-center font-semibold animate-bounce">Have some questions?</h1>
+          <h1 className="text-3xl text-center font-semibold animate-bounce">Have some concerns?</h1>
           <div className="flex justify-evenly w-full px-5 mt-2 text-customGray2 font-medium text-sm">
             <p>Contact: 09995794343</p>
             <p>Email: penpixusc.edu.ph</p>
@@ -83,7 +83,7 @@ const MessageForm = () => {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                className="w-full h-12 p-3 border border-customGray1 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 bg-[#EEEDF2] transition-transform transform hover:scale-105"
+                className="w-full h-12 p-3 border border-customGray1 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 bg-[#EEEDF2] transition-transform transform hover:scale-100"
                 required
               />
             </div>
@@ -94,7 +94,7 @@ const MessageForm = () => {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                className="w-full h-12 p-3 border border-customGray1 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 bg-[#EEEDF2] transition-transform transform hover:scale-105"
+                className="w-full h-12 p-3 border border-customGray1 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 bg-[#EEEDF2] transition-transform transform hover:scale-100"
                 required
               />
             </div>
@@ -106,7 +106,7 @@ const MessageForm = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full h-12 p-3 border border-customGray1 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 bg-[#EEEDF2] transition-transform transform hover:scale-105"
+              className="w-full h-12 p-3 border border-customGray1 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 bg-[#EEEDF2] transition-transform transform hover:scale-100"
               required
             />
           </div>
@@ -116,7 +116,7 @@ const MessageForm = () => {
               name="message"
               value={formData.message}
               onChange={handleChange}
-              className="w-full h-60 p-3 border border-customGray1 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 bg-[#EEEDF2] transition-transform transform hover:scale-105"
+              className="w-full h-60 p-3 border border-customGray1 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 bg-[#EEEDF2] transition-transform transform hover:scale-100"
               required
             ></textarea>
           </div>

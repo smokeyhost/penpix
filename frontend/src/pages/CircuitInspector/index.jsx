@@ -115,7 +115,6 @@ const CircuitInspectorPage = () => {
           const gradedCount = files.filter((file) => file.graded).length;
           setGradedFilesCount(gradedCount); 
           setFileIndex(files[files.indexOf(currentFile)])
-          
           console.log("Circuit Data",response.data.circuit_analysis);
         } catch (error) {
           console.log(error.message);
@@ -123,7 +122,7 @@ const CircuitInspectorPage = () => {
       }
     };
     getCircuitData();
-  }, [currentFile?.id]);
+  }, [currentFile?.id,]);
 
   const handleGradeUpdate = (fileId, newGrade) => {
     const updatedFiles = files.map((file) =>

@@ -517,16 +517,16 @@ def get_boolean_function(data):
         if signal in resolved_cache:
             return resolved_cache[signal]
         if signal in visited:
-            return mapping.get(signal, signal)  # Prevent infinite recursion
+            return mapping.get(signal, signal) 
         if signal.startswith('X') or signal not in mapping:
-            return signal  # Return as-is for input signals
+            return signal 
 
         visited.add(signal)
         expression = mapping[signal]
         resolved_expression = ""
         i = 0
         while i < len(expression):
-            if expression[i].isalpha():  # Parse signal names
+            if expression[i].isalpha():  
                 j = i
                 while j < len(expression) and (expression[j].isalnum() or expression[j] == '_'):
                     j += 1
@@ -548,8 +548,6 @@ def get_boolean_function(data):
                 final_expressions[key] = resolve_expression(mapping, key, resolved_cache)
         return final_expressions
 
-
-    # Get and return final mapped data
     try:
         mapped_data = get_final_expressions(expression_mapping)
     except ValueError as e:
@@ -559,4 +557,3 @@ def get_boolean_function(data):
 
 def resolve_expression(mapping, key):
     print(mapping)
-    

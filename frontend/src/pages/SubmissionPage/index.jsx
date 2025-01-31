@@ -7,6 +7,7 @@ import axios from 'axios';
 import styles from './index.module.css'; 
 import useTemplateDownloader from '../../hooks/useTemplateDownloader';
 import useToast from '../../hooks/useToast';
+import InvalidFilesList from './components/InvalidFilesList';
 
 const SubmissionPage = () => {
   const { taskId } = useParams();
@@ -17,8 +18,10 @@ const SubmissionPage = () => {
   const [isTaskNotFound, setIsTaskNotFound] = useState(false);
   const [owner, setOwner] = useState(null);
   const [classInfo, setClassInfo] = useState(null);
+  const [invalidFiles, setInvalidFiles] = useState({ notEnrolled: [], notBelonging: [] });
+  const [showInvalidFiles, setShowInvalidFiles] = useState(false);
   const { downloadTemplate } = useTemplateDownloader();
-  const { toastSuccess, toastError, toastInfo, toastWarning } = useToast();
+  const { toastSuccess, toastError, toastWarning } = useToast();
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -100,20 +103,27 @@ const SubmissionPage = () => {
       const response = await axios.post('/files/upload-files', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      const { files_uploaded, skipped_files, invalid_files } = response.data;
+      const { files_uploaded, invalid_files_not_enrolled, invalid_files_not_belonging } = response.data;
 
-      if (invalid_files.length > 0) {
-        toastError(`The following files were rejected because their names don't match students in the class: ${invalid_files.join(', ')}`);
+      if (invalid_files_not_enrolled.length > 0 || invalid_files_not_belonging.length > 0) {
+        setInvalidFiles({
+          notEnrolled: invalid_files_not_enrolled,
+          notBelonging: invalid_files_not_belonging,
+        });
+        setShowInvalidFiles(true);
       } else if (files_uploaded.length > 0) {
         toastSuccess('File(s) uploaded successfully!');
         setIsUploaded(true);
-      } else if (skipped_files.length > 0) {
-        toastInfo(`Some files were skipped because they already exist: ${skipped_files.join(', ')}`);
-      }
+      } 
     } catch (error) {
       console.error('Error uploading files:', error);
       toastError('An error occurred during file upload.');
     }
+  };
+
+  const closeInvalidFilesList = () => {
+    setShowInvalidFiles(false);
+    setInvalidFiles({ notEnrolled: [], notBelonging: [] });
   };
 
   if (isTaskNotFound) {
@@ -235,6 +245,14 @@ const SubmissionPage = () => {
           )}
         </div>
       </div>
+
+      {/* Invalid Files List Section */}
+      {showInvalidFiles && (
+        <InvalidFilesList
+          invalidFiles={invalidFiles}
+          onClose={closeInvalidFilesList}
+        />
+      )}
     </div>
   );
 };

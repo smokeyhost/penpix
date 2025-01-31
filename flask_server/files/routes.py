@@ -4,6 +4,9 @@ from files import files_bp
 from utils.auth_helpers import login_required
 from model import db, UploadedFile, Task, CircuitAnalysis, Notification, Classes
 from flask import jsonify, request, send_from_directory
+from sys_main_modules.qr_code.qr_code import determine_proper_orientation, extract_qr_code_data
+from PIL import Image
+import fitz
 
 @files_bp.route('/<int:task_id>/<filename>')
 def serve_file(task_id, filename):
@@ -31,9 +34,10 @@ def upload_files():
     class_id = task.class_id
     class_ = Classes.query.get(class_id)
     
-    student_list = class_.student_list
+    student_list = [student.strip().lower() for student in class_.student_list]  # Normalize student list
     uploaded_files = []
-    invalid_files = []
+    invalid_files_not_enrolled = []
+    invalid_files_not_belonging = []
     
     TASK_FOLDER = os.path.join('static', 'images', str(task_id))
 
@@ -46,19 +50,58 @@ def upload_files():
 
         filename = secure_filename(file.filename)
         filename_, _ = os.path.splitext(filename)
-        student_id = filename_.split('_')[0]
+        student_id = filename_.split('_')[0].strip().lower()  
+        print(f"Extracted student_id: {student_id}, Student list: {student_list}")
 
         if student_id not in student_list:
-            invalid_files.append(filename)
+            invalid_files_not_enrolled.append(filename)
             continue
-
-        filepath = os.path.join(TASK_FOLDER, filename)
-
+        
+        file_ext = os.path.splitext(filename)[1].lower()
         try:
-            file.save(filepath)
-        except Exception as e:
-            return jsonify({"message": f"File save error: {str(e)}"}), 500
+            if file_ext == '.pdf':
+                # Convert the first page of the PDF to an image using PyMuPDF
+                pdf_document = fitz.open(stream=file.read(), filetype="pdf")
+                page = pdf_document.load_page(0)  # Load the first page
+                pix = page.get_pixmap()
+                image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
+                corrected_image, qr_data = determine_proper_orientation(image)
+                if qr_data is None:
+                    raise ValueError("No QR Code found in the file or Invalid.")
+
+                qr_task_id, qr_class_id = qr_data.split('|')
+                if str(qr_task_id) != str(task_id) or str(qr_class_id) != str(class_id):
+                    raise ValueError("The submitted file does not belong to the task")
+
+                image_filename = f"{os.path.splitext(filename)[0]}.png"
+                image_path = os.path.join(TASK_FOLDER, image_filename)
+                corrected_image.save(image_path)
+                uploaded_files.append(image_filename)
+                
+            else:
+                image = Image.open(file)
+                corrected_image, qr_data = determine_proper_orientation(image)
+                if qr_data is None:
+                    raise ValueError("No QR Code found in the file or Invalid.")
+                
+                qr_task_id, qr_class_id = qr_data.split('|') 
+
+                if str(qr_task_id) != str(task_id) or str(qr_class_id) != str(class_id):
+                    raise ValueError("The submitted file does not belong to the task")
+                
+                # Save the corrected image
+                filepath = os.path.join(TASK_FOLDER, filename)
+                corrected_image.save(filepath)
+                uploaded_files.append(filename)
+                
+        except ValueError as e:
+            invalid_files_not_belonging.append(filename)
+            continue
+        except Exception as e:
+            invalid_files_not_enrolled.append(filename)
+            continue
+        
         existing_file = UploadedFile.query.filter_by(
             filename=filename, task_id=task_id
         ).first()
@@ -134,9 +177,7 @@ def upload_files():
         
     db.session.add(task)
 
-    # Calculate the expected total submissions
     expected_total_submissions = len(student_list) * len(task.answer_keys)
-    # submitted_student_ids = {file.filename.split('_')[0] for file in task.attached_files}
     if total_submissions == expected_total_submissions:
         title = "All Submissions Completed"
         notification_message = f"All students have submitted their files for task {task_id}."
@@ -153,7 +194,8 @@ def upload_files():
     response = {
         "message": "File upload results",
         "files_uploaded": uploaded_files,
-        "invalid_files": invalid_files,
+        "invalid_files_not_enrolled": invalid_files_not_enrolled,
+        "invalid_files_not_belonging": invalid_files_not_belonging,
     }
     
     return jsonify(response), 200
