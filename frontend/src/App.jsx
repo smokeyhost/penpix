@@ -18,6 +18,7 @@ import ClassPage from './pages/ClassPage/index.jsx';
 import NotificationPage from './pages/NotificationsPage/index.jsx';
 import SettingsPage from './pages/SettingsPage/index.jsx';
 import ContactPage from './pages/ContactPage/index.jsx'
+import AboutPage from './pages/AboutPage/index.jsx';
 import ErrorPage from './components/ErrorPage.jsx';
 import PageTitle from './components/PageTitle.jsx';
 import { ToastProvider } from './contexts/ToastContext'; 
@@ -55,6 +56,7 @@ const App = () => {
             <Route path="/student-upload/:taskId" element={<SubmissionPage />} />
             <Route path="/notifications" element={<NotificationPage/>} />
             <Route path="/contact" element={<ContactPage/>} />
+            <Route path="/about" element={<AboutPage/>} />
             <Route path="/settings" element={<SettingsPage/>} />
             <Route path="/error" element={<ErrorPage errorType={state.errorType} errorMessage={state.errorMessage} />} />
             <Route path="*" element={<ErrorPage errorType="404" errorMessage="Page not found!" />} />

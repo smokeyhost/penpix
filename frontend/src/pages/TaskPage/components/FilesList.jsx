@@ -158,6 +158,10 @@ const FilesList = ({ files, refreshFiles, task }) => {
     navigate(`/circuit-evaluator/${task.id}`);
   };
 
+  const handleImageClick = (fileUrl) => {
+    window.open(fileUrl, '_blank');
+  };
+
   const indexOfLastFile = currentPage * filesPerPage;
   const indexOfFirstFile = indexOfLastFile - filesPerPage;
   const currentFiles = similarFiles.slice(indexOfFirstFile, indexOfLastFile);
@@ -215,7 +219,12 @@ const FilesList = ({ files, refreshFiles, task }) => {
               const file = files.find((f) => f.id === fileId);
               return (
                 <div key={file.id} className="border p-2 rounded">
-                  <img src={file.file_url} alt={file.filename} className="w-full h-48 object-cover mb-2" />
+                  <img
+                    src={file.file_url}
+                    alt={file.filename}
+                    className="w-full h-48 object-cover mb-2 cursor-pointer"
+                    onClick={() => handleImageClick(file.file_url)}
+                  />
                   <p className="text-sm">{file.filename}</p>
                 </div>
               );

@@ -48,7 +48,7 @@ const UploadModal = ({ isOpen, onClose, items, onUploadFiles, task }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-2xl sm:w-4/5 md:w-1/2 xl:w-1/4">
+      <div className="bg-white p-6 rounded-lg w-full max-w-lg md:w-3/4 lg:w-1/2">
         <h2 className="text-xl font-bold mb-4">Upload Files</h2>
         <div className="mb-4 text-sm text-gray-600">
           <p>
@@ -58,14 +58,19 @@ const UploadModal = ({ isOpen, onClose, items, onUploadFiles, task }) => {
         </div>
         <div className="space-y-4">
           {items.map((item, index) => (
-            <div key={index} className="flex items-center space-x-4">
+            <div key={index} className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
               <span className="font-medium">{`Item ${index + 1}:`}</span>
               <input
                 type="file"
                 multiple
                 onChange={(e) => handleFileChange(e, index)}
-                className="flex-grow p-2 border rounded-md"
+                className="w-full md:w-auto flex-grow p-2 border rounded-md"
               />
+              {/* {fileMappings[index + 1] && (
+                <div className="text-sm text-gray-500 truncate max-w-full md:max-w-xs overflow-hidden text-ellipsis">
+                  {Array.from(fileMappings[index + 1]).map(file => file.name).join(', ')}
+                </div>
+              )} */}
             </div>
           ))}
         </div>

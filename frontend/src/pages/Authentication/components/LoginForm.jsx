@@ -22,9 +22,9 @@ const LoginForm = ({ onViewChange }) => {
 
     try {
       const response = await axios.post('/auth/login', { email, password, remember: rememberMe }, { withCredentials: true });
-      if (rememberMe){
+      // if (rememberMe){
         localStorage.setItem('user', JSON.stringify(response.data.user));
-      }
+      // }
       
       setUser(response.data.user);
       navigate(`/dashboard/${response.data.user.id}`);

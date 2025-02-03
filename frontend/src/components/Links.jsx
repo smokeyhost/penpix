@@ -28,8 +28,8 @@ const Links = ({ onClickLink }) => {
         Classes
       </Link>
       <Link
-        to="#"
-        className={`${style.link} ${isActive("#") ? style.active : ''}`}
+        to="/about"
+        className={`${style.link} ${isActive("/about") ? style.active : ''}`}
         onClick={onClickLink}
       >
         About

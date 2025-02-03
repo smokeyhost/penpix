@@ -18,6 +18,13 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { handleError } = useErrorHandler();
   const getTasks = useGetTasks();
+  
+  const refreshTasks = async () => {
+    setIsLoading(true);
+    await getTasks();
+    setIsLoading(false);
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,7 +40,6 @@ const Dashboard = () => {
         }
 
         setCurrentUser(fetchedUser);
-        await getTasks();
       } catch (error) {
         if (error.response?.status === 401) {
           handleError('unauthorized', 'Your session has expired. Login again.');
@@ -49,16 +55,11 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, []);
+    refreshTasks()
+  }, [userId]);
 
   const handleFilterChange = (filter) => {
     setFilter(filter);
-  };
-
-  const refreshTasks = async () => {
-    setIsLoading(true);
-    await getTasks();
-    setIsLoading(false);
   };
 
   if (isLoading) {
