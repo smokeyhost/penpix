@@ -16,9 +16,11 @@ venv/
 *.pyc
 __pycache__/
 /flask_server/venv/
-/flask_server/venv/Lib/site-packages/torch/lib/torch_cpu.dll
-/flask_server/venv/Lib/site-packages/torch/lib/dnnl.lib
-
+flask_server/venv/Lib/site-packages/torch/lib/dnnl.lib
+flask_server/venv/Lib/site-packages/torch/lib/torch_cpu.dll
+flask_server/traced_model.pt
+flask_server/sys_main_modules/weight/best.pt
+flask_server/venv/Lib/site-packages/cv2/cv2.pyd
 
 # Editor directories and files
 .vscode/*
