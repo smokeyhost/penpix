@@ -80,56 +80,76 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
     }
   };
 
-  const handleGradeSubmission = async() => {
+  const handleGradeSubmission = async () => {
     if (!answerTable || !circuitData.truth_table) {
       console.error("Missing data for comparison.");
       return;
     }
-
+  
     if (!relevantAnswerKey || !relevantAnswerKey.keys) {
       console.error("No relevant answer key found.");
       return;
     }
-
+  
     const detailedResults = [];
-
-    Object.entries(answerTable).forEach(([key, tableRow], index) => {
-      if (circuitData.truth_table[key]) {
-        const isMatch = JSON.stringify(tableRow) === JSON.stringify(circuitData.truth_table[key]);
-
-        if (isMatch) {
-          const grade = relevantAnswerKey.keys[index]?.grade || 0;
-
-          detailedResults.push({
-            Output: `OUT ${index + 1}`,
-            Expression: relevantAnswerKey.keys[index]?.expression || "Unknown Expression",
-            Grade: grade,
-            Result: "Match",
-          });
-        } else {
-          detailedResults.push({
-            Output: `OUT ${index + 1}`,
-            Expression: relevantAnswerKey.keys[index]?.expression || "Unknown Expression",
-            Grade: 0,
-            Result: "Mismatch",
-          });
+  
+    Object.entries(answerTable).forEach(([_ , tableRow], index) => {
+      let isMatch = false;
+      let matchedKey = null;
+  
+      // Compare tableRow to all rows in circuitData.truth_table
+      Object.entries(circuitData.truth_table).forEach(([truthKey, truthRow]) => {
+        if (JSON.stringify(tableRow) === JSON.stringify(truthRow)) {
+          isMatch = true;
+          matchedKey = truthKey;
         }
-        } else {
-          detailedResults.push({
-            Output: `OUT ${index + 1}`,
-            Expression: relevantAnswerKey.keys[index]?.expression || "Unknown Expression",
-            Grade: 0,
-            Result: "Missing in Submitted Table",
-          });
+      });
+  
+      if (isMatch) {
+        const grade = relevantAnswerKey.keys[index]?.grade || 0;
+  
+        detailedResults.push({
+          Output: `OUT ${index + 1}`,
+          Expression: relevantAnswerKey.keys[index]?.expression || "Unknown Expression",
+          Grade: Number(grade),
+          Result: "Match",
+          MatchedKey: matchedKey,
+        });
+      } else {
+        detailedResults.push({
+          Output: `OUT ${index + 1}`,
+          Expression: relevantAnswerKey.keys[index]?.expression || "Unknown Expression",
+          Grade: 0,
+          Result: "Mismatch",
+        });
       }
     });
+  
+    // Check for missing rows in the submitted table
+    Object.entries(circuitData.truth_table).forEach(([_ , truthRow], index) => {
+      const isMissing = !Object.entries(answerTable).some(([_ , tableRow]) => JSON.stringify(tableRow) === JSON.stringify(truthRow));
+  
+      if (isMissing) {
+        detailedResults.push({
+          Output: `OUT ${index + 1}`,
+          Expression: relevantAnswerKey.keys[index]?.expression || "Unknown Expression",
+          Grade: 0,
+          Result: "Missing in Submitted Table",
+        });
+      }
+    });
+  
     const totalGrade = detailedResults.reduce((sum, result) => sum + result.Grade, 0);
-
-    if (detailedResults.length > 0 && circuitData.boolean_expressions.length > 0){
+  
+    if (detailedResults.length > 0) {
+      console.log("detail results", detailedResults);
       setGradeResults(detailedResults);
       await updateGrade(file.id, totalGrade);
+    } else {
+      console.error("No detailed results generated for grading.");
     }
-    setShowGradeModal(true);  
+  
+    setShowGradeModal(true);
   };
 
   const handleShowCompareTable = () => {

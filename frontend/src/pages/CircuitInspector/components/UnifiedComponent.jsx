@@ -1,6 +1,8 @@
+import {convertSymbols} from "../../../utils/helpers";
+
 const UnifiedComponent = ({ relevantAnswerKey, circuitData }) => {
   const booleanExpressions = circuitData?.boolean_expressions || [];
-
+  console.log("Boolean Expressions", booleanExpressions);
   return (
     <div className="bg-white text-gray-800 text-base rounded-lg w-full max-h-[550px] flex flex-col overflow-hidden border border-gray-300 shadow-md">
       <div className="bg-gray-800 text-white text-md font-medium p-2 rounded-t-lg">
@@ -21,7 +23,7 @@ const UnifiedComponent = ({ relevantAnswerKey, circuitData }) => {
                   className="flex items-center gap-4 p-2 bg-gray-50 border border-gray-200 rounded-md"
                 >
                   <span className="text-sm text-gray-600 flex-grow">
-                    {key.expression}
+                    {convertSymbols(key.expression)}
                   </span>
                 </div>
               ))}
@@ -37,13 +39,7 @@ const UnifiedComponent = ({ relevantAnswerKey, circuitData }) => {
           <h3 className="font-bold text-gray-700 mb-2">Boolean Results</h3>
           {booleanExpressions.length > 0 ? (
             booleanExpressions
-            .sort((a, b) => {
-              const labelA = Object.keys(a)[0];
-              const labelB = Object.keys(b)[0];
-              const numA = parseInt(labelA.replace('OUT', ''), 10);
-              const numB = parseInt(labelB.replace('OUT', ''), 10);
-              return numA - numB;
-            }).map((expressionObj, index) => {
+            .map((expressionObj, index) => {
               const [label, expression] = Object.entries(expressionObj)[0];
               return (
                 <div
@@ -54,7 +50,7 @@ const UnifiedComponent = ({ relevantAnswerKey, circuitData }) => {
                     {label}
                   </span>
                   <span className="text-sm text-gray-600 flex-grow">
-                    {expression}
+                    {convertSymbols(expression)}
                   </span>
                 </div>
               );

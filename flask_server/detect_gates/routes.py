@@ -232,15 +232,18 @@ def analyze_circuit(file_id):
                 print(f"Processing key: {key}, value: {value}")
                 symp_expression = convert_to_sympy_expression(value, input_count)
                 expressions.append({key: str(symp_expression)})
-            circuit_analysis.boolean_expressions = expressions
+                
+            sorted_expressions = sorted(expressions, key=lambda x: list(x.keys())[0])
+            circuit_analysis.boolean_expressions = sorted_expressions
             db.session.commit()
         except Exception as e:
             return jsonify({"error": f"Error converting to sympy expressions: {str(e)}"}), 500
 
+        print(sorted_expressions)
         # Generate Truth Table
         try:
             truth_table_dict = {}
-            for idx, expression in enumerate(expressions):
+            for idx, expression in enumerate(sorted_expressions):
                 for key, value in expression.items():
                     try:
                         sympy_expression = string_to_sympy_expression(value)
@@ -422,3 +425,42 @@ def delete_prediction(prediction_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": "Failed to delete prediction", "details": str(e)}), 500
+    
+    
+    
+    
+def are_predictions_similar(pred1, pred2, margin_of_error=5):
+    similar = (
+        pred1['class_name'] == pred2['class_name'] and
+        abs(pred1['x'] - pred2['x']) <= margin_of_error and
+        abs(pred1['y'] - pred2['y']) <= margin_of_error and
+        abs(pred1['confidence'] - pred2['confidence']) <= margin_of_error
+    )
+    return similar
+
+def are_all_predictions_similar(predictions1, predictions2, margin_of_error=5):
+    if len(predictions1) != len(predictions2):
+        print(f"Different number of predictions: {len(predictions1)} vs {len(predictions2)}")
+        return False
+
+    return all(
+        any(are_predictions_similar(pred1, pred2, margin_of_error) for pred2 in predictions2)
+        for pred1 in predictions1
+    )
+
+@detect_gates_bp.route('/flag-similar-circuits', methods=['GET'])
+def flag_similar_circuits():
+    try:
+        margin_of_error = request.args.get('margin_of_error', default=5, type=int)
+        circuit_analyses = CircuitAnalysis.query.all()
+        flagged_circuits = []
+
+        for i, circuit1 in enumerate(circuit_analyses):
+            for j, circuit2 in enumerate(circuit_analyses):
+                if i >= j:
+                    continue
+                if are_all_predictions_similar(circuit1.predictions, circuit2.predictions, margin_of_error):
+                    flagged_circuits.append((circuit1.id, circuit2.id))
+        return jsonify({"flagged_circuits": flagged_circuits})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

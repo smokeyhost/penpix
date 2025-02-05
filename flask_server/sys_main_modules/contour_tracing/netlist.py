@@ -81,19 +81,19 @@ def process_circuit_connection(image_bytes: BytesIO, predictions: list) -> tuple
         #     cv.line(image_copy, start, end, (0,0,255), 2)
         
 
-        for point in line_boundary:
-            cv.circle(image_copy, point, 1, (0, 0, 255), -1)
+        # for point in line_boundary:
+        #     cv.circle(image_copy, point, 1, (0, 0, 255), -1)
         
-        # Get the boolean function and display truth table
+        # # Get the boolean function and display truth table
         
-        desired_width = 1000
-        desired_height = 1000
-        resized_image = cv.resize(image_copy, (desired_width, desired_height))
+        # desired_width = 1000
+        # desired_height = 1000
+        # resized_image = cv.resize(image_copy, (desired_width, desired_height))
 
-        # Display the resized image
-        cv.imshow('Processed Image', resized_image)
-        cv.waitKey(0)
-        cv.destroyAllWindows()
+        # # Display the resized image
+        # cv.imshow('Processed Image', resized_image)
+        # cv.waitKey(0)
+        # cv.destroyAllWindows()
         
         boolean_functions = contour_tracing.get_boolean_function(connections)
         input_count = get_class_count(data_copy, 'input')

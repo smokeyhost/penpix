@@ -52,64 +52,19 @@ const FilesList = ({ files, refreshFiles, task }) => {
   };
 
   const handleComparePredictions = async () => {
-    const marginOfError = 20; // Margin of error for position and confidence level
-  
-    const arePredictionsSimilar = (pred1, pred2) => {
-      return (
-        pred1.class_id === pred2.class_id &&
-        Math.abs(pred1.x - pred2.x) <= marginOfError &&
-        Math.abs(pred1.y - pred2.y) <= marginOfError &&
-        Math.abs(pred1.confidence - pred2.confidence) <= marginOfError / 100
-      );
-    };
-  
-    const areAllPredictionsSimilar = (predictions1, predictions2) => {
-      if (predictions1.length !== predictions2.length) return false;
-  
-      for (let i = 0; i < predictions1.length; i++) {
-        if (!arePredictionsSimilar(predictions1[i], predictions2[i])) {
-          return false;
-        }
-      }
-      return true;
-    };
-  
     try {
-      const predictionsMap = new Map();
-      const similarFileIds = [];
-  
-      for (const file of files) {
-        const response = await axios.get(`/detect-gates/get-circuit-data/${file.id}`);
-        const { circuit_analysis } = response.data;
-  
-        if (circuit_analysis && circuit_analysis.predictions) {
-          const predictions = circuit_analysis.predictions;
-          console.log(`File ID: ${file.id}, Predictions:`, predictions);
-  
-          let foundSimilar = false;
-          for (const [key, value] of predictionsMap.entries()) {
-            if (areAllPredictionsSimilar(predictions, key)) {
-              value.push(file.id);
-              foundSimilar = true;
-              break;
-            }
-          }
-  
-          if (!foundSimilar) {
-            predictionsMap.set(predictions, [file.id]);
-          }
-        }
-      }
-  
-      predictionsMap.forEach((ids) => {
-        if (ids.length > 1) {
-          similarFileIds.push(...ids);
-        }
+      const response = await axios.get('/detect-gates/flag-similar-circuits', {
+        params: {
+          margin_of_error: 5, 
+        },
       });
   
-      if (similarFileIds.length === 0) {
+      const { flagged_circuits } = response.data;
+  
+      if (flagged_circuits.length === 0) {
         toastInfo('No similarities found.');
       } else {
+        const similarFileIds = flagged_circuits.flat();
         setSimilarFiles(similarFileIds);
         toastInfo('Similarities detected in submissions.');
       }
@@ -117,7 +72,7 @@ const FilesList = ({ files, refreshFiles, task }) => {
       console.error('Error comparing predictions:', error);
       toastInfo('An error occurred while comparing predictions.', 'error');
     }
-  };
+  };;
 
   const filteredFiles = files
     .filter((file) => {
@@ -153,8 +108,8 @@ const FilesList = ({ files, refreshFiles, task }) => {
     return <p className="text-sm">No submissions available.</p>;
   };
 
-  const handleNavigate = (fileIndex) => {
-    sessionStorage.setItem("fileIndex", JSON.stringify(fileIndex));
+  const handleNavigate = (fileId) => {
+    sessionStorage.setItem("fileId", JSON.stringify(fileId));
     navigate(`/circuit-evaluator/${task.id}`);
   };
 
@@ -267,7 +222,7 @@ const FilesList = ({ files, refreshFiles, task }) => {
                 </tr>
               </thead>
               <tbody>
-                {files.map((file, index) => (
+                {files.map((file) => (
                   <tr
                     key={file.id}
                     className={`text-center ${similarFiles.includes(file.id) ? 'bg-yellow-100' : ''}`}
@@ -279,7 +234,7 @@ const FilesList = ({ files, refreshFiles, task }) => {
                       <span
                         className="text-blue-500 hover:underline cursor-pointer"
                         title={formatFilename(file.filename)}
-                        onClick={() => handleNavigate(index)}
+                        onClick={() => handleNavigate(file.id)}
                       >
                         {formatFilename(file.filename)}
                       </span>

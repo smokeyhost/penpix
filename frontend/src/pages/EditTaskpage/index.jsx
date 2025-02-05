@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
 import useToast from "../../hooks/useToast";
 import axios from 'axios';
-import { isExpressionValid } from "../../utils/helpers";
+import { isExpressionValid, convertExpressionToServerFormat, convertExpressionToUserFormat } from "../../utils/helpers";
 
 const taskTypeOptions = [
   { value: "quiz", label: "Quiz" },
@@ -166,7 +166,7 @@ const EditTaskPage = () => {
   const handleExpressionChange = (itemIndex, keyIndex, field, value) => {
     const updatedAnswerKeys = [...formData.answerKeys];
     updatedAnswerKeys[itemIndex].keys[keyIndex][field] = value;
-
+  
     updateErrorState(errors, itemIndex, keyIndex, field);
     setFormData((prev) => ({ ...prev, answerKeys: updatedAnswerKeys }));
   };
@@ -194,9 +194,19 @@ const EditTaskPage = () => {
   };
 
   const handleUpdateTask = async () => {
-    console.log(formData);
+    const convertedFormData = {
+      ...formData,
+      answerKeys: formData.answerKeys.map((answerKey) => ({
+        ...answerKey,
+        keys: answerKey.keys.map((key) => ({
+          ...key,
+          expression: convertExpressionToServerFormat(key.expression),
+        })),
+      })),
+    };
+  
     try {
-      const response = await axios.patch(`/task/edit-task/${taskId}`, formData);
+      const response = await axios.patch(`/task/edit-task/${taskId}`, convertedFormData);
       console.log(response);
       toastSuccess("The task was updated successfully.");
       navigate(`/task/${taskId}`);
@@ -214,25 +224,25 @@ const EditTaskPage = () => {
 
   const isFormValid = async () => {
     const newErrors = {};
-
+  
     if (!formData.title.trim()) {
       newErrors.title = "Title is required.";
     } else if (formData.title.length > 30) {
       newErrors.title = "Title cannot exceed 30 characters.";
     }
-
+  
     if (!formData.classId) {
       newErrors.classId = "Class Group is required.";
     }
-
+  
     if (!formData.examType) {
       newErrors.examType = "Type of Task is required.";
     }
-
+  
     if (!formData.dueDate) {
       newErrors.dueDate = "Due Date is required.";
     }
-
+  
     for (const [itemIndex, item] of formData.answerKeys.entries()) {
       if (item.keys.length === 0) {
         newErrors[`missingAnswerKey${itemIndex}`] = `Each answer key should have at least one expression and grade.`;
@@ -245,11 +255,11 @@ const EditTaskPage = () => {
           newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
             `Expression cannot exceed 100 characters for ${item.item} - Answer Key ${keyIndex + 1}.`;
         } else {
-          const isValid = await isExpressionValid(key.expression);
-          console.log(isValid);
+          const serverExpression = convertExpressionToServerFormat(key.expression);
+          const isValid = await isExpressionValid(serverExpression);
           if (!isValid) {
             newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
-              `Invalid expression for ${item.item} - Answer Key ${keyIndex + 1}. Accepted symbols: ~ | & ^. Inputs should be labeled as X1, X2, X3 ...X7.`;
+              `Invalid expression for ${item.item} - Answer Key ${keyIndex + 1}. Accepted symbols: ~ | & ^. Inputs should be labeled as A, B, C, ... G.`;
           }
         }
         if (!key.grade) {
@@ -258,7 +268,7 @@ const EditTaskPage = () => {
         }
       }
     }
-
+  
     if (formData.answerKeys.length === 0) {
       newErrors.noAnswerKeys = "At least one answer key is required.";
     }
@@ -315,8 +325,8 @@ const EditTaskPage = () => {
                 <FaInfoCircle className="text-gray-500 cursor-pointer" />
                 <div className="absolute left-0 bottom-full mb-2 w-64 p-2 bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <p className="text-sm text-gray-700">Accepted symbols: ~ | & ^</p>
-                  <p className="text-sm text-gray-700">Inputs should be labeled as X1, X2,...X7</p>
-                  <p className="text-sm text-gray-700">Example: X1 ^ X2 | (X3 & X1)</p>
+                  <p className="text-sm text-gray-700">Inputs should be labeled A, B, C, ... G</p>
+                  <p className="text-sm text-gray-700">Example: A ^ B | (C & A)</p>
                 </div>
               </div>
             </div>
@@ -341,7 +351,7 @@ const EditTaskPage = () => {
                         <input
                           type="text"
                           placeholder={`Expression for Answer Key ${keyIndex + 1}`}
-                          value={key.expression}
+                          value={convertExpressionToUserFormat(key.expression)}
                           onChange={(e) =>
                             handleExpressionChange(itemIndex, keyIndex, "expression", e.target.value)
                           }

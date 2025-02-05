@@ -80,21 +80,13 @@ def count_inputs(equations: list):
 
 
 def is_expression_valid(expression):
+    X1, X2, X3, X4, X5, X6, X7, X8 = symbols('X1 X2 X3 X4 X5 X6 X7 X8') 
+
     try:
-        X1, X2, X3, X4, X5, X6, X7, X8 = symbols('X1 X2 X3 X4 X5 X6 X7 X8')
-        
-        eval_expr = sympify(expression)
-        
-        simplified_expr = simplify_logic(eval_expr)
-        
-        allowed_symbols = {X1, X2, X3, X4, X5, X6, X7, X8}
-        if not all(symbol in allowed_symbols for symbol in simplified_expr.free_symbols):
-            return False
-        
-        # Ensure the expression contains at least one allowed symbol
-        if not any(symbol in allowed_symbols for symbol in eval_expr.free_symbols):
-            return False
-        
-        return True
-    except (SympifyError, TypeError):
+        eval_expression = eval(expression)
+        simplified_expr = simplify_logic(eval_expression)
+        if simplified_expr:
+            return True
+    except Exception as e:
+        print(f"Error evaluating expression: {e}")
         return False

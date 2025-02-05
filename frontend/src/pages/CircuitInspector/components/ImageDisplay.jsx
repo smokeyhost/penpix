@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import ClassSelector from './ClassSelector';
+import { convertExpressionToUserFormat } from '../../../utils/helpers';
 import axios from 'axios';
 
 const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confidenceThreshold, onSetPredictions }) => {
@@ -79,7 +80,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
             // Add object_id at the bottom of the box
             if (class_name === 'input'){
               ctx.fillText(
-                `${label}`,
+                `${convertExpressionToUserFormat(label)}`,
                 scaledX,
                 scaledY + scaledHeight + 15
               );

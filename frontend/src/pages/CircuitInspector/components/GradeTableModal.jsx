@@ -10,14 +10,17 @@ const GradeTableModal = ({ results, onClose }) => {
   return (
     <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
       <div
-        className={`bg-white p-6 rounded-lg shadow-lg max-h-[80vh] overflow-auto ${
+        className={`bg-white p-6 rounded-lg shadow-lg max-h-[80vh] overflow-auto relative ${
           results.length === 0 ? "w-[40vw]" : "w-[80vw]"
         }`}
       >
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+          Close
+        </button>
         <h2 className="text-center text-xl font-semibold mb-4">Grade Submission Results</h2>
 
         <div className="text-center mb-4">
-          <h3 className="font-semibold text-lg">Total Grade: {totalGrade}</h3>
+          <h3 className="font-semibold text-lg">Total Grade: {parseInt(totalGrade, 10)}</h3>
         </div>
 
         {results.length === 0 ? (
@@ -50,18 +53,9 @@ const GradeTableModal = ({ results, onClose }) => {
             </tbody>
           </table>
         )}
-
-        <div className="mt-4 flex justify-center">
-          <button
-            className="bg-gray-800 text-white py-2 px-4 rounded-md hover:shadow-lg"
-            onClick={onClose}
-          >
-            Close
-          </button>
-        </div>
       </div>
     </div>
   );
-};
+}
 
 export default GradeTableModal;

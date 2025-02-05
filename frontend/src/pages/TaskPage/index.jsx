@@ -7,7 +7,7 @@ import { UserAtom } from '../../atoms/UserAtom';
 import { FilesAtom } from '../../atoms/FilesAtom'
 import FilesList from './components/FilesList';
 import InvalidFilesList from './components/InvalidFilesList';
-import { formatDueDateTime } from '../../utils/helpers';
+import { formatDueDateTime, convertSymbols } from '../../utils/helpers';
 import useDeleteTask from '../../hooks/useDeleteTask';
 import useClassData from '../../hooks/useClassData';
 import TaskLinkModal from './components/TaskLinkModal'; 
@@ -62,7 +62,7 @@ const TaskPage = () => {
 
     getSelectedTask();
     fetchFiles(); 
-
+    sessionStorage.removeItem("fileId");
   }, [taskId, fetchFiles]);
 
   const handleUploadFiles = async (item, files) => {
@@ -166,7 +166,7 @@ const TaskPage = () => {
                         <li key={index} className="flex justify-between items-center">
                           <div>
                             <span className="font-semibold">Expression: </span>
-                            <span>{key['expression']}</span>
+                            <span>{convertSymbols(key['expression'])}</span>
                           </div>
                           <div>
                             <span className="font-semibold">Grade: </span>

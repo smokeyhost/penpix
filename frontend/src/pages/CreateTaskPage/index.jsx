@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { UserAtom } from '../../atoms/UserAtom';
 import useToast from "../../hooks/useToast";
-import { isExpressionValid } from "../../utils/helpers";
+import { isExpressionValid, convertExpressionToServerFormat } from "../../utils/helpers";
 import axios from 'axios';
 
 const taskTypeOptions = [
@@ -167,9 +167,20 @@ const CreateTaskPage = () => {
   };
 
   const handleCreateTask = async () => {
-    console.log(formData);
+    const convertedFormData = {
+      ...formData,
+      answerKeys: formData.answerKeys.map((answerKey) => ({
+        ...answerKey,
+        keys: answerKey.keys.map((key) => ({
+          ...key,
+          expression: convertExpressionToServerFormat(key.expression),
+        })),
+      })),
+    };
+
+    console.log(convertedFormData);
     try {
-      const response = await axios.post("/task/create-task", formData);
+      const response = await axios.post("/task/create-task", convertedFormData);
       console.log(response.data);
       toastSuccess("The new task was created successfully.");
       navigate(`/dashboard/${user.id}`);
@@ -211,11 +222,12 @@ const CreateTaskPage = () => {
           newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
             `Expression cannot exceed 100 characters for ${item.item} - Answer Key ${keyIndex + 1}.`;
         } else {
-          const isValid = await isExpressionValid(key.expression);
+          const serverExpression = convertExpressionToServerFormat(key.expression);
+          const isValid = await isExpressionValid(serverExpression);
           console.log(isValid)
           if (!isValid) {
             newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
-              `Invalid expression for ${item.item} - Answer Key ${keyIndex + 1}. Accepted symbols: ~ | & ^. Inputs should be labeled as X1, X2, X3 ...X7.`;
+              `Invalid expression for ${item.item} - Answer Key ${keyIndex + 1}. Accepted symbols: ~ | & ^. Inputs should be labeled as A, B, C, ... G.`;
           }
         }
         if (!key.grade) {
@@ -286,8 +298,8 @@ const CreateTaskPage = () => {
                 <FaInfoCircle className="text-gray-500 cursor-pointer" />
                 <div className="absolute left-0 bottom-full mb-2 w-64 p-2 bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <p className="text-sm text-gray-700">Accepted symbols: ~ | & ^</p>
-                  <p className="text-sm text-gray-700">Inputs should be labeled X1, X2,...X7</p>
-                  <p className="text-sm text-gray-700">Example: X1 ^ X2 | (X3 & X1)</p>
+                  <p className="text-sm text-gray-700">Inputs should be labeled A, B, C, ... G</p>
+                  <p className="text-sm text-gray-700">Example: A ^ B | (C & A)</p>
                 </div>
               </div>
             </div>

@@ -26,8 +26,9 @@ const CircuitInspectorPage = () => {
   const {toastSuccess, toastError} = useToast()
 
   const [fileIndex, setFileIndex] = useState(() => {
-    const storedIndex = localStorage.getItem("fileIndex");
-    return storedIndex ? JSON.parse(storedIndex) : 0;
+    const storedId = sessionStorage.getItem("fileId");
+    const index = storedId ? files.findIndex(file => file.id === JSON.parse(storedId)) : 0;
+    return index;
   });
 
 
@@ -98,7 +99,7 @@ const CircuitInspectorPage = () => {
   useEffect(() => {
     if (files.length > 0) {
       setCurrentFile(files[fileIndex]);
-      localStorage.removeItem("fileIndex");
+      sessionStorage.removeItem("fileId");
     }
   }, [files]);
 
