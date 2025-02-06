@@ -39,9 +39,8 @@ const TaskPage = () => {
     try {
       const response = await axios.get(`/files/get-files/${taskId}`);
       setFiles(response.data.files);
-      console.log(response.data.files);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }, [taskId, setFiles]);
 
@@ -53,10 +52,9 @@ const TaskPage = () => {
           const task = await getTask(taskId)
           await getClassData(task.class_id);
           setTask(task);
-          console.log(task);
         }
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
 

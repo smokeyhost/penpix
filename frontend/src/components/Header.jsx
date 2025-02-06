@@ -13,7 +13,6 @@ import useNotifications from "../hooks/useNotifications";
 import { useRecoilValue } from "recoil";
 import { UserAtom } from "../atoms/UserAtom";
 
-
 const Header = () => {
   const {notifications, fetchUnreadNotifications} = useNotifications();
   const currentUser = useRecoilValue(UserAtom);
@@ -33,10 +32,6 @@ const Header = () => {
     }
   };
 
-  const handleToggleNotification = () => {
-    setIsNotificationOpen(!isNotificationOpen);
-  };
-
   useEffect(() => {
     fetchUnreadNotifications();
   }, []);
@@ -44,91 +39,65 @@ const Header = () => {
   const unreadCount = notifications.filter((notification) => !notification.read).length;
 
   return (
-    <div className="flex justify-between items-center h-[50px] border-b-2 px-5 py-7 relative w-full bg-white">
+    <header className="flex justify-between items-center h-[60px] border-b-2 px-5 py-4 w-full bg-white shadow-md">
+      {/* Logo */}
       <div className="flex items-center">
         <Link to={`/dashboard/${currentUser?.id}`}>
-          <img src="/icons/PenPix-txt.png" alt="Logo" />
+          <img src="/icons/PenPix-txt.png" alt="Logo" className="h-8" />
         </Link>
       </div>
 
-      <div className="navbar flex items-center max-md:hidden">
+      {/* Desktop Navigation */}
+      <nav className="hidden md:flex items-center gap-6">
         <Links onClickLink={() => setShowMenu(false)} />
-      </div>
+      </nav>
 
-      <div className="user-menu flex items-center gap-8 font-semibold max-md:hidden">
-        <div className="flex items-center gap-3 cursor-pointer relative h-full w-full">
-          <div className="relative">
-            <RiNotification2Line size={25} onClick={handleToggleNotification} />
-            {unreadCount > 0 && (
-              <span className="absolute -top-2 -right-2 text-white bg-red-500 rounded-full text-xs w-5 h-5 flex items-center justify-center">
-                {unreadCount}
-              </span>
-            )}
-          </div>
-          <IoSettingsOutline size={25} onClick={() => navigate("/settings")} />
-          {isNotificationOpen ? (
-            <div className="absolute w-full h-full z-50 -bottom-11 -left-64">
-              <Notifications
-                onClose={() => setIsNotificationOpen(!isNotificationOpen)}
-                notificationsList={notifications}
-                fetchUnreadNotifications={fetchUnreadNotifications}
-              />
-            </div>
-          ) : (
-            ""
+      {/* Desktop User Actions */}
+      <div className="hidden md:flex items-center gap-6">
+        <div className="relative cursor-pointer">
+          <RiNotification2Line size={25} onClick={() => setIsNotificationOpen(!isNotificationOpen)} />
+          {unreadCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+              {unreadCount}
+            </span>
           )}
         </div>
-        <button className="flex items-center gap-1" onClick={handleLogout}>
-          <span className="text-md text-primaryColor">Logout</span>
-          <IoLogOut size={35} color="#F26132" />
+        <IoSettingsOutline size={25} onClick={() => navigate("/settings")} className="cursor-pointer" />
+        <button className="flex items-center gap-2 text-primaryColor font-semibold" onClick={handleLogout}>
+          Logout
+          <IoLogOut size={25} color="#F26132" />
         </button>
       </div>
 
-      <div
-        className={`z-10 fixed top-0 right-0 h-full w-1/4 bg-white shadow-lg transition-transform transform md:hidden ${
-          showMenu ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="p-5">
-          <div className="hidden max-md:block cursor-pointer mt-3">
-            <IoClose size={30} onClick={() => setShowMenu(!showMenu)} />
-          </div>
-          <div className="mt-10">
-            <Links onClickLink={() => setShowMenu(false)} />
-          </div>
-          <button className="flex items-center gap-1 mt-10" onClick={handleLogout}>
-            <span className="text-md text-primaryColor">Logout</span>
-            <IoLogOut size={25} color="#F26132" />
-          </button>
-        </div>
-      </div>
+      {/* Mobile Menu Button */}
+      <LuMenu size={30} className="md:hidden cursor-pointer" onClick={() => setShowMenu(true)} />
 
-      <div className="hidden max-md:flex gap-4 cursor-pointer">
-        <div className="flex items-center gap-3 cursor-pointer relative">
-          <div className="relative">
-            <RiNotification2Line size={25} onClick={handleToggleNotification} />
-            {unreadCount > 0 && (
-              <span className="absolute -top-2 -right-2 text-white bg-red-500 rounded-full text-xs w-5 h-5 flex items-center justify-center">
-                {unreadCount}
-              </span>
-            )}
-          </div>
-          <IoSettingsOutline size={25} onClick={() => navigate("/settings")} />
-          {isNotificationOpen ? (
-            <div className="absolute w-full h-full z-50 -bottom-11 right-64 max-md:right-56">
-              <Notifications
-                onClose={() => setIsNotificationOpen(!isNotificationOpen)}
-                notificationsList={notifications}
-                fetchUnreadNotifications={fetchUnreadNotifications}
-              />
+      {/* Mobile Menu Overlay */}
+      {showMenu && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:hidden">
+          <div className="w-3/4 max-w-[280px] bg-white h-full shadow-lg transform transition-transform">
+            <div className="flex justify-between items-center mb-6 p-5">
+              <h2 className="text-lg font-semibold">Menu</h2>
+              <IoClose size={30} className="cursor-pointer" onClick={() => setShowMenu(false)} />
             </div>
-          ) : (
-            ""
-          )}
+            <Links onClickLink={() => setShowMenu(false)} />
+            <div className="mt-8 space-y-4 ">
+              <button className="w-full flex items-center justify-center gap-2 text-lg font-medium text-primaryColor hover:underline" onClick={logout}>
+                Logout
+                <IoLogOut size={25} color="#F26132" />
+              </button>
+            </div>
+          </div>
         </div>
-        <LuMenu size={30} onClick={() => setShowMenu(!showMenu)} />
-      </div>
-    </div>
+      )}
+
+      {/* Notifications */}
+      {isNotificationOpen && (
+        <div className="absolute top-14 right-5 w-[300px] bg-white shadow-lg rounded-lg z-50">
+          <Notifications onClose={() => setIsNotificationOpen(false)} notificationsList={notifications} fetchUnreadNotifications={fetchUnreadNotifications} />
+        </div>
+      )}
+    </header>
   );
 };
 

@@ -156,7 +156,7 @@ const CreateTaskForm = ({ onClose }) => {
       setTasks(updatedTasks);
       onClose();
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
     }
   };
 

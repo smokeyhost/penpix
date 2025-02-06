@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useRecoilState } from 'recoil';
 import { NotificationFilterAtom } from '../../../atoms/NotificationFilterAtom';
 import NotificationSwitch from "./NotificationSwitch";
@@ -15,10 +14,6 @@ const NotificationSetting = () => {
       return newFilters;
     });
   };
-
-  useEffect(() => {
-    console.log("Filters applied:", notificationFilters);
-  }, [notificationFilters]);
 
   return (
     <div className="flex flex-col gap-2">

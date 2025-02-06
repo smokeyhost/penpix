@@ -27,7 +27,6 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
     if (relevantAnswerKey && relevantAnswerKey.keys) {
       const extractedExpressions = relevantAnswerKey.keys.map(key => key.expression);
       setExpressions(extractedExpressions);
-      console.log("Expressions", extractedExpressions); 
     }
   }, [relevantAnswerKey]);
 
@@ -36,9 +35,8 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
       try {
         const response = await axios.post('detect-gates/generate-truth-table', { expressions });
         setAnswerTable(response.data.truth_table);
-        console.log("Generated Truth Table", response.data.truth_table);
       } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
       }
     };
     getAnswerTruthTable();
@@ -70,7 +68,6 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
       const response = await axios.put(`/files/update-grade/${fileId}`, { total_grade: totalGrade });
   
       if (response.status === 200) {
-        console.log("Grade updated successfully:", response.data);
         onGradeUpdate(fileId, true);
       } else {
         console.error("Failed to update grade:", response.data);
@@ -142,7 +139,6 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
     const totalGrade = detailedResults.reduce((sum, result) => sum + result.Grade, 0);
   
     if (detailedResults.length > 0) {
-      console.log("detail results", detailedResults);
       setGradeResults(detailedResults);
       await updateGrade(file.id, totalGrade);
     } else {

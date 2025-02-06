@@ -8,13 +8,11 @@ const TaskMenu = ({onDelete, onGetLink, onGetTemplate}) => {
   const handleGetLink = (event) => {
     event.stopPropagation();
     onGetLink(event)
-    console.log("Get Link")
   };
 
   const handleGetTemplate = (event) =>{
     event.stopPropagation() 
     onGetTemplate(event)
-    console.log("Get Template")
   }
  
 

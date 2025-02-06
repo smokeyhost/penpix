@@ -24,6 +24,7 @@ const CreateClassPage = () => {
   });
 
   const [studentId, setStudentId] = useState(''); 
+  const [loading, setLoading] = useState(false);  
   const [errors, setErrors] = useState({});
   const user = useRecoilValue(UserAtom);
   const {toastSuccess} = useToast()
@@ -56,14 +57,15 @@ const CreateClassPage = () => {
       classSchedule: classData.classSchedule,
       studentList: classData.studentList
     };
-
+    setLoading(true);
     try {
-      const response = await axios.post('/classes/create-class', classPayload);
-      console.log(response);
-      toastSuccess("New class is created successfully.")
+      await axios.post('/classes/create-class', classPayload);
+      toastSuccess("Class created successfully.")
       navigate(`/classes/${user?.id}`);
     } catch (error) {
       console.error("Error creating class:", error);
+    } finally{
+      setLoading(false);
     }
   };
 
@@ -169,7 +171,7 @@ const CreateClassPage = () => {
           className="px-6 py-2 bg-black text-white rounded-lg"
           onClick={handleCreateClass}
         >
-          Create Class
+          {!loading ? "Create Class" : "Creating..."}
         </button>
       </div>
     </div>

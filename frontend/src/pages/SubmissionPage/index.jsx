@@ -15,6 +15,7 @@ const SubmissionPage = () => {
   const [files, setFiles] = useState({}); 
   const [isUploaded, setIsUploaded] = useState(false); 
   const [isPastDue, setIsPastDue] = useState(false);
+  const [loading, setLoading] = useState(true);   
   const [isTaskNotFound, setIsTaskNotFound] = useState(false);
   const [owner, setOwner] = useState(null);
   const [classInfo, setClassInfo] = useState(null);
@@ -46,7 +47,6 @@ const SubmissionPage = () => {
           const classResponse = await axios.get(`/classes/get-class/${response.data.class_id}`);
           if (classResponse.data) {
             setClassInfo(classResponse.data);
-            console.log(classResponse.data)
           }
         } else {
           setIsTaskNotFound(true); // Set the flag if task data is missing
@@ -66,12 +66,13 @@ const SubmissionPage = () => {
     updatedFiles[itemIndex] = event.target.files[0]; 
     setFiles(updatedFiles);
   };
-
+  
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
     const invalidFilenames = [];
     let hasFiles = false;
+    setLoading(true);
 
     task.answer_keys.forEach((item, index) => {
       const file = files[index];
@@ -87,7 +88,7 @@ const SubmissionPage = () => {
         }
       }
     });
-
+    
     if (!hasFiles) {
       toastWarning('No files selected for upload. Please choose files to upload.');
       return;
@@ -97,7 +98,7 @@ const SubmissionPage = () => {
       toastWarning(`The following files do not follow the proper naming convention: ${invalidFilenames.join(', ')}. Please rename them to follow the convention: id_typeOfActivity[#itemNumber].png`);
       return;
     }
-
+    
     formData.append('task_id', task.id);
     try {
       const response = await axios.post('/files/upload-files', formData, {
@@ -118,6 +119,8 @@ const SubmissionPage = () => {
     } catch (error) {
       console.error('Error uploading files:', error);
       toastError('An error occurred during file upload.');
+    } finally{
+      setLoading(false);
     }
   };
 
@@ -145,7 +148,7 @@ const SubmissionPage = () => {
   }
 
   return (
-    <div className="w-full flex flex-col gap-6">
+    <div className="w-full flex flex-col gap-4">
       <header className="w-full p-6 text-black">
         <div className="flex items-center mb-2">
           <Link to="/"><img src="/icons/PenPix-txt.png" alt="Logo" /></Link>
@@ -153,22 +156,22 @@ const SubmissionPage = () => {
         <h1 className="text-2xl font-bold text-center">Submission Page</h1>
       </header>
   
-      <div className="p-10 w-full flex flex-col lg:flex-row gap-6">
+      <div className="p-10 w-full flex flex-col-reverse lg:flex-row gap-6">
         {/* Left Section */}
         <div className="lg:w-2/3">
           <div className={`${styles.taskDetails} bg-gray-100 p-6 rounded-lg mb-6 relative`}>
             <h2 className="text-xl font-semibold">{task.title || 'Task Title'}</h2>
             <p><strong>Exam Type:</strong> {task.exam_type.charAt(0).toUpperCase() + task.exam_type.slice(1) || 'Exam Type'}</p>
             <p><strong>Due Date:</strong> {formatDueDateTime(task.due_date) || 'Due Date'}</p>
-            <p
-              className="absolute top-4 right-4 text-blue-500 underline italic cursor-pointer"
-              onClick={() => downloadTemplate(taskId)}
-            >
-              Download Template
-            </p>
           </div>
+          <p
+            className="text-blue-500 underline italic cursor-pointer"
+            onClick={() => downloadTemplate(taskId)}
+          >
+            Download Template
+          </p>
   
-          <div className="mb-4 text-sm text-gray-600">
+          <div className="mb-4 mt-4 text-sm text-gray-600">
             <p>
               <strong>Note:</strong> Please ensure your file names follow this convention: <code>id_typeOfActivity[#itemNumber].png</code>. 
               For example: <code>12345_{task.exam_type}[1].png</code>.
@@ -200,7 +203,7 @@ const SubmissionPage = () => {
                 type="submit"
                 className={`${styles.uploadButton} bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600`}
               >
-                Submit Files
+                {!loading ? "Submit Files" : "Uploading..."}
               </button>
             </form>
           ) : (

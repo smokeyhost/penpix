@@ -32,6 +32,7 @@ const EditTaskPage = () => {
   const navigate = useNavigate();
   const [classOptions, setClassOptions] = useState([]);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const { toastSuccess } = useToast();
   const { taskId } = useParams();
 
@@ -73,7 +74,6 @@ const EditTaskPage = () => {
       try {
         const response = await axios.get(`/task/get-task/${taskId}`);
         const task = response.data;
-        console.log(task);
 
         const initialData = {
           title: task.title || "",
@@ -93,7 +93,7 @@ const EditTaskPage = () => {
 
         setFormData(initialData);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
 
@@ -204,14 +204,15 @@ const EditTaskPage = () => {
         })),
       })),
     };
-  
+    setLoading(true);
     try {
       const response = await axios.patch(`/task/edit-task/${taskId}`, convertedFormData);
-      console.log(response);
-      toastSuccess("The task was updated successfully.");
+      toastSuccess(response.data.message);
       navigate(`/task/${taskId}`);
     } catch (error) {
       console.error(error);
+    } finally{
+      setLoading(false);
     }
   };
 
@@ -453,7 +454,9 @@ const EditTaskPage = () => {
               Back
             </button>
             <button className="px-6 py-2 bg-black text-white rounded-lg" onClick={handleUpdateTask}>
-              Save Task
+              {!loading ? (
+                                "Save Task"
+                              ) : "Saving..."}
             </button>
           </div>
         </div>

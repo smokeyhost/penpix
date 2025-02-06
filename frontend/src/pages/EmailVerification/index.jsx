@@ -13,12 +13,10 @@ const EmailVerification = () => {
     const verifyEmail = async () => {
       const queryParams = new URLSearchParams(location.search);
       const token = queryParams.get('token'); 
-      console.log("Token", token);
       if (token) {
         try {
           const response = await axios.post('/auth/verify-email', { token: token });
           if (response.data.success) {
-            console.log("Verified");
             setVerificationStatus(response.data.message); 
             setIsSuccess(true);
             setTimeout(() => {

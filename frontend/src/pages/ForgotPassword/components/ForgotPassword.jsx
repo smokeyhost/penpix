@@ -39,6 +39,7 @@ const ForgotPassword = () => {
       setShowComponent('verifyEmail');
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong. Please try again.");
+      console.error(err.message)
     } finally {
       setLoading(false); 
     }

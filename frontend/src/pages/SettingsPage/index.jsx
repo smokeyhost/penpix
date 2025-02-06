@@ -37,18 +37,17 @@ const SettingsPage = () => {
       setIsChangeRecoveryEmail(false);
       toastSuccess("Recovery email updated successfully");
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
     }
   };
 
   const handleSavePassword = async (newPassword) => {
     try {
       await axios.post("/auth/change-password", {newPassword});
-      console.log("password changed successfully");
       setIsChangePassword(false);
       toastSuccess("Password changed successfully");
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
     }
   };
 
@@ -63,7 +62,7 @@ const SettingsPage = () => {
       localStorage.setItem("user", JSON.stringify(response.data.user));
       toastSuccess("Profile name updated successfully");
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
     }
   };
 
@@ -81,7 +80,6 @@ const SettingsPage = () => {
       const updatedUserProfile = response.data.user;
       setProfile(prevProfile => ({ ...prevProfile, profileImageUrl: updatedUserProfile.profile_image_url}));
       localStorage.setItem("user", JSON.stringify(updatedUserProfile));
-      console.log("USER", response.data.user);
       toastSuccess("Profile image uploaded successfully");
     } catch (error) {
       console.error("Error uploading image:", error.response ? error.response.data : error.message);

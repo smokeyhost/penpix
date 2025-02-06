@@ -138,7 +138,6 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
         clickY >= clickData.scaledY &&
         clickY <= clickData.scaledY + clickData.scaledHeight
       ) {
-        console.log('Clicked on:', prediction);
         setSelectedPrediction(prediction);
         setPosition({
           top: e.clientY + 10,
@@ -187,7 +186,6 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
       });
 
       if (response.status === 200) {
-        console.log("Class updated successfully:", response.data);
         onSetPredictions(response.data.filtered_predictions);
         setIsUpdatedPrediction(!isUpdatedPrediction);
         setIsClassSelectorOpen(false);
@@ -204,15 +202,13 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
   };
 
   const handleRemoveClass = async (predictionId) => {
-    console.log("Remove class", predictionId);
     try {
       const response = await axios.delete(`detect-gates/delete-prediction/${predictionId}`);
-      console.log("Response:", response.data);
       onSetPredictions(response.data.filtered_predictions);
       setIsUpdatedPrediction(!isUpdatedPrediction);
       setIsClassSelectorOpen(false);
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
     }
   };
 

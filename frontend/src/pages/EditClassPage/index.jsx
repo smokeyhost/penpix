@@ -26,6 +26,7 @@ const EditClassPage = () => {
 
   const [studentId, setStudentId] = useState(''); 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);  
   const user = useRecoilValue(UserAtom);
   const {toastSuccess} = useToast()
   const navigate = useNavigate();
@@ -40,7 +41,6 @@ const EditClassPage = () => {
           classSchedule: response.data.class_schedule,
           studentList: response.data.student_list || [], 
         });
-        console.log(response.data)
       } catch (error) {
         console.error("Error fetching class data:", error);
       }
@@ -77,14 +77,15 @@ const EditClassPage = () => {
       classSchedule: classData.classSchedule,
       studentList: classData.studentList
     };
-  
+    setLoading(true);
     try {
       const response = await axios.put(`/classes/edit-class/${classId}`, classPayload);
-      console.log(response);
-      toastSuccess("The class was updated successfully.")
+      toastSuccess(response.data.message)
       navigate(`/classes/${user?.id}`);
     } catch (error) {
       console.error("Error updating class:", error);
+    } finally{
+      setLoading(false);
     }
   };
   
@@ -192,7 +193,7 @@ const EditClassPage = () => {
           className="px-6 py-2 bg-black text-white rounded-lg"
           onClick={handleSaveChanges}
         >
-          Save Changes
+          {!loading? "Save Changes" : "Saving..."}
         </button>
       </div>
     </div>

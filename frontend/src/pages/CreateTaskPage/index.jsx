@@ -31,6 +31,7 @@ const getLabelFromValue = (value, options) => {
 
 const CreateTaskPage = () => {
   const [next, setNext] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const user = useRecoilValue(UserAtom);
   const [classOptions, setClassOptions] = useState([]);
@@ -177,15 +178,15 @@ const CreateTaskPage = () => {
         })),
       })),
     };
-
-    console.log(convertedFormData);
+    setLoading(true)
     try {
-      const response = await axios.post("/task/create-task", convertedFormData);
-      console.log(response.data);
-      toastSuccess("The new task was created successfully.");
+      await axios.post("/task/create-task", convertedFormData);
+      toastSuccess("New Task Created!");
       navigate(`/dashboard/${user.id}`);
     } catch (error) {
       console.error(error);
+    } finally{
+      setLoading(false);
     }
   };
 
@@ -224,7 +225,6 @@ const CreateTaskPage = () => {
         } else {
           const serverExpression = convertExpressionToServerFormat(key.expression);
           const isValid = await isExpressionValid(serverExpression);
-          console.log(isValid)
           if (!isValid) {
             newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
               `Invalid expression for ${item.item} - Answer Key ${keyIndex + 1}. Accepted symbols: ~ | & ^. Inputs should be labeled as A, B, C, ... G.`;
@@ -410,7 +410,11 @@ const CreateTaskPage = () => {
           </div>
           <div className="flex gap-4 mt-5">
             <button className="px-4 py-2 bg-gray-300 rounded-lg" onClick={() => setNext(false)}>Back</button>
-            <button className="px-6 py-2 bg-black text-white rounded-lg" onClick={handleCreateTask}>Create Task</button>
+            <button className="px-6 py-2 bg-black text-white rounded-lg" onClick={handleCreateTask}>
+            {!loading ? (
+                  "Create Task"
+                ) :"Creating..."}
+            </button>
           </div>
         </div>
       )}

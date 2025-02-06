@@ -5,40 +5,36 @@ import useLogout from '../../hooks/useLogoutUser';
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const { logout } = useLogout()
+  const { logout } = useLogout();
 
-  useEffect(() =>{
-    const checkSession = async() => {
+  useEffect(() => {
+    const checkSession = async () => {
       try {
-        await axios.get('auth/check-session', { withCredentials: true })
+        await axios.get('auth/check-session', { withCredentials: true });
       } catch (error) {
-        if ( error.response.status === 401){
-          logout()
-          console.log('expired')
+        if (error.response?.status === 401) {
+          logout();
+          console.error('Session expired');
         }
-      } 
-    }
+      }
+    };
 
-    checkSession()
-
-  }, [])
+    checkSession();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-300 to-purple-300 flex flex-col items-center justify-center text-center p-8">
-      <div className="bg-white shadow-xl rounded-lg p-8 max-w-lg w-full">
-        <h1 className="text-4xl font-bold text-gray-800 mb-6">Welcome to PenPix!</h1>
-        <p className="text-lg text-gray-600 mb-8">
-          Welcome to PenPix—where your digital needs are our top priority, and our sign-up process is almost as quick as the impending existential crisis you&apos;ll have while using our services. Dive in, or just sign in and let us help you procrastinate further.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button
-            onClick={() => navigate('/auth')}
-            className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 w-full"
-          >
-            Login
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500 text-white px-6">
+      <h1 className="text-5xl font-bold mb-4 text-center">Welcome to PenPix</h1>
+      <p className="text-lg text-center max-w-2xl mb-6">
+        Transform your hand-drawn logic circuits into digital netlists with ease.  
+        Get started by logging in to your workspace.
+      </p>
+      <button
+        onClick={() => navigate('/auth')}
+        className="bg-white text-blue-600 font-semibold py-3 px-8 rounded-lg shadow-md hover:bg-gray-100 transition duration-300"
+      >
+        Login
+      </button>
     </div>
   );
 };

@@ -26,7 +26,7 @@ const ResetPasswordPage = () => {
           setValidToken(true);
           toastSuccess(res.data.message);
         } catch (error) {
-          console.log(error);
+          console.error(error);
           setValidToken(false);
           console.error(error?.response?.data?.error);
           toastError(error?.response?.data?.error);

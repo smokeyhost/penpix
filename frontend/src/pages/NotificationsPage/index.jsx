@@ -1,6 +1,6 @@
 import { IoIosClose } from "react-icons/io";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import { FaRegBellSlash } from "react-icons/fa"; // Add the empty notification icon
+import { FaRegBellSlash } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useErrorHandler from '../../hooks/useErrorHandler';
@@ -11,20 +11,18 @@ const NotificationPage = () => {
   const [notifications, setNotifications] = useState([]);
   const { handleError } = useErrorHandler();
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1); // Track current page
-  const [notificationsPerPage] = useState(8); // Number of notifications per page
+  const [currentPage, setCurrentPage] = useState(1);
+  const [notificationsPerPage] = useState(8);
   const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get('/notification/get-all-notifications'); // Adjust the URL if necessary
+        const response = await axios.get('/notification/get-all-notifications');
         const fetchedNotifications = response.data.notifications;
-
         const sortedNotifications = fetchedNotifications.sort((a, b) => {
-          return new Date(b.created_at) - new Date(a.created_at); // Latest first
+          return new Date(b.created_at) - new Date(a.created_at);
         });
-
         setNotifications(sortedNotifications);
       } catch (error) {
         if (error.response?.status === 401) {
@@ -56,23 +54,18 @@ const NotificationPage = () => {
     fetchTasks();
   }, []);
 
-  // Calculate total pages
   const totalPages = Math.ceil(notifications.length / notificationsPerPage);
-
-  // Get notifications for the current page
   const currentNotifications = notifications.slice(
     (currentPage - 1) * notificationsPerPage,
     currentPage * notificationsPerPage
   );
 
-  // Handle previous page
   const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
 
-  // Handle next page
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
@@ -85,15 +78,15 @@ const NotificationPage = () => {
   };
 
   return (
-    <div className="bg-[#EFEFEF] min-h-screen w-full p-10">
-      <div className="relative w-full h-full text-customBlack1 bg-white rounded-lg px-10 pt-10 pb-4">
+    <div className="bg-[#EFEFEF] min-h-screen w-full p-5 md:p-10">
+      <div className="relative w-full h-full text-customBlack1 bg-white rounded-lg px-5 sm:px-10 pt-5 sm:pt-10 pb-4">
         <div className="absolute top-2 right-2 cursor-pointer">
           <IoIosClose size={35} onClick={() => navigate(`/auth`)} />
         </div>
 
-        <h2 className="text-customGray2 text-3xl font-medium">Notifications</h2>
+        <h2 className="text-customGray2 text-xl sm:text-3xl font-medium">Notifications</h2>
 
-        <div className="grid grid-cols-5 gap-4 mt-5 font-bold border-b-2 border-customGray1 pb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mt-5 font-bold border-b-2 border-customGray1 pb-3">
           <div>Task</div>
           <div className="col-span-3">Notification</div>
           <div>Date</div>
@@ -107,7 +100,7 @@ const NotificationPage = () => {
             </div>
           ) : (
             currentNotifications.map((notification, index) => (
-              <Link to="#" key={index} className="grid grid-cols-5 gap-4 py-3 border-b">
+              <Link to="#" key={index} className="grid grid-cols-1 sm:grid-cols-5 gap-4 py-3 border-b">
                 <div>{truncateText(getTaskTitle(notification.task_id), 10)}</div>
                 <div className="col-span-3">{notification.message}</div>
                 <div>{formatDueDateTime(notification.created_at)}</div>

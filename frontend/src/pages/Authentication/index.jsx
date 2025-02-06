@@ -11,7 +11,7 @@ function AuthPage() {
   };
 
   return (
-    <div className={`${style.bg_cover} ${style.bg_image} min-h-screen flex items-center justify-center`}>
+    <div className={`${style.bg_cover} ${style.bg_image} p-5`}>
       {currentView === 'login' && <LoginForm onViewChange={handleViewChange} />}
       {currentView === 'register' && <RegisterForm onViewChange={handleViewChange} />}
     </div>

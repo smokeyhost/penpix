@@ -33,7 +33,6 @@ const CircuitInspectorPage = () => {
 
 
   const handleApplyThreshold = async (thresholdValue, mode = 'single') => {
-    console.log(currentFile?.id)
     try {
       const response = await axios.post('/detect-gates/set-filter-threshold', {
         thresholdValue,
@@ -61,7 +60,7 @@ const CircuitInspectorPage = () => {
       setCurrentPredictions(response.data.predictions);
       setCurrentCircuitData({...currentCircuitData, predictions:response.data.predictions})
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
     } finally {
       setLoading(false);
     }
@@ -82,10 +81,9 @@ const CircuitInspectorPage = () => {
       setCurrentCircuitData({...currentCircuitData, boolean_expressions:response.data.boolean_expressions, truth_table: response.data.truth_table})
 
       toastSuccess("Circuit Analysis is Completed.")
-      console.log("Boolean Expressions:", response.data)
     } catch (error) {
       toastError(error?.response?.data?.error)
-      console.log("Unable to process circuit", error?.response?.data.error)
+      console.error("Unable to process circuit", error?.response?.data.error)
     }finally{
       setLoading(false)
     }
@@ -116,9 +114,8 @@ const CircuitInspectorPage = () => {
           const gradedCount = files.filter((file) => file.graded).length;
           setGradedFilesCount(gradedCount); 
           setFileIndex(files[files.indexOf(currentFile)])
-          console.log("Circuit Data",response.data.circuit_analysis);
         } catch (error) {
-          console.log(error.message);
+          console.error(error.message);
         } 
       }
     };

@@ -1,7 +1,6 @@
 import { FaRegFrown } from "react-icons/fa"; 
 
 const GradeTableModal = ({ results, onClose }) => {
-  console.log(results);
 
   const totalGrade = results.length === 0 
     ? "Invalid" 

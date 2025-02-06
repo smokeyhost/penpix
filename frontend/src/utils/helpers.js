@@ -37,8 +37,9 @@ export const convertISOToLocalDate = (isoDate) => {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
-
 export const truncateText = (text, maxLength) => {
+  if (text.length == 0 ) return
+
   if (text.length > maxLength) {
     return `${text.substring(0, maxLength)}...`;
   }

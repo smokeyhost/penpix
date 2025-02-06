@@ -14,9 +14,9 @@ const TaskList = ({ filter, tasks, refreshTasks }) => {
   const navigate = useNavigate();
   const { handleDeleteTask: deleteTask } = useDeleteTask();
 
-  const filteredTasks = tasks.filter((task) => {
+  const filteredTasks = tasks && tasks.filter((task) => {
     if (filter === "All") return true;
-    return task.status === filter;
+    return task?.status === filter;
   });
 
   const handleMenu = (event, task) => {
@@ -61,13 +61,13 @@ const TaskList = ({ filter, tasks, refreshTasks }) => {
           <div className="text-center ">Type of Task</div>
           <div className="text-right  pr-3"></div>
         </div>
-        {filteredTasks.map((task) => (
+        {tasks && filteredTasks.map((task) => (
           <div
-            key={task.id}
+            key={task?.id}
             className="grid grid-cols-7 gap-4 text-sm border-b py-5 hover:bg-gray-200 rounded-b-sm cursor-pointer items-center relative"
-            onClick={() => handleSelectedTask(task.id)}
+            onClick={() => handleSelectedTask(task?.id)}
           >
-            <TaskItem task={task} />
+            <TaskItem task={task}/>
             <button
               className="text-right col-span-1 pr-4"
               onClick={(event) => handleMenu(event, task)}
@@ -76,9 +76,9 @@ const TaskList = ({ filter, tasks, refreshTasks }) => {
             </button>
             {openTask === task && (
               <TaskMenu
-                onDelete={() => handleDeleteTask(task.id)}
-                onGetLink={(event) => handleShowLinkModal(event, task.id)}
-                onGetTemplate={(event) => handleGetTemplate(event, task.id)}
+                onDelete={() => handleDeleteTask(task?.id)}
+                onGetLink={(event) => handleShowLinkModal(event, task?.id)}
+                onGetTemplate={(event) => handleGetTemplate(event, task?.id)}
               />
             )}
           </div>
@@ -86,24 +86,24 @@ const TaskList = ({ filter, tasks, refreshTasks }) => {
       </div>
 
       <div className="hidden max-md:block">
-        {filteredTasks.map((task) => (
+        {tasks && filteredTasks.map((task) => (
           <div
-            key={task.id}
+            key={task?.id}
             className="border border-gray-300 rounded-lg p-4 mb-4 hover:bg-gray-100 cursor-pointer mt-5 relative"
-            onClick={() => handleSelectedTask(task.id)}
+            onClick={() => handleSelectedTask(task?.id)}
           >
-            <h3 className="font-semibold text-lg">{truncateText(task.title, 20)}</h3>
-            <p className="text-gray-600">Due Date: {formatDueDateTime(task.due_date)}</p>
+            <h3 className="font-semibold text-lg">{truncateText(task?.title, 20)}</h3>
+            <p className="text-gray-600">Due Date: {formatDueDateTime(task?.due_date)}</p>
             <p
               className={`font-semibold ${
-                task.status === "Ongoing" ? "text-red-500" : "text-green-500"
+                task?.status === "Ongoing" ? "text-red-500" : "text-green-500"
               }`}
             >
-              Status: {task.status}
+              Status: {task?.status}
             </p>
             <div className="flex justify-between items-center mt-2">
               <p className="text-sm">
-                Submissions: {task.reviewed_submissions}/{task.total_submissions}
+                Submissions: {task?.reviewed_submissions}/{task?.total_submissions}
               </p>
               <button
                 className="text-gray-500"
@@ -116,8 +116,9 @@ const TaskList = ({ filter, tasks, refreshTasks }) => {
             </div>
             {openTask === task && (
               <TaskMenu
-                onDelete={() => handleDeleteTask(task.id)}
-                onGetLink={(event) => handleShowLinkModal(event, task.id)}
+                onDelete={() => handleDeleteTask(task?.id)}
+                onGetLink={(event) => handleShowLinkModal(event, task?.id)}
+                onGetTemplate={(event) => handleGetTemplate(event, task?.id)}
               />
             )}
           </div>

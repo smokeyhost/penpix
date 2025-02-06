@@ -9,7 +9,7 @@ const RegisterForm = ({ onViewChange }) => {
   const [error, setError] = useState(null);
   const [passwordError, setPasswordError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
+  const [showPassword, setShowPassword] = useState(false);
   const { toastSuccess } = useToast();
 
   const validatePassword = (password) => {
@@ -75,15 +75,16 @@ const RegisterForm = ({ onViewChange }) => {
       setError(error.response?.data.error);
 
     } finally {
-      setLoading(false); // End loading
+      setLoading(false); 
     }
   };
 
   return (
-    <div 
-      id="register-form"
-      className="bg-white shadow-md p-10 rounded-lg w-full max-w-sm mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Create an account</h1>
+    <div id="register-form" className="bg-white shadow-md p-6 sm:p-10 rounded-lg w-full max-w-xs sm:max-w-sm mx-auto">
+      <div>
+        <img src="/icons/PenPix-logo.png" alt="PenPix Logo" className="mb-5 w-35 h-16 sm:w-25 sm:h-20" />
+        <h1 className="text-lg sm:text-xl mb-6 font-bold text-center">Create Account</h1>
+      </div>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <input
@@ -95,7 +96,7 @@ const RegisterForm = ({ onViewChange }) => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full h-10 p-2 border border-gray-300 rounded-lg outline-none focus:border-teal-400"
+            className="w-full h-10 p-2 border border-gray-300 rounded-lg outline-none focus:border-teal-400 text-sm sm:text-base"
           />
         </div>
 
@@ -110,21 +111,20 @@ const RegisterForm = ({ onViewChange }) => {
             value={password}
             onChange={handlePasswordChange}
             required
-            className="w-full h-10 p-2 border border-gray-300 rounded-lg outline-none focus:border-teal-400"
+            className="w-full h-10 p-2 border border-gray-300 rounded-lg outline-none focus:border-teal-400 text-sm sm:text-base"
           />
           <button
             type="button"
-            className="absolute right-2 top-3 text-sm text-gray-500 underline"
+            className="absolute right-2 top-3 text-xs sm:text-sm text-gray-500 underline"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? "Hide" : "Show"}
           </button>
         </div>
         {passwordError && (
-          <p className="text-red-500 text-sm mb-4" id="error-container">{passwordError}</p>
+          <p className="text-red-500 text-xs sm:text-sm mb-4" id="error-container">{passwordError}</p>
         )}
 
-        {/* Re-Enter Password field */}
         <div className="mb-4 relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -135,22 +135,22 @@ const RegisterForm = ({ onViewChange }) => {
             value={repassword}
             onChange={(e) => setRepassword(e.target.value)}
             required
-            className="w-full h-10 p-2 border border-gray-300 rounded-lg outline-none focus:border-teal-400"
+            className="w-full h-10 p-2 border border-gray-300 rounded-lg outline-none focus:border-teal-400 text-sm sm:text-base"
           />
         </div>
 
-        {error && <p id="error-container" className="text-red-500 mb-4">{error}</p>}
+        {error && <p id="error-container" className="text-red-500 text-xs sm:text-sm mb-4">{error}</p>}
         <button
           id="register-button"
           type="submit"
-          className={`w-full h-12 rounded-lg cursor-pointer transition duration-300 ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#953867] hover:bg-black'} text-white`}
+          className={`w-full h-10 sm:h-12 rounded-lg cursor-pointer transition duration-300 ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#953867] hover:bg-black'} text-white text-sm sm:text-base`}
           disabled={loading}
         >
           {loading ? "Loading..." : "Sign up"}
         </button>
 
-        <div className="text-right mt-6">
-          <p className="text-xs text-customGray2">
+        <div className="text-right mt-5 mb-4 text-xs sm:text-sm">
+          <p className="text-customGray2">
             Already have an account?{' '}
             <span
               className="text-[#953867] hover:underline cursor-pointer"

@@ -18,7 +18,7 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { handleError } = useErrorHandler();
   const getTasks = useGetTasks();
-  
+
   const refreshTasks = async () => {
     setIsLoading(true);
     await getTasks();
@@ -34,7 +34,6 @@ const Dashboard = () => {
         const fetchedUser = response.data.user;
 
         if (currentUser?.id !== fetchedUser?.id) {
-          console.log('Unauthorized');
           handleError('unauthorized', 'You are not authorized to access this page.');
           return;
         }
@@ -48,7 +47,6 @@ const Dashboard = () => {
         } else {
           handleError('default', 'An unexpected error occurred.');
         }
-        console.log(error);
       } finally {
         setIsLoading(false);
       }

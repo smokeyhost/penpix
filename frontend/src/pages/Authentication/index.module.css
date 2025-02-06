@@ -1,6 +1,6 @@
 /* AuthPage.css */
 .bg_cover {
-  @apply bg-cover bg-center bg-no-repeat;
+  @apply bg-cover bg-center bg-no-repeat h-screen w-full flex items-center  justify-center;
 }
 
 .bg_image {
