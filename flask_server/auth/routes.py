@@ -54,7 +54,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        verification_link = f"http://localhost:5173/verify-email?token={verification_token}"
+        verification_link = f"https://logic.uscpenpix.online/verify-email?token={verification_token}"
         
         msg = EmailMessage(
             "Email Verification",
@@ -83,7 +83,7 @@ def forgot_password():
     user = User.query.filter_by(email=email).first()
     if user:
         token = user.generate_reset_token()
-        reset_link = f"http://localhost:5173/reset-password?token={token}"
+        reset_link = f"https://logic.uscpenpix.online/reset-password?token={token}"
         
         msg = EmailMessage(
             "Password Recovery",

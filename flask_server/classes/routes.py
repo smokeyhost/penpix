@@ -18,6 +18,7 @@ def create_class():
         return jsonify({"error": "Missing required fields"}), 400
 
     classes = Classes(
+        user_id=user_id,
         class_code=data['classCode'],
         class_group= data['classGroup'],
         class_schedule= data['classSchedule'],
@@ -95,7 +96,7 @@ def get_classes():
     if not user_id:
         return jsonify({"error": "User not logged in"}), 401
 
-    classes = Classes.query.all()
+    classes = Classes.query.filter_by(user_id=user_id).all()
 
     if not classes:
         return jsonify([]), 200

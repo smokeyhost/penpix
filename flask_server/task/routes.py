@@ -127,7 +127,7 @@ def edit_task(task_id):
         
         db.session.commit()
 
-        return jsonify({"message": "Task updated", "task_id": task_id})
+        return jsonify({"message": "Task updated successfully", "task_id": task_id})
 
     except Exception as e:
         print(f"An error occurred: {e}")  # Log the error

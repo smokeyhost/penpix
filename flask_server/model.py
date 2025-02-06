@@ -24,6 +24,7 @@ class User(db.Model):
     verification_token_expiry = db.Column(db.DateTime, nullable=True) 
     email_verified = db.Column(db.Boolean, default=False) 
     tasks = db.relationship('Task', backref='user_tasks', lazy=True, cascade="all, delete-orphan")
+    classes = db.relationship('Classes', backref='user_classes', lazy=True, cascade="all, delete-orphan")
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow, nullable=False)
     SECRET_KEY = os.environ.get("SECRET_KEY")
@@ -115,6 +116,7 @@ class User(db.Model):
 
 class Classes(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)  
     class_group = db.Column(db.Integer, nullable=False)
     class_code = db.Column(db.String(100), nullable=False)
     class_schedule = db.Column(db.String(100), nullable=False)
