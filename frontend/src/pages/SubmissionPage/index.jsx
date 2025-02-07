@@ -15,7 +15,7 @@ const SubmissionPage = () => {
   const [files, setFiles] = useState({}); 
   const [isUploaded, setIsUploaded] = useState(false); 
   const [isPastDue, setIsPastDue] = useState(false);
-  const [loading, setLoading] = useState(true);   
+  const [loading, setLoading] = useState(false);   
   const [isTaskNotFound, setIsTaskNotFound] = useState(false);
   const [owner, setOwner] = useState(null);
   const [classInfo, setClassInfo] = useState(null);
@@ -48,7 +48,8 @@ const SubmissionPage = () => {
           if (classResponse.data) {
             setClassInfo(classResponse.data);
           }
-        } else {
+        } 
+        else {
           setIsTaskNotFound(true); // Set the flag if task data is missing
           console.error('Task not found or incorrect data format');
         }

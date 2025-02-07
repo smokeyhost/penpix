@@ -104,12 +104,12 @@ def get_classes():
     classes_data = [cls.to_dict() for cls in classes]
     return jsonify(classes_data), 200
 
-@login_required
+# @login_required
 @classes_bp.route('/get-class/<int:class_id>', methods=['GET'])
 def get_class_by_id(class_id):
-    user_id = session.get('user_id')  
-    if not user_id:
-        return jsonify({"error": "User not logged in"}), 401
+    # user_id = session.get('user_id')  
+    # if not user_id:
+        # return jsonify({"error": "User not logged in"}), 401
 
     class_data = Classes.query.get(class_id)
     if not class_data:
