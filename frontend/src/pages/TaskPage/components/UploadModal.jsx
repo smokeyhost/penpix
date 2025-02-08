@@ -24,7 +24,7 @@ const UploadModal = ({ isOpen, onClose, items, onUploadFiles, task }) => {
     allFiles.forEach(([itemNumber, files]) => {
       const validFiles = Array.from(files).filter((file) => {
         const filename = file.name;
-        const regex = new RegExp(`^\\d+_${task.exam_type}\\[${itemNumber}\\]\\.(png|jpg|jpeg|gif)$`, 'i');
+        const regex = new RegExp(`^\\d+_${task.exam_type}\\[${itemNumber}\\]\\.(png|jpg|jpeg|pdf|gif)$`, 'i');
         if (!regex.test(filename)) {
           invalidFilenames.push(filename);
           return false;
@@ -38,7 +38,7 @@ const UploadModal = ({ isOpen, onClose, items, onUploadFiles, task }) => {
     });
 
     if (invalidFilenames.length > 0) {
-      toastError(`The following files do not follow the proper naming convention: ${invalidFilenames.join(', ')}. Please rename them to follow the convention: id_number_typeOfActivity[#itemNumber].png`);
+      toastError(`The following files do not follow the proper naming convention: ${invalidFilenames.join(', ')}. Please rename them to follow the convention: id_number_typeOfActivity[#itemNumber].png/jpg/jpeg/pdf`);
     }
 
     onClose();
@@ -65,6 +65,7 @@ const UploadModal = ({ isOpen, onClose, items, onUploadFiles, task }) => {
                 multiple
                 onChange={(e) => handleFileChange(e, index)}
                 className="w-full md:w-auto flex-grow p-2 border rounded-md"
+                accept="image/*, application/pdf"
               />
               {/* {fileMappings[index + 1] && (
                 <div className="text-sm text-gray-500 truncate max-w-full md:max-w-xs overflow-hidden text-ellipsis">

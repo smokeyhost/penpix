@@ -96,7 +96,7 @@ const SubmissionPage = () => {
     }
 
     if (invalidFilenames.length > 0) {
-      toastWarning(`The following files do not follow the proper naming convention: ${invalidFilenames.join(', ')}. Please rename them to follow the convention: id_typeOfActivity[#itemNumber].png`);
+      toastWarning(`The following files do not follow the proper naming convention: ${invalidFilenames.join(', ')}. Please rename them to follow the convention: id_typeOfActivity[#itemNumber].png/jpg/jpeg/pdf`);
       return;
     }
     
@@ -195,7 +195,7 @@ const SubmissionPage = () => {
                     type="file"
                     onChange={(e) => handleFileChange(index, e)}
                     className={`${styles.uploadInput} block w-full`}
-                    accept="image/*"
+                    accept="image/*, application/pdf"
                     disabled={loading}
                   />
                 </div>
