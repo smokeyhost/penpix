@@ -27,7 +27,7 @@ class User(db.Model):
     classes = db.relationship('Classes', backref='user_classes', lazy=True, cascade="all, delete-orphan")
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow, nullable=False)
-    SECRET_KEY = os.environ.get("SECRET_KEY")
+    SECRET_KEY = os.environ.get("SECRET_KEY", "randomeasnq3832u4923asdb")
       
     def set_profile_image(self, filename):
         self.profile_image_url = filename
