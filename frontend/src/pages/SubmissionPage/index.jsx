@@ -80,7 +80,7 @@ const SubmissionPage = () => {
       if (file) {
         hasFiles = true;
         const filename = file.name;
-        const regex = new RegExp(`^\\d+_${task.exam_type}\\[${index + 1}\\]\\.(png|jpg|jpeg|gif)$`, 'i');
+        const regex = new RegExp(`^\\d+_${task.exam_type}\\[${index + 1}\\]\\.(png|jpg|jpeg|pdf|gif)$`, 'i');
         if (!regex.test(filename)) {
           invalidFilenames.push(filename);
         } else {
@@ -196,6 +196,7 @@ const SubmissionPage = () => {
                     onChange={(e) => handleFileChange(index, e)}
                     className={`${styles.uploadInput} block w-full`}
                     accept="image/*"
+                    disabled={loading}
                   />
                 </div>
               ))}
@@ -203,6 +204,7 @@ const SubmissionPage = () => {
               <button
                 type="submit"
                 className={`${styles.uploadButton} bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600`}
+                disabled={loading}  
               >
                 {!loading ? "Submit Files" : "Uploading..."}
               </button>
