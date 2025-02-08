@@ -54,10 +54,10 @@ const CircuitInspectorPage = () => {
   const handleDetectLogicGates = async (mode) => {
     setLoading(true); 
     try {
-      const response  = await axios.post(`/detect-gates/process-detection/${currentFile.id}`, {
-        mode:mode,
-        { headers: { "Content-Type": "application/json" } }
-      });
+      const response  = await axios.post(`/detect-gates/process-detection/${currentFile.id}`, 
+        {mode:mode},
+        {headers: { "Content-Type": "application/json" } } 
+      );
       setCurrentPredictions(response.data.predictions);
       setCurrentCircuitData({...currentCircuitData, predictions:response.data.predictions})
     } catch (error) {
