@@ -73,7 +73,6 @@ const SubmissionPage = () => {
     const formData = new FormData();
     const invalidFilenames = [];
     let hasFiles = false;
-    setLoading(true);
 
     task.answer_keys.forEach((item, index) => {
       const file = files[index];
@@ -99,7 +98,7 @@ const SubmissionPage = () => {
       toastWarning(`The following files do not follow the proper naming convention: ${invalidFilenames.join(', ')}. Please rename them to follow the convention: id_typeOfActivity[#itemNumber].png/jpg/jpeg/pdf`);
       return;
     }
-    
+    setLoading(true);
     formData.append('task_id', task.id);
     try {
       const response = await axios.post('/files/upload-files', formData, {
@@ -134,7 +133,7 @@ const SubmissionPage = () => {
     return (
       <div className="p-10 w-full">
         <div className="flex items-center mb-5">
-          <Link to="/"><img src="/icons/PenPix-txt.png" alt="Logo" /></Link>
+          <Link to="#"><img src="/icons/PenPix-txt.png" alt="Logo" /></Link>
         </div>
         <div className="text-center">
           <h2 className="text-xl font-semibold text-red-500">Task Not Found</h2>

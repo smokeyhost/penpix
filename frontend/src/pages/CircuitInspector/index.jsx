@@ -30,7 +30,7 @@ const CircuitInspectorPage = () => {
     const index = storedId ? files.findIndex(file => file.id === JSON.parse(storedId)) : 0;
     return index;
   });
-
+  console.log(currentFile)
 
   const handleApplyThreshold = async (thresholdValue, mode = 'single') => {
     try {

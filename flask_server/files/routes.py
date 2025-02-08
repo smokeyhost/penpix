@@ -14,7 +14,7 @@ def serve_file(task_id, filename):
     return send_from_directory(TASK_FOLDER, filename)
     
     
-@login_required
+# @login_required
 @files_bp.route('/upload-files', methods=['POST'])
 def upload_files():
     if 'files' not in request.files:
@@ -78,6 +78,7 @@ def upload_files():
                 image_path = os.path.join(TASK_FOLDER, image_filename)
                 corrected_image.save(image_path)
                 uploaded_files.append(image_filename)
+                stored_filename = image_filename
                 
             else:
                 image = Image.open(file)
@@ -94,6 +95,7 @@ def upload_files():
                 filepath = os.path.join(TASK_FOLDER, filename)
                 corrected_image.save(filepath)
                 uploaded_files.append(filename)
+                stored_filename = filename
                 
         except ValueError as e:
             invalid_files_not_belonging.append(filename)
@@ -103,11 +105,11 @@ def upload_files():
             continue
         
         existing_file = UploadedFile.query.filter_by(
-            filename=filename, task_id=task_id
+            filename=stored_filename, task_id=task_id
         ).first()
         
         if existing_file:
-            existing_file.filepath = os.path.join('images', str(task_id), filename)
+            existing_file.filepath = os.path.join('images', str(task_id), stored_filename)
             existing_file.mimetype = file.mimetype
             existing_file.item_number = int(item_number)
             existing_file.graded = False  
@@ -136,7 +138,7 @@ def upload_files():
         else:
             new_file = UploadedFile(
                 filename=filename,
-                filepath=os.path.join('images', str(task_id), filename),
+                filepath=os.path.join('images', str(task_id), stored_filename),
                 mimetype=file.mimetype,
                 task_id=task_id,
                 item_number=int(item_number),
