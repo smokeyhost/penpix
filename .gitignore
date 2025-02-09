@@ -25,6 +25,7 @@ flask_server/instance/users.db
 flask_server/pycache/
 flask_server/runs/
 flask_server/static/
+frontend/.env
 
 # Editor directories and files
 .vscode/*
