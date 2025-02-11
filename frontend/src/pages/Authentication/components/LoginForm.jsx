@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAtom } from '../../../atoms/UserAtom';
 import { useSetRecoilState } from "recoil";
@@ -12,6 +12,22 @@ const LoginForm = ({ onViewChange }) => {
   const [error, setError] = useState(null); 
   const setUser = useSetRecoilState(UserAtom);
   const navigate = useNavigate();
+
+  
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        await axios.get('auth/check-session', { withCredentials: true });
+      } catch (error) {
+        if (error.response?.status === 401) {
+          navigate(`/auth`);
+          console.error('Session expired');
+        }
+      }
+    };
+
+    checkSession();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,7 +79,7 @@ const LoginForm = ({ onViewChange }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full h-10 p-2 border border-gray-400 rounded-lg outline-none focus:border-teal-400 text-sm sm:text-base"
+            className="w-full h-10 p-2 border border-gray-400 rounded-lg outline-none focus:border-teal-400 text-sm sm:text-base appearance-none"
           />
           <button
             type="button"

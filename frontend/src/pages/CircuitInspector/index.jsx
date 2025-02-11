@@ -46,7 +46,9 @@ const CircuitInspectorPage = () => {
         ...prev,
         threshold_value: thresholdValue,
       }));
+      toastSuccess("Threshold applied successfully.")
     } catch (error) {
+      // toastError("An error occured. Check the console for more info.")
       console.error('Error applying threshold:', error);
     } 
   };
@@ -61,6 +63,7 @@ const CircuitInspectorPage = () => {
       setCurrentPredictions(response.data.predictions);
       setCurrentCircuitData({...currentCircuitData, predictions:response.data.predictions})
     } catch (error) {
+      toastError("An error occured. Check the console for more info.")
       console.error(error.message);
     } finally {
       setLoading(false);

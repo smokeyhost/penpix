@@ -79,7 +79,7 @@ const ErrorPage = ({ errorType, errorMessage }) => {
       <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
         {renderErrorContent()}
         <Link
-          to="/"
+          to="/auth"
           className="text-teal-600 hover:text-teal-800 text-lg font-semibold"
         >
           Go Back to Home

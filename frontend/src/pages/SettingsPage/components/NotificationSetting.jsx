@@ -7,9 +7,14 @@ const NotificationSetting = () => {
 
   const handleToggle = (filter) => {
     setNotificationFilters((prevFilters) => {
-      const newFilters = prevFilters.includes(filter)
-        ? prevFilters.filter((item) => item !== filter)
-        : [...prevFilters, filter];
+      let newFilters;
+      if (prevFilters.includes(filter)) {
+        newFilters = prevFilters.filter((item) => item !== filter);
+        localStorage.removeItem(`notificationFilterTimestamp_${filter}`);
+      } else {
+        newFilters = [...prevFilters, filter];
+        localStorage.setItem(`notificationFilterTimestamp_${filter}`, new Date().toISOString());
+      }
       localStorage.setItem('notificationFilters', JSON.stringify(newFilters));
       return newFilters;
     });

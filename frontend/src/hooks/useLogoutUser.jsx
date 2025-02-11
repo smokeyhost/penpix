@@ -16,7 +16,7 @@ const useLogout = () => {
       localStorage.removeItem('user');
       setUser(null)
       setLoading(false);
-      navigate('/'); 
+      navigate('/auth'); 
     } catch (error) {
       console.error('Error logging out:', error);
       setLoading(false);

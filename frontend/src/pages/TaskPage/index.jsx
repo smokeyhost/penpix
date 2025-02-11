@@ -15,6 +15,8 @@ import UploadModal from "./components/UploadModal";
 import useToast from "../../hooks/useToast";
 import useGetTask from "../../hooks/useGetTask"
 import useTemplateDownloader from "../../hooks/useTemplateDownloader"
+import { ImSpinner9 } from "react-icons/im";
+
 
 const TaskPage = () => {
   const [task, setTask] = useState({});
@@ -91,7 +93,7 @@ const TaskPage = () => {
       fetchFiles();
     } catch (error) {
       console.error("Error uploading files:", error?.response?.message);
-      toastError(error?.response?.data?.message);
+      toastError("Error uploading files. Please try again.");
     }
   };
 
@@ -133,7 +135,13 @@ const TaskPage = () => {
     setInvalidFiles({ notEnrolled: [], notBelonging: [] });
   };
 
-  if (loading) return;
+  if (loading || !task?.id) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <ImSpinner9 className="animate-spin text-4xl text-black" />
+      </div>
+    );
+  }
   return (
     <div className="bg-[#EFEFEF] min-h-screen w-full p-4 sm:p-6 md:p-10">
       <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">

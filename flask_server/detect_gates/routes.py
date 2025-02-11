@@ -26,9 +26,6 @@ def set_filter_threshold():
     mode = request.json.get('mode')
     file_id = request.json.get('fileId')
 
-    uploaded_file = UploadedFile.query.get(file_id)
-    if not uploaded_file:
-        return jsonify({"error": "File not found"}), 404
 
     task_id = uploaded_file.task_id 
     def update_or_create_analysis(file, threshold_value):

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FilesAtom } from '../atoms/FilesAtom'
 import { useSetRecoilState } from 'recoil';
+import useErrorHandler from './useErrorHandler';
 import axios from 'axios';
 
 
@@ -9,6 +10,7 @@ const useGetTask = (taskId) => {
   const setFiles = useSetRecoilState(FilesAtom)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const {handleError} = useErrorHandler()
 
   const fetchFiles = useCallback(async () => {
     try {
@@ -31,8 +33,15 @@ const useGetTask = (taskId) => {
       return response.data;
     } catch (error) {
       setError(error);
-      console.error('Error fetching task:', error);
-      throw error;
+      if (error.response.status === 401) {
+        localStorage.removeItem('user');
+        window.location.href = "/auth";
+        handleError('unauthorized', 'Your session expired. Login again.');
+      } else if (error.response.status === 404) {
+        handleError('404', 'The resource you are looking for could not be found.');
+      } else {
+        handleError('default', 'An unexpected error occurred.');
+      }
     } finally {
       setLoading(false);
     }

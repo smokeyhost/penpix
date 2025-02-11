@@ -1,13 +1,14 @@
 // useNotifications.js
-import { useEffect } from 'react';
 import axios from 'axios';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { NotificationsAtom } from '../atoms/Notifications';
 import { NotificationFilterAtom } from '../atoms/NotificationFilterAtom';
 
+
 const useNotifications = () => {
   const filters = useRecoilValue(NotificationFilterAtom);
   const [notifications, setNotifications] = useRecoilState(NotificationsAtom);
+
   const fetchUnreadNotifications = async () => {
     try {
       const response = await axios.get('/notification/get-unread-notifications', 
@@ -17,9 +18,9 @@ const useNotifications = () => {
         }
       );
       setNotifications(response.data?.notifications || []);
-      // console.log("Notifications", response.data?.notifications);
+      console.log("Notifications", response.data?.notifications);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error('Error fetching notifications:', error.message);
     }
   };
 
@@ -37,10 +38,6 @@ const useNotifications = () => {
       console.error('Error marking notification as read:', error);
     }
   };
-
-  useEffect(() => {
-    fetchUnreadNotifications();
-  }, []);
 
   return {
     notifications,

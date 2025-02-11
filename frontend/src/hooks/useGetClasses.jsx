@@ -13,6 +13,7 @@ const useGetClasses = () => {
       const response = await axios.get('/classes/get-classes');
       const classes = response.data;
       setClasses(classes); 
+      return classes
     } catch (error) {
       if (error.response?.status === 401) {
         handleError('unauthorized', 'Your session has expired. Login again.');
@@ -24,7 +25,7 @@ const useGetClasses = () => {
     }
   }, [setClasses, handleError]);
 
-  return getClasses;
+  return {getClasses};
 };
 
 export default useGetClasses;

@@ -58,7 +58,7 @@ const EditTaskPage = () => {
         const response = await axios.get("/classes/get-classes");
         const formattedOptions = response.data.map((classItem) => ({
           value: classItem.id,
-          label: `${classItem.class_code} | ${classItem.class_schedule}`,
+          label: `${classItem.class_code} | ${classItem.class_group}`,
         }));
         setClassOptions(formattedOptions);
       } catch (error) {
@@ -453,7 +453,7 @@ const EditTaskPage = () => {
             <button className="px-4 py-2 bg-gray-300 rounded-lg" onClick={() => setNext(false)}>
               Back
             </button>
-            <button className="px-6 py-2 bg-black text-white rounded-lg" onClick={handleUpdateTask}>
+            <button className="px-6 py-2 bg-black text-white rounded-lg" onClick={handleUpdateTask} disabled={loading}>
               {!loading ? (
                                 "Save Task"
                               ) : "Saving..."}

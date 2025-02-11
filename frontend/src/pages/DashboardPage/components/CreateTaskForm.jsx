@@ -45,26 +45,26 @@ const CreateTaskForm = ({ onClose }) => {
         [`${field}`]: false
       }));
     } else if (group === 'answerKey') {
-      const updatedAnswerKey = formData.answerKey.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      );
-      setFormData(prevState => ({
-        ...prevState,
-        answerKey: updatedAnswerKey
-      }));
-      setValidationErrors(prevErrors => ({
-        ...prevErrors,
-        [`${field}-${index}`]: false
-      }));
+        const updatedAnswerKey = formData.answerKey.map((item, i) =>
+          i === index ? { ...item, [field]: value } : item
+        );
+        setFormData(prevState => ({
+          ...prevState,
+          answerKey: updatedAnswerKey
+        }));
+        setValidationErrors(prevErrors => ({
+          ...prevErrors,
+          [`${field}-${index}`]: false
+        }));
     } else {
-      setFormData(prevState => ({
-        ...prevState,
-        [name]: value
-      }));
-      setValidationErrors(prevErrors => ({
-        ...prevErrors,
-        [name]: false
-      }));
+        setFormData(prevState => ({
+          ...prevState,
+          [name]: value
+        }));
+        setValidationErrors(prevErrors => ({
+          ...prevErrors,
+          [name]: false
+        }));
     }
   };
 

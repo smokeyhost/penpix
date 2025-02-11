@@ -20,7 +20,7 @@ const DetectLogicGatesOption = ({ onDetectLogicGates, loading }) => {
   }, [loading, processing]);
 
   return (
-    <div className='bg-gray-800 p-4 rounded-lg w-[250px] flex flex-col gap-4 text-white'>
+    <div className='bg-gray-800 bg-opacity-85 p-4 rounded-lg w-[250px] flex flex-col gap-4 text-white'>
       <h1 className='font-semibold'>Detect Logic Gates:</h1>
 
       {loading ? (
@@ -34,13 +34,13 @@ const DetectLogicGatesOption = ({ onDetectLogicGates, loading }) => {
         </div>
       ) : (
         <div className='flex flex-col gap-3 justify-between text-sm'>
-          <button className='bg-primaryColor p-2 rounded-lg' onClick={() => onDetectLogicGates('single')}>
-            Process current image
+          <button className='bg-primaryColor p-2 rounded-lg hover:bg-[#c9512a]' onClick={() => onDetectLogicGates('single')}>
+            Start Detection
           </button>
 
-          <button className='bg-thirdBg p-2 rounded-lg' onClick={() => onDetectLogicGates('multiple')}>
+          {/* <button className='bg-thirdBg p-2 rounded-lg' onClick={() => onDetectLogicGates('multiple')}>
             Process all images
-          </button>
+          </button> */}
         </div>
       )}
     </div>

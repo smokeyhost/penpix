@@ -41,11 +41,13 @@ const CreateTaskPage = () => {
   let initialDueDate = new Date();
   initialDueDate.setHours(23, 59, 59, 999);
 
+  const localISOTime = initialDueDate.toLocaleString("sv-SE").replace(" ", "T"); 
+
   const [formData, setFormData] = useState({
     title: "",
     classId: "",
     examType: "",
-    dueDate: initialDueDate.toISOString().slice(0, 16),
+    dueDate: localISOTime.slice(0, 16),
     answerKeys: [
       {
         item: `Item ${1}`,
@@ -63,7 +65,7 @@ const CreateTaskPage = () => {
         const response = await axios.get("/classes/get-classes");
         const formattedOptions = response.data.map((classItem) => ({
           value: classItem.id,
-          label: `${classItem.class_code} | ${classItem.class_schedule}`,
+          label: `${classItem.class_code} | ${classItem.class_group}`,
         }));
         setClassOptions(formattedOptions);
       } catch (error) {
@@ -154,6 +156,9 @@ const CreateTaskPage = () => {
   const handleRemoveExpression = (itemIndex, keyIndex) => {
     const updatedAnswerKeys = [...formData.answerKeys];
     updatedAnswerKeys[itemIndex].keys = updatedAnswerKeys[itemIndex].keys.filter((_, i) => i !== keyIndex);
+    if (updatedAnswerKeys[itemIndex].keys.length === 0) {
+      updatedAnswerKeys.splice(itemIndex, 1);
+    }
     setFormData((prev) => ({ ...prev, answerKeys: updatedAnswerKeys }));
   };
 
@@ -192,7 +197,7 @@ const CreateTaskPage = () => {
 
   const isFormValid = async () => {
     const newErrors = {};
-  
+    
     if (!formData.title.trim()) {
       newErrors.title = "Title is required.";
     } else if (formData.title.length > 30) {
@@ -210,7 +215,7 @@ const CreateTaskPage = () => {
     if (!formData.dueDate) {
       newErrors.dueDate = "Due Date is required.";
     }
-  
+    setLoading(true)
     for (const [itemIndex, item] of formData.answerKeys.entries()) {
       if (item.keys.length === 0) {
         newErrors[`missingAnswerKey${itemIndex}`] = `Each answer key should have at least one expression and grade.`;
@@ -225,6 +230,7 @@ const CreateTaskPage = () => {
         } else {
           const serverExpression = convertExpressionToServerFormat(key.expression);
           const isValid = await isExpressionValid(serverExpression);
+          setLoading(false)
           if (!isValid) {
             newErrors[`answerKeyExpression-${itemIndex}-${keyIndex}`] =
               `Invalid expression for ${item.item} - Answer Key ${keyIndex + 1}. Accepted symbols: ~ | & ^. Inputs should be labeled as A, B, C, ... G.`;
@@ -380,8 +386,9 @@ const CreateTaskPage = () => {
             <button
               className="px-6 py-2 bg-black text-white rounded-lg"
               onClick={handleNext}
+              disabled={loading}
             >
-              Next
+              {!loading ? "Next" : "Validating expressions....."}
             </button>
           </div>
         </div>
@@ -410,7 +417,7 @@ const CreateTaskPage = () => {
           </div>
           <div className="flex gap-4 mt-5">
             <button className="px-4 py-2 bg-gray-300 rounded-lg" onClick={() => setNext(false)}>Back</button>
-            <button className="px-6 py-2 bg-black text-white rounded-lg" onClick={handleCreateTask}>
+            <button className="px-6 py-2 bg-black text-white rounded-lg" onClick={handleCreateTask} disabled={loading}>
             {!loading ? (
                   "Create Task"
                 ) :"Creating..."}

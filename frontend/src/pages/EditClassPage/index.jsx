@@ -1,19 +1,12 @@
-import ComboBox from "./components/ClassGroupCombobox";
 import StudentList from "./components/StudentList";
-import { BsThreeDots } from "react-icons/bs";
 import { useNavigate, useParams } from "react-router-dom";
 import { useRecoilValue } from 'recoil';
 import { UserAtom } from '../../atoms/UserAtom';
 import { useEffect, useState } from "react";
 import useToast from "../../hooks/useToast";
 import axios from "axios";
-
-let options = [
-  { value: '1', label: '1' },
-  { value: '2', label: '2' },
-  { value: '3', label: '3' },
-  { value: '4', label: '4' },
-];
+import { FaInfoCircle } from "react-icons/fa";
+import InvalidStudentIdsList from "./components/InvalidStudentIdsList"; 
 
 const EditClassPage = () => {
   const { classId } = useParams();
@@ -24,11 +17,14 @@ const EditClassPage = () => {
     studentList: []
   });
 
-  const [studentId, setStudentId] = useState(''); 
+  const [studentId, setStudentId] = useState('');
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);  
+  const [loading, setLoading] = useState(false);
+  // State to hold invalid student IDs to be shown in the modal
+  const [invalidStudentIds, setInvalidStudentIds] = useState([]);
+  
   const user = useRecoilValue(UserAtom);
-  const {toastSuccess} = useToast()
+  const { toastSuccess, toastWarning } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,16 +35,15 @@ const EditClassPage = () => {
           classCode: response.data.class_code,
           classGroup: response.data.class_group,
           classSchedule: response.data.class_schedule,
-          studentList: response.data.student_list || [], 
+          studentList: (response.data.student_list || []).sort((a, b) => a - b),
         });
       } catch (error) {
         console.error("Error fetching class data:", error);
       }
     };
-  
+
     fetchClassData();
   }, [classId]);
-  
 
   const handleSaveChanges = async () => {
     const newErrors = {};
@@ -80,35 +75,49 @@ const EditClassPage = () => {
     setLoading(true);
     try {
       const response = await axios.put(`/classes/edit-class/${classId}`, classPayload);
-      toastSuccess(response.data.message)
+      toastSuccess(response.data.message);
       navigate(`/classes/${user?.id}`);
     } catch (error) {
       console.error("Error updating class:", error);
-    } finally{
+    } finally {
       setLoading(false);
     }
   };
-  
 
   const handleAddStudent = () => {
     if (!studentId.trim()) {
-      alert("Please enter a valid Student ID.");
+      setInvalidStudentIds(["Please enter a valid Student ID."]);
       return;
     }
   
-    if (classData.studentList.includes(studentId)) {
-      alert(`Student ID ${studentId} already exists in the class.`);
+    const allStudentIds = studentId.split(",").map(id => id.trim());
+    const validStudentIds = allStudentIds.filter(id => /^\d{8}$/.test(id));
+    const invalidStudentIdsList = allStudentIds.filter(id => !/^\d{8}$/.test(id));
+  
+    if (validStudentIds.length === 0) {
+      setInvalidStudentIds(["Please enter valid 8-digit Student IDs."]);
       return;
     }
   
-    setClassData((prev) => ({
+    const existingStudents = new Set(classData.studentList);
+    const uniqueNewStudents = validStudentIds.filter(id => !existingStudents.has(id));
+  
+    if (uniqueNewStudents.length === 0) {
+      toastWarning("All entered Student IDs already exist in the class.");
+      return;
+    }
+  
+    setClassData(prev => ({
       ...prev,
-      studentList: [...prev.studentList, studentId],
+      studentList: [...prev.studentList, ...uniqueNewStudents].sort((a, b) => a.localeCompare(b)),
     }));
   
     setStudentId('');
-  };
   
+    if (invalidStudentIdsList.length > 0) {
+      setInvalidStudentIds(invalidStudentIdsList);
+    }
+  };
 
   const handleRemoveStudent = (index) => {
     setClassData((prev) => ({
@@ -127,8 +136,8 @@ const EditClassPage = () => {
     <div className="flex flex-col p-5 gap-4 md:w-[800px] mx-auto">
       <h1 className="text-[28px] font-medium mt-2">Edit Class</h1>
       <div className="flex flex-col gap-2">
-        <label className="text-md font-medium">Class Name</label>
-        <div className="flex gap-4">
+        <label className="text-md font-medium">Class Details</label>
+        <div className="flex flex-col md:flex-row gap-4">
           <input
             type="text"
             maxLength={50}
@@ -137,14 +146,30 @@ const EditClassPage = () => {
             value={classData.classCode}
             onChange={(e) => setClassData({ ...classData, classCode: e.target.value })}
           />
-          <div className="w-100px">
-            <ComboBox
-              options={options}
-              placeholder="Class Group"
-              value={String(classData.classGroup)}
-              onChange={(selected) => setClassData({ ...classData, classGroup: selected.value })}
-            />
-          </div>
+          <input
+            type="number"
+            min="1"
+            placeholder="Group"
+            className={`w-full md:w-[100px] border ${errors.classGroup ? 'border-red-500' : 'border-gray-300'} rounded-lg px-2 py-1 focus:outline-none text-md`}
+            value={classData.classGroup || ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d+$/.test(value) || value === "") {
+                setClassData({ ...classData, classGroup: value });
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "-" || e.key === "e" || e.key === ".") {
+                e.preventDefault();
+              }
+            }}
+            onPaste={(e) => {
+              const paste = e.clipboardData.getData("text");
+              if (!/^\d+$/.test(paste)) {
+                e.preventDefault();
+              }
+            }}
+          />
         </div>
         {errors.classCode && <p className="text-red-500 text-sm">{errors.classCode}</p>}
         {errors.classGroup && <p className="text-red-500 text-sm">{errors.classGroup}</p>}
@@ -160,42 +185,48 @@ const EditClassPage = () => {
       </div>
       <div className="flex flex-col gap-2">
         <label className="text-md font-medium">Student ID Number</label>
-        <div className="flex justify-between items-center">
+        <div className="flex gap-5 items-center">
           <input
             type="text"
-            maxLength={10}
-            placeholder="Id Number"
+            placeholder="Id Number(s)"
             className="placeholder-gray-500 placeholder-opacity-75 focus:placeholder-opacity-50 border border-gray-300 rounded-lg px-2 py-1 focus:outline-none text-md"
             value={studentId}
             onChange={(e) => setStudentId(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <BsThreeDots />
+          <div className="relative group">
+            <FaInfoCircle className="text-gray-500 cursor-pointer" />
+            <div className="absolute bottom-full mb-2 w-72 p-2 bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 
+                          right-0 sm:left-0 sm:right-auto sm:translate-x-0">
+              <p className="text-sm text-gray-700">You may add multiple student IDs at once, separated by commas.</p>
+              <p className="text-sm text-gray-700">Format: id_number1, id_number2</p>
+              <p className="text-sm text-gray-700">Example: 20103214, 20203241, 12345678</p>
+              <p className="text-sm text-gray-700">Note: Only accepts numeric student IDs that are exactly 8 digits.</p>
+            </div>
+          </div>
         </div>
       </div>
-      <button
-        className="px-6 py-2 bg-black text-white rounded-lg"
-        onClick={handleAddStudent}
-      >
+      <button className="px-6 py-2 bg-black text-white rounded-lg" onClick={handleAddStudent}>
         Add Student
       </button>
       <div>
-        <StudentList studentList={classData.studentList} onRemoveStudent={handleRemoveStudent}/>
+        <StudentList studentList={classData.studentList} onRemoveStudent={handleRemoveStudent} />
       </div>
       <div className="flex gap-4 mt-5">
-        <button
-          className="px-4 py-2 bg-gray-300 rounded-lg"
-          onClick={() => navigate(`/classes/${user?.id}`)}
-        >
+        <button className="px-4 py-2 bg-gray-300 rounded-lg" onClick={() => navigate(`/classes/${user?.id}`)}>
           Cancel
         </button>
-        <button
-          className="px-6 py-2 bg-black text-white rounded-lg"
-          onClick={handleSaveChanges}
-        >
-          {!loading? "Save Changes" : "Saving..."}
+        <button className="px-6 py-2 bg-black text-white rounded-lg" onClick={handleSaveChanges}>
+          {!loading ? "Save Changes" : "Saving..."}
         </button>
       </div>
+
+      {invalidStudentIds.length > 0 && (
+        <InvalidStudentIdsList 
+          invalidIds={invalidStudentIds} 
+          onClose={() => setInvalidStudentIds([])} 
+        />
+      )}
     </div>
   );
 };

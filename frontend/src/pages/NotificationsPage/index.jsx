@@ -4,16 +4,27 @@ import { FaRegBellSlash } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useErrorHandler from '../../hooks/useErrorHandler';
-import { formatDueDateTime, truncateText } from "../../utils/helpers";
+import useGetClasses from "../../hooks/useGetClasses";
+import { formatDueDateTime} from "../../utils/helpers";
 import { Link, useNavigate } from "react-router-dom";
 
 const NotificationPage = () => {
   const [notifications, setNotifications] = useState([]);
+  const { getClasses } = useGetClasses();
+  const [classes, setClasses] = useState([]); 
   const { handleError } = useErrorHandler();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [notificationsPerPage] = useState(8);
   const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    const fetchClasses = async () => {  
+      const fetchedClasses = await getClasses();
+      setClasses(fetchedClasses);
+    }
+    fetchClasses()
+  },[])
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -34,7 +45,7 @@ const NotificationPage = () => {
         }
       }
     };
-
+    console.log(classes)
     const fetchTasks = async () => {
       try {
         const response = await axios.get('/task/get-tasks', { withCredentials: true });
@@ -72,9 +83,19 @@ const NotificationPage = () => {
     }
   };
 
-  const getTaskTitle = (taskId) => {
+  const getTaskDisplay = (taskId) => {
     const task = tasks.find((task) => task.id === taskId);
-    return task ? task.title : 'Unknown Task';
+    if (!task) return 'Unknown Task';
+    
+    const taskTitle = task.title;
+    
+    const classInfo = classes.find((cls) => cls.id === task.class_id);
+    
+    if (classInfo) {
+      return `${taskTitle} | ${classInfo.class_code} - ${classInfo.class_group}`;
+    }
+    
+    return taskTitle;
   };
 
   return (
@@ -87,7 +108,7 @@ const NotificationPage = () => {
         <h2 className="text-customGray2 text-xl sm:text-3xl font-medium">Notifications</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mt-5 font-bold border-b-2 border-customGray1 pb-3">
-          <div>Task</div>
+          <div>Task | Class Group</div>
           <div className="col-span-3">Notification</div>
           <div>Date</div>
         </div>
@@ -100,8 +121,8 @@ const NotificationPage = () => {
             </div>
           ) : (
             currentNotifications.map((notification, index) => (
-              <Link to="#" key={index} className="grid grid-cols-1 sm:grid-cols-5 gap-4 py-3 border-b">
-                <div>{truncateText(getTaskTitle(notification.task_id), 10)}</div>
+              <Link to={`/task/${notification.task_id}`} key={index} className="grid grid-cols-1 sm:grid-cols-5 gap-4 py-3 border-b">
+                <div>{getTaskDisplay(notification.task_id)}</div>
                 <div className="col-span-3">{notification.message}</div>
                 <div>{formatDueDateTime(notification.created_at)}</div>
               </Link>

@@ -37,7 +37,7 @@ def mark_as_unread(notification_id):
 
     return jsonify({"message": "Notification marked as unread successfully", "notification": notification.to_dict()})
 
-@login_required
+# @login_required
 @notification_bp.route('/get-read-notifications', methods=['GET'])
 def get_read_notifications():
     user_id = session['user_id']
@@ -93,3 +93,21 @@ def get_all_notifications():
 
     notifications_data = [notification.to_dict() for notification in notifications]
     return jsonify({"notifications": notifications_data})
+
+@login_required
+@notification_bp.route('/mark-all-as-read', methods=['PATCH'])
+def mark_all_as_read():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({"message": "User ID is missing"}), 400
+
+    try:
+        notifications = Notification.query.filter_by(user_id=user_id, is_read=False).all()
+        for notification in notifications:
+            notification.is_read = True
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"Error marking notifications as read: {str(e)}"}), 500
+
+    return jsonify({"message": "All notifications marked as read successfully"})

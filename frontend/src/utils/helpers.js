@@ -2,18 +2,23 @@ import axios from 'axios'
 
 export const formatDueDateTime = (dateString) => {
   const date = new Date(dateString);
-  const formattedDate = date.toLocaleDateString(undefined, {
-    month: 'short',  
-    day: 'numeric',  
+
+  const formattedDate = date.toLocaleDateString('en-PH', {
+    timeZone: 'Asia/Manila', // Use Philippine Time
+    month: 'short',
+    day: 'numeric',
   });
 
-  const formattedTime = date.toLocaleTimeString(undefined, {
+  const formattedTime = date.toLocaleTimeString('en-PH', {
+    timeZone: 'Asia/Manila', // Use Philippine Time
     hour: 'numeric',
     minute: 'numeric',
-    hour12: true,  
+    hour12: true,
   });
+
   return `${formattedDate} | ${formattedTime}`;
 };
+
 
 export const formatDate = (date) => {
   const pad = (num) => String(num).padStart(2, '0');

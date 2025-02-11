@@ -10,10 +10,13 @@ import './styles/styles.css';
 const AccountDisplay = ({ profile, onUploadProfileImage }) => {
   const [imageUrl, setImageUrl] = useState(profile.profileImageUrl); 
   const classes = useRecoilValue(ClassesAtom)
-  const getClasses = useGetClasses()
+  const {getClasses} = useGetClasses()
 
   useEffect(()=>{
-    getClasses()
+    const fetchClasses = async() =>{
+      await getClasses()
+    }
+    fetchClasses()
   }, [])
 
   const handleFileChange = (event) => {

@@ -111,7 +111,7 @@ const RegisterForm = ({ onViewChange }) => {
             value={password}
             onChange={handlePasswordChange}
             required
-            className="w-full h-10 p-2 border border-gray-300 rounded-lg outline-none focus:border-teal-400 text-sm sm:text-base"
+            className="w-full h-10 p-2 border border-gray-300 rounded-lg outline-none focus:border-teal-400 text-sm sm:text-base appearance-none"
           />
           <button
             type="button"
@@ -135,7 +135,7 @@ const RegisterForm = ({ onViewChange }) => {
             value={repassword}
             onChange={(e) => setRepassword(e.target.value)}
             required
-            className="w-full h-10 p-2 border border-gray-300 rounded-lg outline-none focus:border-teal-400 text-sm sm:text-base"
+            className="w-full h-10 p-2 border border-gray-300 rounded-lg outline-none focus:border-teal-400 text-sm sm:text-base appearance-none"
           />
         </div>
 

@@ -5,12 +5,11 @@ import { useState } from 'react';
 
 function AuthPage() {
   const [currentView, setCurrentView] = useState('login'); // Default to 'login'
-
   const handleViewChange = (view) => {
     setCurrentView(view);
   };
 
-  return (
+    return (
     <div className={`${style.bg_cover} ${style.bg_image} p-5`}>
       {currentView === 'login' && <LoginForm onViewChange={handleViewChange} />}
       {currentView === 'register' && <RegisterForm onViewChange={handleViewChange} />}

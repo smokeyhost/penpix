@@ -9,6 +9,8 @@ import { UserAtom } from '../../atoms/UserAtom';
 import { TasksAtom } from '../../atoms/TasksAtom.js';
 import useGetTasks from '../../hooks/useGetTasks.jsx';
 import EmptyTasksPlaceholder from './components/EmptyTaskPlaceholder.jsx';
+// import { ImSpinner9 } from "react-icons/im";
+
 
 const Dashboard = () => {
   const { userId } = useParams();
@@ -60,9 +62,13 @@ const Dashboard = () => {
     setFilter(filter);
   };
 
-  if (isLoading) {
-    return <div className="flex justify-center items-center h-screen text-gray-500">Loading...</div>;
-  }
+  // if (isLoading) {
+  //     return (
+  //       <div className="flex items-center justify-center min-h-screen">
+  //         <ImSpinner9 className="animate-spin text-4xl text-black" />
+  //       </div>
+  //     );
+  //   }
 
   return (
     <div id="dashboard-page" className="flex flex-col w-full h-screen bg-white p-10 max-w-screen-xl mx-auto">
@@ -70,7 +76,7 @@ const Dashboard = () => {
       {tasks?.length === 0 ? (
         <EmptyTasksPlaceholder />
       ) : (
-        <TaskList filter={filter} tasks={tasks} refreshTasks={refreshTasks} />
+        <TaskList filter={filter} tasks={tasks} refreshTasks={refreshTasks} isLoading={isLoading}/>
       )}
     </div>
   );

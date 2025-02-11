@@ -172,6 +172,7 @@ const LeftSidebar = ({
           <SetThresholdSlider
             onApplyThreshold={handleApplyThreshold}
             value={circuitData.threshold_value}
+            loading={loading}
           />
         </div>
       )}
