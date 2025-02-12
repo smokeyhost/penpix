@@ -1,8 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import axios from 'axios';
 
 const useTemplateDownloader = () => {
+  const [loading, setLoading] = useState(false)
   const downloadTemplate = useCallback(async (taskId) => {
+    setLoading(true)
     try {
       const response = await axios.get(`/task/get-template/${taskId}`, {
         responseType: 'blob'
@@ -17,10 +19,12 @@ const useTemplateDownloader = () => {
       document.body.removeChild(link);
     } catch (error) {
       console.error("Error downloading template:", error.message);
+    } finally{
+      setLoading(false)
     }
   }, []);
 
-  return { downloadTemplate };
+  return { downloadTemplate, loading };
 };
 
 export default useTemplateDownloader;

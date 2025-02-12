@@ -46,7 +46,7 @@ const CircuitInspectorPage = () => {
         ...prev,
         threshold_value: thresholdValue,
       }));
-      toastSuccess("Threshold applied successfully.")
+      toastSuccess("Filter applied successfully.")
     } catch (error) {
       // toastError("An error occured. Check the console for more info.")
       console.error('Error applying threshold:', error);
@@ -140,7 +140,21 @@ const CircuitInspectorPage = () => {
   };
 
 
-  if (taskLoading) return <div>Loading...</div>; 
+  if (taskLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="mt-4 text-2xl font-bold text-primaryColor animate-pulse">
+          Loading...
+        </div>
+        <div className="mt-2 flex space-x-2">
+          <div className="w-3 h-3 bg-primaryColor rounded-full animate-bounce"></div>
+          <div className="w-3 h-3 bg-primaryColor rounded-full animate-bounce delay-150"></div>
+          <div className="w-3 h-3 bg-primaryColor rounded-full animate-bounce delay-300"></div>
+        </div>
+      </div>
+    );
+  }
+  
 
   return (
     <div className="bg-[#eeeded] min-h-screen flex flex-col text">

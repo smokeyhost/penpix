@@ -31,8 +31,8 @@ const TaskPage = () => {
   const navigate = useNavigate();
   const { classData, loading, getClassData } = useClassData();
   const { handleDeleteTask: deleteTask } = useDeleteTask();
-  const {toastSuccess, toastError} = useToast()
-  const {downloadTemplate} = useTemplateDownloader(); 
+  const {toastSuccess, toastError, toastInfo} = useToast()
+  const {downloadTemplate, loading: isTemplateDownloading} = useTemplateDownloader(); 
   const { getTask } = useGetTask()
 
   const items = task.answer_keys?.map((key) => key.item) || [];
@@ -121,8 +121,12 @@ const TaskPage = () => {
     setModalOpen(true); 
   };
 
-  const handleGetTemplate = () => {
-    downloadTemplate(task.id)
+  const handleGetTemplate = async() => {
+    toastInfo("Requesting for the template. Please wait")
+    await downloadTemplate(task.id)
+    if(!isTemplateDownloading){
+      toastSuccess("You may now download the template.")
+    }
   }
 
   const closeModal = () => {

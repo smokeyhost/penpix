@@ -17,7 +17,7 @@ const useGetTasks = () => {
       if (error.response.status === 401) {
         localStorage.removeItem('user');
         window.location.href = "/auth";
-        handleError('unauthorized', 'Your session expired. Login again.');
+        // handleError('unauthorized', 'Your session expired. Login again.');
       } else if (error.response.status === 404) {
         handleError('404', 'The resource you are looking for could not be found.');
       } else {

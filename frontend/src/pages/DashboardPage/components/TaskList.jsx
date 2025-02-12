@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import TaskItem from "./TaskItem";
 import { formatDueDateTime, truncateText } from "../../../utils/helpers";
 import useDeleteTask from '../../../hooks/useDeleteTask';
+import useToast from "../../../hooks/useToast";
 import TaskLinkModal from "./TaskLinkModal";
 import useTemplateDownloader from "../../../hooks/useTemplateDownloader";
 
-const TaskList = ({ filter, tasks, refreshTasks, isLoading }) => {
+const TaskList = ({ filter, tasks, refreshTasks}) => {
   const { downloadTemplate } = useTemplateDownloader();
   const [openTask, setOpenTask] = useState(null);
   const [modalTaskId, setModalTaskId] = useState(null);
@@ -14,6 +15,7 @@ const TaskList = ({ filter, tasks, refreshTasks, isLoading }) => {
   const { handleDeleteTask: deleteTask } = useDeleteTask();
   const menuRefDesktop = useRef(null);
   const menuRefMobile = useRef(null);
+  const {toastSuccess, toastInfo} = useToast()
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -50,7 +52,8 @@ const TaskList = ({ filter, tasks, refreshTasks, isLoading }) => {
     }
   };
 
-  const handleDeleteTask = async (taskId) => {
+  const handleDeleteTask = async (event, taskId) => {
+    event.stopPropagation();
     const isDeleted = await deleteTask(taskId);
     if (!isDeleted) return;
     refreshTasks();
@@ -67,7 +70,9 @@ const TaskList = ({ filter, tasks, refreshTasks, isLoading }) => {
 
   const handleGetTemplate = async (event, taskId) => {
     event.stopPropagation();
-    downloadTemplate(taskId);
+    toastInfo("Requesting for the template. Please wait")
+    await downloadTemplate(taskId)
+    toastSuccess("Template is being downloaded")
   };
 
   return (
@@ -82,21 +87,7 @@ const TaskList = ({ filter, tasks, refreshTasks, isLoading }) => {
           <div className="text-right pr-3"></div>
         </div>
 
-        {isLoading ? (
-          [...Array(8)].map((_, index) => (
-            <div
-              key={index}
-              className="grid grid-cols-7 gap-4 text-sm border-b py-5 animate-pulse"
-            >
-              <div className="bg-gray-300 h-4 w-20 rounded"></div>
-              <div className="col-span-2 bg-gray-300 h-4 w-full rounded"></div>
-              <div className="bg-gray-300 h-4 w-24 rounded"></div>
-              <div className="bg-gray-300 h-4 w-24 rounded"></div>
-              <div className="bg-gray-300 h-4 w-24 rounded"></div>
-              <div className="bg-gray-300 h-4 w-24 rounded"></div>
-            </div>
-          ))
-        ) : (
+        {
           tasks &&
           filteredTasks.map((task) => (
             <div
@@ -105,7 +96,6 @@ const TaskList = ({ filter, tasks, refreshTasks, isLoading }) => {
               onClick={() => handleSelectedTask(task?.id)}
             >
               <TaskItem task={task} onHandleMenu={handleMenu} />
-              {/* Other TaskItem cells (if any) go here */}
               {openTask === task && (
                 <div className="absolute right-0 top-0 mt-8" ref={menuRefDesktop}>
                   <div className="absolute h-fit right-0 -bottom-32 bg-white border border-gray-300 shadow-lg rounded-md p-2 w-48 z-50 max-md:top-8 max-md:right-3">
@@ -129,7 +119,7 @@ const TaskList = ({ filter, tasks, refreshTasks, isLoading }) => {
                       <li>
                         <button
                           className="w-full text-left text-sm text-gray-700 hover:bg-gray-100 px-2 py-1 rounded-md"
-                          onClick={() => handleDeleteTask(task.id)}
+                          onClick={(event) => handleDeleteTask(event, task.id)}
                         >
                           Remove Task
                         </button>
@@ -140,22 +130,11 @@ const TaskList = ({ filter, tasks, refreshTasks, isLoading }) => {
               )}
             </div>
           ))
-        )}
+        }
       </div>
 
       <div className="hidden max-md:block">
-        {isLoading ? (
-          [...Array(5)].map((_, index) => (
-            <div
-              key={index}
-              className="border border-gray-300 rounded-lg p-4 mb-4 animate-pulse"
-            >
-              <div className="bg-gray-300 h-6 w-2/3 mb-2 rounded"></div>
-              <div className="bg-gray-300 h-4 w-1/2 mb-2 rounded"></div>
-              <div className="bg-gray-300 h-4 w-full mb-2 rounded"></div>
-            </div>
-          ))
-        ) : (
+        {
           tasks &&
           filteredTasks.map((task) => (
             <div
@@ -214,7 +193,7 @@ const TaskList = ({ filter, tasks, refreshTasks, isLoading }) => {
                       <li>
                         <button
                           className="w-full text-left text-sm text-gray-700 hover:bg-gray-100 px-2 py-1 rounded-md"
-                          onClick={() => handleDeleteTask(task.id)}
+                          onClick={(event) => handleDeleteTask(event, task.id)}
                         >
                           Remove Task
                         </button>
@@ -225,7 +204,7 @@ const TaskList = ({ filter, tasks, refreshTasks, isLoading }) => {
               )}
             </div>
           ))
-        )}
+        }
       </div>
 
       {modalTaskId && (

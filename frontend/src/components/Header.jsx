@@ -38,9 +38,7 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Use useMemo to compute filtered notifications and unread count.
   const filteredNotifications = useMemo(() => {
-    // Retrieve active filters from localStorage.
     const activeFilters =
       JSON.parse(localStorage.getItem("notificationFilters")) || [];
     const filterTimestamps = {};
@@ -50,7 +48,6 @@ const Header = () => {
         filterTimestamps[filter] = new Date(ts);
       }
     });
-    // Sort notifications (latest first).
     const sorted = [...notifications].sort(
       (a, b) => new Date(b.created_at) - new Date(a.created_at)
     );

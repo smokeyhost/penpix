@@ -6,54 +6,57 @@ def distance(p1, p2):
 
 def add_color_property_and_ids(detections):
     class_colors = {
-        'and': (0, 0, 255),          # Red
-        'input': (0, 255, 0),        # Green
-        'junction': (255, 0, 0),     # Blue
-        'nand': (0, 255, 255),       # Yellow
-        'nor': (255, 255, 0),        # Cyan
-        'not': (255, 0, 255),        # Magenta
-        'or': (128, 0, 128),         # Purple
-        'output': (0, 128, 128),     # Teal
-        'xnor': (128, 128, 0),       # Olive
-        'xor': (148, 3, 252),        # Light violet
-        'intersection': (0, 128, 255) # Orange-Blue for Intersection
+        'and': (0, 0, 255),
+        'input': (0, 255, 0),
+        'junction': (255, 0, 0),
+        'nand': (0, 255, 255),
+        'nor': (255, 255, 0),
+        'not': (255, 0, 255),
+        'or': (128, 0, 128),
+        'output': (0, 128, 128),
+        'xnor': (128, 128, 0),
+        'xor': (148, 3, 252),
+        'intersection': (0, 128, 255)
     }
-
-    # Initialize counters for each class type
-    id_counters = {
-        'input': 1,
-        'output': 1,
-        'junction': 1,
-        'intersection': 1,
-        'other': 1  # For all other logic gates
-    }
-
-    # Add color property and IDs based on the class
+    groups = {'input': [], 'output': [], 'junction': [], 'intersection': [], 'other': []}
     for detection in detections:
-        class_name = detection['class'] if 'class' in detection else detection['class_name']
-        detection['color'] = class_colors.get(class_name, (255, 255, 255))  # Default to white if class is not found
-
-        if class_name == 'input':
-            detection['object_id'] = f'IN{id_counters["input"]}'
-            detection['label'] = f'X{id_counters["input"]}'
-            id_counters['input'] += 1
-        elif class_name == 'output':
-            detection['object_id'] = f'OUT{id_counters["output"]}'
-            detection['label'] = f'Y{id_counters["output"]}'
-            id_counters['output'] += 1
-        elif class_name == 'junction':
-            detection['object_id'] = f'J{id_counters["junction"]}'
-            detection['label'] = ''
-            id_counters['junction'] += 1
-        elif class_name == 'intersection':
-            detection['object_id'] = f'I{id_counters["intersection"]}'
-            detection['label'] = ''
-            id_counters['intersection'] += 1
-        else:  # For logic gates like and, or, nand, etc.
-            detection['object_id'] = f'U{id_counters["other"]}'
-            detection['label'] = ''
-            id_counters['other'] += 1
-
+        class_name = detection.get('class', detection.get('class_name'))
+        detection['color'] = class_colors.get(class_name, (255, 255, 255))
+        if class_name in groups:
+            groups[class_name].append(detection)
+        else:
+            groups['other'].append(detection)
+    groups['input'].sort(key=lambda d: d['x'])
+    for i, detection in enumerate(groups['input'], start=1):
+        detection['object_id'] = f'IN{i}'
+        detection['label'] = f'X{i}'
+    groups['output'].sort(key=lambda d: d['y'])
+    for i, detection in enumerate(groups['output'], start=1):
+        detection['object_id'] = f'OUT{i}'
+        detection['label'] = f'Y{i}'
+    groups['junction'].sort(key=lambda d: (d['y'], d['x']))
+    for i, detection in enumerate(groups['junction'], start=1):
+        detection['object_id'] = f'J{i}'
+        detection['label'] = f'J{i}'
+    groups['intersection'].sort(key=lambda d: (d['y'], d['x']))
+    for i, detection in enumerate(groups['intersection'], start=1):
+        detection['object_id'] = f'I{i}'
+        detection['label'] = f'I{i}'
+    if groups['other']:
+        xs = [d['x'] for d in groups['other']]
+        avg_x = sum(xs) / len(xs)
+        left_column = [d for d in groups['other'] if d['x'] < avg_x]
+        right_column = [d for d in groups['other'] if d['x'] >= avg_x]
+        left_column.sort(key=lambda d: d['y'])
+        right_column.sort(key=lambda d: d['y'])
+        for i, detection in enumerate(left_column, start=1):
+            detection['object_id'] = f'U{i}'
+            detection['label'] = f'U{i}'
+        for i, detection in enumerate(reversed(right_column), start=len(left_column) + 1):
+            detection['object_id'] = f'U{i}'
+            detection['label'] = f'U{i}'
+        groups['other'] = left_column + right_column
+        # groups['other'] = left_column + right_column
 
 def filter_detections(detections):
     # Group detections by their position with a specified threshold

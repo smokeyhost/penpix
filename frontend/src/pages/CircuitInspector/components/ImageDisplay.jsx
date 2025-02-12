@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import ClassSelector from './ClassSelector';
 import { convertExpressionToUserFormat } from '../../../utils/helpers';
+import { ImSpinner9 } from "react-icons/im";
 import axios from 'axios';
 
 const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confidenceThreshold, onSetPredictions }) => {
@@ -13,14 +14,17 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
   const [position, setPosition] = useState(0);
   const [isClassSelectorOpen, setIsClassSelectorOpen] = useState(false);
   const [isUpdatedPrediction, setIsUpdatedPrediction] = useState(false);
+  const [imgLoading, setImgLoading] = useState(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const img = new Image();
     img.src = img_url;
+    // setImgLoading(true);
 
     img.onload = () => {
+      setImgLoading(false);
       const drawImageAndPredictions = () => {
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
@@ -225,9 +229,14 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className='w-full '>
-        <canvas ref={canvasRef} width={950} height={800} />
-      </div>
+      <div className="w-full relative">
+      <canvas ref={canvasRef} width={950} height={800} />
+      {imgLoading && (
+        <div className="absolute inset-0 flex justify-center items-center">
+          <ImSpinner9 className="animate-spin text-4xl text-black" />
+        </div>
+      )}
+    </div>
       {isClassSelectorOpen && (
         <ClassSelector prediction={selectedPrediction} onClassChange={handleClassChange} position={position} onCancel={handleCloseClassSelector} 
         onRemoveClass={handleRemoveClass}/>

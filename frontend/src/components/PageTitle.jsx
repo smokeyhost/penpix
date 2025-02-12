@@ -9,7 +9,9 @@ const PageTitle = () => {
 
     if (location.pathname === '/') {
       title = 'Landing Page';
-    } else if (location.pathname === '/auth') {
+    }else if(location.pathname === '/about'){
+      title = "About"
+    }else if (location.pathname === '/auth') {
       title = 'Authentication';
     } else if (location.pathname === '/forgot-password') {
       title = 'Forgot Password';
@@ -23,11 +25,11 @@ const PageTitle = () => {
       title = 'Class Page';
     } else if (location.pathname === '/create-class') {
       title = 'Create Class';
-    } else if (location.pathname === '/edit-class') {
+    } else if (location.pathname.startsWith('/edit-class')) {
       title = 'Edit Class';
     } else if (location.pathname === '/create-task') {
       title = 'Create Task';
-    } else if (location.pathname === '/edit-task') {
+    } else if (location.pathname.startsWith('/edit-task')){
       title = 'Edit Task';
     } else if (location.pathname.startsWith('/task')) {
       title = 'Task Page';
