@@ -229,7 +229,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="w-full relative">
+      <div className="w-full">
       <canvas ref={canvasRef} width={950} height={800} />
       {imgLoading && (
         <div className="absolute inset-0 flex justify-center items-center">
