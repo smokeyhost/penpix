@@ -20,6 +20,7 @@ flask_server/venv/Lib/site-packages/torch/lib/dnnl.lib
 flask_server/venv/Lib/site-packages/torch/lib/torch_cpu.dll
 flask_server/traced_model.pt
 flask_server/sys_main_modules/weight/best.pt
+flask_server/sys_main_modules/weigh/
 flask_server/venv/Lib/site-packages/cv2/cv2.pyd
 flask_server/instance/users.db
 flask_server/pycache/
