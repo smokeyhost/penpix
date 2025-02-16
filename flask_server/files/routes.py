@@ -98,10 +98,10 @@ def upload_files():
                 stored_filename = filename
                 
         except ValueError as e:
-            invalid_files_not_belonging.append(stored_filename)
+            invalid_files_not_belonging.append(filename)
             continue
         except Exception as e:
-            invalid_files_not_enrolled.append(stored_filename)
+            invalid_files_not_enrolled.append(filename)
             continue
         
         existing_file = UploadedFile.query.filter_by(

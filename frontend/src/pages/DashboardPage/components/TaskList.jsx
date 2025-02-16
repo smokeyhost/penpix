@@ -75,6 +75,10 @@ const TaskList = ({ filter, tasks, refreshTasks}) => {
     toastSuccess("Template is being downloaded")
   };
 
+  const getGradedFilesCount = (task) => {
+    return task?.files?.filter(file => file.graded).length;
+  }
+
   return (
     <div>
       <div className="max-w-7xl mx-auto px-4 py-7 max-md:hidden">
@@ -157,7 +161,7 @@ const TaskList = ({ filter, tasks, refreshTasks}) => {
               </p>
               <div className="flex justify-between items-center mt-2">
                 <p className="text-sm">
-                  Submissions: {task?.reviewed_submissions}/{task?.total_submissions}
+                  Submissions: {getGradedFilesCount()}/{task?.total_submissions}
                 </p>
                 <button
                   className="text-gray-500"
