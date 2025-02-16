@@ -6,6 +6,8 @@ import axios from 'axios';
 
 const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confidenceThreshold, onSetPredictions }) => {
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 950, height: 800 });
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [startDrag, setStartDrag] = useState(null);
@@ -15,6 +17,23 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
   const [isClassSelectorOpen, setIsClassSelectorOpen] = useState(false);
   const [isUpdatedPrediction, setIsUpdatedPrediction] = useState(false);
   const [imgLoading, setImgLoading] = useState(true);
+
+  useEffect(()=>{
+    setImgLoading(true);
+  },[img_url])
+
+  useEffect(() => {
+    const resizeCanvas = () => {
+      if (containerRef.current) {
+        setCanvasSize({
+          width: containerRef.current.clientWidth,
+          height: containerRef.current.clientHeight
+        });
+      }
+    };
+
+    resizeCanvas();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -220,7 +239,8 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
 
   return (
     <div
-      className={`image-canvas w-full h-full flex justify-center items-center cursor-pointer  ${
+      ref={containerRef}
+      className={`image-canvas w-full h-full flex justify-center cursor-pointer  ${
         startDrag ? 'cursor-grab' : ''
       }`}
       onMouseDown={handleMouseDown}
@@ -229,11 +249,13 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="w-full">
-      <canvas ref={canvasRef} width={950} height={800} />
+      <div className="w-full h-full relative">
+      <canvas ref={canvasRef} width={canvasSize.width}
+          height={canvasSize.height} className="w-full h-full object-contain" />
       {imgLoading && (
-        <div className="absolute inset-0 flex justify-center items-center">
+        <div className="absolute inset-0 flex justify-center items-center flex-col gap-2">
           <ImSpinner9 className="animate-spin text-4xl text-black" />
+          <p>Loading Image...</p>
         </div>
       )}
     </div>

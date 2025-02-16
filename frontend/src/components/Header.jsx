@@ -88,7 +88,7 @@ const Header = () => {
         <Links onClickLink={() => setShowMenu(false)} />
       </nav>
 
-      <div className="hidden md:flex items-center gap-6">
+      <div className="flex items-center gap-6 max-md:gap-3">
         <div className="relative cursor-pointer">
           <RiNotification2Line
             size={25}
@@ -106,19 +106,18 @@ const Header = () => {
           className="cursor-pointer"
         />
         <button
-          className="flex items-center gap-2 text-primaryColor font-semibold"
+          className="flex items-center gap-2 text-primaryColor font-semibold max-md:hidden"
           onClick={handleLogout}
         >
           Logout
           <IoLogOut size={25} color="#F26132" />
         </button>
+        <LuMenu
+          size={30}
+          className="md:hidden cursor-pointer"
+          onClick={() => setShowMenu(true)}
+        />
       </div>
-
-      <LuMenu
-        size={30}
-        className="md:hidden cursor-pointer"
-        onClick={() => setShowMenu(true)}
-      />
 
       {showMenu && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:hidden">
@@ -147,7 +146,7 @@ const Header = () => {
 
       {isNotificationOpen && (
         <div
-          className="absolute top-14 right-[170px] bg-white shadow-lg rounded-lg z-50"
+          className="absolute top-14 right-[170px] bg-white shadow-lg rounded-lg z-50 max-md:right-[100px]"
           ref={notificationRef}
         >
           <Notifications

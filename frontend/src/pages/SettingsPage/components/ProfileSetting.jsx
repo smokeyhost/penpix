@@ -12,9 +12,9 @@ const ProfileInput = ({profile, inputChange}) => {
     inputChange(e)
   };
   return (
-    <div className="flex flex-col gap-2 text-lg">
+    <div className="flex flex-col gap-2 text-lg max-md:text-sm max-sm:w-[200px]">
         <input
-          className="text-customGray2 px-2 border-2 border-customGray1"
+          className="text-customGray2 px-2 border-2 border-customGray1 max-sm:w-[150px]"
           placeholder=""
           type="text"
           name="name"

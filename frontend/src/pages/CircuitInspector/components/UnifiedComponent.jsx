@@ -3,7 +3,7 @@ import {convertSymbols} from "../../../utils/helpers";
 const UnifiedComponent = ({ relevantAnswerKey, circuitData }) => {
   const booleanExpressions = circuitData?.boolean_expressions || [];
   return (
-    <div className="bg-white text-gray-800 text-base rounded-lg w-full max-h-[550px] flex flex-col overflow-hidden border border-gray-300 shadow-md">
+    <div className="bg-white text-gray-800 text-base rounded-lg w-full flex flex-col overflow-hidden border border-gray-300 shadow-md">
       <div className="bg-gray-800 text-white text-md font-medium p-2 rounded-t-lg">
         Answer Keys & Boolean Results
       </div>

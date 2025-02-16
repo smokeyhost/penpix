@@ -139,7 +139,7 @@ const TaskList = ({ filter, tasks, refreshTasks}) => {
           filteredTasks.map((task) => (
             <div
               key={task?.id}
-              className="border border-gray-300 rounded-lg p-4 mb-4 hover:bg-gray-100 cursor-pointer mt-5 relative"
+              className="border border-gray-300 rounded-lg p-4 mb-4 hover:bg-gray-100 cursor-pointer mt-5 relative shadow-sm"
               onClick={() => handleSelectedTask(task?.id)}
             >
               <h3 className="font-semibold text-lg">

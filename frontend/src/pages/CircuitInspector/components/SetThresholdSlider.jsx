@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import ReactSlider from 'react-slider';
 
-const SetThresholdSlider = ({ onApplyThreshold, value, loading }) => {
+const SetThresholdSlider = ({ onApplyThreshold, value, loadingThreshold }) => {
   const [thresholdValue, setThresholdValue] = useState(value);
   useEffect(() => {
     setThresholdValue(value || 127);
@@ -27,7 +27,7 @@ const SetThresholdSlider = ({ onApplyThreshold, value, loading }) => {
         <span className='w-[55px] bg-gray-100 text-secondaryBg text-center p-1 rounded-lg text-sm'>{thresholdValue}</span>
       </div>
       <div className='flex flex-col gap-2 justify-between text-sm'>
-        <button className='bg-primaryColor p-2 rounded-lg hover:bg-[#c9512a]' onClick={() => applyThreshold('single')}>{!loading ? "Apply": "Applying....."}</button>
+        <button className='bg-primaryColor p-2 rounded-lg hover:bg-[#c9512a]' onClick={() => applyThreshold('single')}>{!loadingThreshold ? "Apply": "Applying....."}</button>
         {/* <button className='bg-thirdBg p-2 rounded-lg' onClick={() => applyThreshold('multiple')}>Apply to all images</button> */}
       </div>
     </div>

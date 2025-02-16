@@ -3,7 +3,7 @@ import { Switch } from '@headlessui/react';
 const NotificationSwitch = ({ text, isChecked, onChange }) => {
   return (
     <div className="flex items-center justify-between">
-      <label className="text-lg text-customGray2">{text}</label>
+      <label className="text-lg text-customGray2 max-md:text-sm">{text}</label>
       <div className="flex items-center gap-4">
         <Switch
           checked={isChecked}

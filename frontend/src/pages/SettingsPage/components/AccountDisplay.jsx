@@ -28,7 +28,7 @@ const AccountDisplay = ({ profile, onUploadProfileImage }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-5 w-full h-full">
+    <div className="flex flex-col items-center justify-center gap-5 w-full h-full max-sm:text-xs overflow-y-hidden">
       <div className="flex flex-col items-center">
         <div className="relative group w-fit cursor-pointer">
           <label className="cursor-pointer">
@@ -54,7 +54,7 @@ const AccountDisplay = ({ profile, onUploadProfileImage }) => {
           </label>
         </div>
 
-        <p className="font-bold text-xl mt-3">{profile.name}</p>
+        <p className="font-bold text-lg mt-3 text-center">{profile.name}</p>
         <p>{profile.email}</p>
       </div>
 
@@ -63,7 +63,7 @@ const AccountDisplay = ({ profile, onUploadProfileImage }) => {
         <div className="flex flex-col items-center gap-1 mt-5 text-customGray2">
           {
             classes.slice(0, 3).map((classItem, index) => (
-              <Link key={index} to={`/edit-class/${classItem.id}`}>
+              <Link key={index} to={`/edit-class/${classItem.id}`} className="hover:underline">
                 {`${classItem.class_code} | Group ${classItem.class_group} ${classItem.class_schedule}`}
               </Link>
             ))

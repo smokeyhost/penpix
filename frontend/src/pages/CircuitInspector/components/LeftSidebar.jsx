@@ -16,6 +16,7 @@ import { useState, useEffect } from "react";
 
 const LeftSidebar = ({
   loading,
+  loadingThreshold,
   circuitData,
   onApplyThreshold,
   onDetectLogicGates,
@@ -85,7 +86,7 @@ const LeftSidebar = ({
         } ${loading && selectedTool !== "threshold" ? "hover:bg-transparent" : ""}`}
         onClick={() => handleToolClick("threshold")}
       >
-        {loading && selectedTool === "threshold" ? (
+        {loadingThreshold && selectedTool === "threshold" ? (
           <ImSpinner9 size={20} className="animate-spin" />
         ) : (
           <FaSliders size={20} />
@@ -172,7 +173,7 @@ const LeftSidebar = ({
           <SetThresholdSlider
             onApplyThreshold={handleApplyThreshold}
             value={circuitData.threshold_value}
-            loading={loading}
+            loadingThreshold={loadingThreshold}
           />
         </div>
       )}

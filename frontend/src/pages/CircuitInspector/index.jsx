@@ -14,6 +14,7 @@ import axios from "axios";
 const CircuitInspectorPage = () => {
   const { taskId} = useParams(); 
   const [currentFile, setCurrentFile] = useState({});
+  const [loadingThreshold, setLoadingThreshold] = useState(false);
   const [currentCircuitData, setCurrentCircuitData] = useState({});
   const [currentPredictions, setCurrentPredictions] = useState([]);
   const [filteredImgUrl, setFilteredImgUrl] = useState('');
@@ -33,6 +34,7 @@ const CircuitInspectorPage = () => {
   console.log(currentFile)
 
   const handleApplyThreshold = async (thresholdValue, mode = 'single') => {
+    setLoadingThreshold(true);
     try {
       const response = await axios.post('/detect-gates/set-filter-threshold', {
         thresholdValue,
@@ -50,7 +52,9 @@ const CircuitInspectorPage = () => {
     } catch (error) {
       // toastError("An error occured. Check the console for more info.")
       console.error('Error applying threshold:', error);
-    } 
+    } finally{
+      setLoadingThreshold(false)
+    }
   };
 
   const handleDetectLogicGates = async (mode) => {
@@ -157,12 +161,12 @@ const CircuitInspectorPage = () => {
   
 
   return (
-    <div className="bg-[#eeeded] min-h-screen flex flex-col text">
+    <div className="bg-[#eeeded] flex flex-col text  h-screen overflow-y-auto">
       <header className="bg-[#333]">
         <Header task={task} files={files} onCurrentFileChange={handleCurrentFile} gradedFilesCount={gradedFilesCount} fileIndex={fileIndex}/>
       </header>
 
-      <main className="flex w-full max-lg:flex-col">
+      <main className="flex w-full h-full max-lg:flex-col">
         <div className="fixed left-5 top-1/2 transform -translate-y-1/2 z-50 max-lg:absolute">
           <LeftSidebar 
             circuitData={currentCircuitData} 
@@ -171,18 +175,19 @@ const CircuitInspectorPage = () => {
             onTogglePredictionVisibility={handlePredictionVisibility}
             onAnalyzeCircuit={handleAnalyzeCircuit}
             loading={loading}
+            loadingThreshold={loadingThreshold}
           />
         </div>
 
-        <div className="fixed left-1/2 bottom-5  -translate-x-1/2">
+        <div className="fixed left-1/2 bottom-5  -translate-x-1/2 z-50">
           <ConfidenceSlider onChange={handleSliderChange} />
         </div>
 
-        <div className="w-full ">
+        <div className="w-full">
           <ImageDisplay img_url={filteredImgUrl} predictions={currentPredictions} isPredictionVisible={isVisibilityToggled} confidenceThreshold={confidence} onSetPredictions={handleSetCurrentPredictions}/>
         </div>
 
-        <div className="w-full">
+        <div className="w-[600px] h-full">
           <RightSideBar 
             circuitData={currentCircuitData}
             task={task}

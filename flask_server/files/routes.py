@@ -98,10 +98,10 @@ def upload_files():
                 stored_filename = filename
                 
         except ValueError as e:
-            invalid_files_not_belonging.append(filename)
+            invalid_files_not_belonging.append(stored_filename)
             continue
         except Exception as e:
-            invalid_files_not_enrolled.append(filename)
+            invalid_files_not_enrolled.append(stored_filename)
             continue
         
         existing_file = UploadedFile.query.filter_by(
@@ -137,7 +137,7 @@ def upload_files():
 
         else:
             new_file = UploadedFile(
-                filename=filename,
+                filename=stored_filename,
                 filepath=os.path.join('images', str(task_id), stored_filename),
                 mimetype=file.mimetype,
                 task_id=task_id,
@@ -160,7 +160,7 @@ def upload_files():
             db.session.add(new_circuit_analysis)
 
         uploaded_files.append({
-            "filename": filename,
+            "filename": stored_filename,
             "replaced": bool(existing_file),
         })
         

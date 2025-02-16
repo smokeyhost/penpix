@@ -45,14 +45,17 @@ export const ConfirmModalProvider = ({ children }) => {
         <ConfirmModalContext.Provider value={confirm}>
             {children}
             {isOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-white rounded-lg shadow-lg p-6">
-                        <p className="text-lg">{message}</p>
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-[90%] md:max-w-[400px]">
+                        <p className="text-lg text-center">{message}</p>
                         {requiresVerification && (
-                            <div className="mt-4">
-                                <p>Please type <strong>{verificationText}</strong> to confirm:</p>
+                            <div className="mt-4 text-center">
+                                <p>
+                                    Please type <strong className="text-red-600">{verificationText}</strong> to confirm:
+                                </p>
                                 <input
                                     type="text"
+                                    placeholder={`${verificationText}`}
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     className="border border-gray-300 rounded p-2 mt-2 w-full"
@@ -62,15 +65,15 @@ export const ConfirmModalProvider = ({ children }) => {
                                 )}
                             </div>
                         )}
-                        <div className="flex justify-end gap-4 mt-4">
+                        <div className="flex flex-col-reverse md:flex-row justify-center md:justify-end gap-2 md:gap-4 mt-4">
                             <button
-                                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+                                className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 w-full md:w-auto"
                                 onClick={handleNo}
                             >
                                 No
                             </button>
                             <button
-                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full md:w-auto"
                                 onClick={handleYes}
                             >
                                 Yes

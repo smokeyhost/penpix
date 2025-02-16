@@ -49,7 +49,7 @@ const FilterCreateNav = ({ onFilterChange }) => {
         </div>
 
         <button 
-          className="bg-primaryColor text-white rounded-md px-5 py-2 font-semibold flex items-center gap-2 w-full sm:w-auto" 
+          className="bg-primaryColor text-white rounded-md px-5 py-2 font-semibold flex items-center gap-2 w-full sm:w-auto max-sm:text-sm" 
           onClick={handleCreateTask}
         >
           <FaPlus /> Create New Task

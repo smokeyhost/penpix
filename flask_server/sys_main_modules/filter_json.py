@@ -10,7 +10,7 @@ def add_color_property_and_ids(detections):
         'input': (0, 255, 0),
         'junction': (255, 0, 0),
         'nand': (0, 255, 255),
-        'nor': (255, 255, 0),
+        'nor': (255, 100, 0),
         'not': (255, 0, 255),
         'or': (128, 0, 128),
         'output': (0, 128, 128),

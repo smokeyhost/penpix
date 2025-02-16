@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import useErrorHandler from '../../hooks/useErrorHandler';
 import useGetClasses from "../../hooks/useGetClasses";
+import { useConfirm } from "../../contexts/ConfirmContext";
 import { formatDueDateTime} from "../../utils/helpers";
 import { Link, useNavigate } from "react-router-dom";
 
 const NotificationPage = () => {
   const [notifications, setNotifications] = useState([]);
+  const confirm = useConfirm()
   const { getClasses } = useGetClasses();
   const [classes, setClasses] = useState([]); 
   const { handleError } = useErrorHandler();
@@ -45,7 +47,7 @@ const NotificationPage = () => {
         }
       }
     };
-    console.log(classes)
+    
     const fetchTasks = async () => {
       try {
         const response = await axios.get('/task/get-tasks', { withCredentials: true });
@@ -65,6 +67,21 @@ const NotificationPage = () => {
     fetchTasks();
   }, []);
 
+  useEffect(() => {
+    const removeOldNotifications = async () => {
+      const now = new Date();
+      const fourteenDaysAgo = new Date(now.setDate(now.getDate() - 14));
+
+      notifications.forEach(async (notification) => {
+        if (new Date(notification.created_at) < fourteenDaysAgo) {
+          await axios.delete(`/notification/delete-notification/${notification.id}`);
+          setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+        }
+      });
+    };
+    removeOldNotifications();
+  }, [notifications]);
+
   const totalPages = Math.ceil(notifications.length / notificationsPerPage);
   const currentNotifications = notifications.slice(
     (currentPage - 1) * notificationsPerPage,
@@ -80,6 +97,19 @@ const NotificationPage = () => {
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    const isDelete = await confirm("Are you sure you want to delete all notifications?")
+    if (!isDelete) return;
+  
+    try {
+      await axios.delete("/notification/delete-all-notifications");
+      setNotifications([]);
+    } catch (error) {
+      handleError("default", "Failed to delete notifications.");
+      console.log(error)
     }
   };
 
@@ -99,15 +129,21 @@ const NotificationPage = () => {
   };
 
   return (
-    <div className="bg-[#EFEFEF] min-h-screen w-full p-5 md:p-10">
+    <div className="bg-[#EFEFEF] min-h-screen w-full p-5 md:p-10 max-sm:px-2">
       <div className="relative w-full h-full text-customBlack1 bg-white rounded-lg px-5 sm:px-10 pt-5 sm:pt-10 pb-4">
         <div className="absolute top-2 right-2 cursor-pointer">
           <IoIosClose size={35} onClick={() => navigate(`/auth`)} />
         </div>
-
-        <h2 className="text-customGray2 text-xl sm:text-3xl font-medium">Notifications</h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mt-5 font-bold border-b-2 border-customGray1 pb-3">
+        <div className="flex justify-between items-center max-md:flex-col max-md:justify-start max-md:items-start max-md:gap-2">
+          <h2 className="text-customGray2 text-xl sm:text-3xl font-medium">Notifications</h2> 
+          <button
+          onClick={handleDeleteAll}
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm max-sm:px-2 max-sm:text-xs"
+        >
+          Clear All Notifications
+        </button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mt-5 font-bold border-b-2 border-customGray1 pb-3 max-sm:hidden">
           <div>Task | Class Group</div>
           <div className="col-span-3">Notification</div>
           <div>Date</div>

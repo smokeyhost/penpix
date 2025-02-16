@@ -111,3 +111,42 @@ def mark_all_as_read():
         return jsonify({"message": f"Error marking notifications as read: {str(e)}"}), 500
 
     return jsonify({"message": "All notifications marked as read successfully"})
+
+@login_required
+@notification_bp.route('/delete-notification/<int:notification_id>', methods=['DELETE'])
+def delete_notification(notification_id):
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return jsonify({"message": "User ID is missing"}), 400
+
+    notification = Notification.query.filter_by(id=notification_id, user_id=user_id).first()
+
+    if not notification:
+        return jsonify({"message": "Notification not found"}), 404
+
+    try:
+        db.session.delete(notification)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"Error deleting notification: {str(e)}"}), 500
+
+    return jsonify({"message": "Notification deleted successfully"})
+
+@login_required
+@notification_bp.route('/delete-all-notifications', methods=['DELETE'])
+def delete_all_notifications():
+    user_id = session.get('user_id')
+
+    if not user_id:
+        return jsonify({"message": "User ID is missing"}), 400
+
+    try:
+        Notification.query.filter_by(user_id=user_id).delete()
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": f"Error deleting notifications: {str(e)}"}), 500
+
+    return jsonify({"message": "All notifications deleted successfully"})

@@ -21,10 +21,14 @@ def infer_image(image_bytes, crop_coords):
 
         img_size = 640
         data = model_detection.detect(source=temp_filepath, weights=weights, img_size=img_size,
-                                      save_img=False, view_img=False, save_txt=False, no_trace=True)
+                                      save_img=False, view_img=False, save_txt=False, save_trace=False)
+        
+        # data = model_detection.detect_traced(source=temp_filepath, weights=weights, img_size=img_size,
+        #                               save_img=False, view_img=False, save_txt=False)
         if not data:
             return {"error": "No objects detected in the image"}
-
+        print(data)
+        
         x_offset, y_offset, _,_ = crop_coords
         for detection in data:
             detection['x'] += x_offset

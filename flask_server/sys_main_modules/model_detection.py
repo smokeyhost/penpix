@@ -16,9 +16,9 @@ from sys_main_modules.utilities.plots import plot_one_box
 from sys_main_modules.utilities.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 
 
-def detect(weights='yolov7.pt', source='inference/images', img_size=640, conf_thres=0.25, iou_thres=0.45, device='', view_img=False, save_txt=False, save_conf=False, nosave=False, classes=None, agnostic_nms=False, augment=False, update=False, project='runs/', name='exp', exist_ok=False, no_trace=False, save_img=False):
+def detect(weights='yolov7.pt', source='inference/images', img_size=640, conf_thres=0.25, iou_thres=0.45, device='', view_img=False, save_txt=False, save_conf=False, nosave=False, classes=None, agnostic_nms=False, augment=False, update=False, project='runs/', name='exp', exist_ok=False, save_trace=False, save_img=False):
 
-    source, weights, view_img, save_txt, imgsz, trace = source, weights, view_img, save_txt, img_size, not no_trace 
+    source, weights, view_img, save_txt, imgsz = source, weights, view_img, save_txt, img_size 
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
         ('rtsp://', 'rtmp://', 'http://', 'https://'))
@@ -32,14 +32,12 @@ def detect(weights='yolov7.pt', source='inference/images', img_size=640, conf_th
     device = select_device(device)
     half = device.type != 'cpu'  # half precision only supported on CUDA
     
-    # Load model
     model = attempt_load(weights, map_location=device)  # load FP32 model\
     stride = int(model.stride.max())  # model stride
     imgsz = check_img_size(imgsz, s=stride)  # check img_size
-
-    if trace:
-        model = TracedModel(model, device, img_size)
-
+    
+    if save_trace:
+        model = TracedModel(model, device, imgsz=imgsz)
     if half:
         model.half()  # to FP16
 
@@ -182,4 +180,118 @@ def detect(weights='yolov7.pt', source='inference/images', img_size=640, conf_th
 
     print(f'Done. ({time.time() - t0:.3f}s)')
 
+    return predictions
+
+
+def detect_traced(weights='traced_model.pt', source='inference/images', img_size=640, conf_thres=0.25, iou_thres=0.45, device='', view_img=False, save_txt=False, save_conf=False, nosave=False, classes=None, agnostic_nms=False, augment=False, project='runs/', name='exp', exist_ok=False, save_img=False):
+    source, weights, view_img, save_txt, imgsz = source, weights, view_img, save_txt, img_size
+    save_img = not nosave and not source.endswith('.txt')  # save inference images
+    webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
+
+    # Directories
+    save_dir = Path(increment_path(Path(project) / name, exist_ok=exist_ok))
+    (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)
+
+    # Initialize
+    device = select_device(device)
+    half = device.type != 'cpu'  # Half precision only supported on CUDA
+
+    model = torch.jit.load(weights, map_location=device)  # Load traced model
+    model.eval()
+    stride = 32  # Assumed stride for traced model
+    imgsz = check_img_size(imgsz, s=stride)
+
+    if half:
+        model.half()
+
+    # Set Dataloader
+    vid_path, vid_writer = None, None
+    if webcam:
+        view_img = check_imshow()
+        cudnn.benchmark = True
+        dataset = LoadStreams(source, img_size=imgsz, stride=stride)
+    else:
+        dataset = LoadImages(source, img_size=imgsz, stride=stride)
+
+    names = ['class_{}'.format(i) for i in range(80)]  # Adjust based on your model
+    colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
+
+    t0 = time.time()
+    for path, img, im0s, vid_cap in dataset:
+        img = torch.from_numpy(img).to(device)
+        img = img.half() if half else img.float()
+        img /= 255.0
+        if img.ndimension() == 3:
+            img = img.unsqueeze(0)
+
+        # Inference
+        t1 = time_synchronized()
+        with torch.no_grad():
+            pred = model(img)[0]
+        t2 = time_synchronized()
+
+        # Apply NMS
+        pred = non_max_suppression(pred, conf_thres, iou_thres, classes=classes, agnostic=agnostic_nms)
+        t3 = time_synchronized()
+
+        predictions = []
+        for i, det in enumerate(pred):
+            if webcam:
+                p, im0 = path[i], im0s[i].copy()
+            else:
+                p, im0 = path, im0s
+
+            p = Path(p)
+            save_path = str(save_dir / p.name)
+            txt_path = str(save_dir / 'labels' / p.stem)
+            gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]
+            if len(det):
+                det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
+                for *xyxy, conf, cls in reversed(det):
+                    x_min, y_min, x_max, y_max = map(int, xyxy)
+                    width = x_max - x_min
+                    height = y_max - y_min
+                    detection = {
+                        "x": x_min,
+                        "y": y_min,
+                        "width": width,
+                        "height": height,
+                        "confidence": conf.item(),
+                        "class": names[int(cls)],
+                        "class_id": int(cls),
+                        "detection_id": str(uuid.uuid4())
+                    }
+                    predictions.append(detection)
+
+                    if save_txt:
+                        with open(txt_path + '.txt', 'a') as f:
+                            f.write(f'{cls} {x_min} {y_min} {width} {height} {conf:.6f}\n')
+
+                    if save_img or view_img:
+                        label = f'{names[int(cls)]} {conf:.2f}'
+                        plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
+
+            if view_img:
+                cv2.imshow(str(p), im0)
+                cv2.waitKey(1)
+
+            if save_img:
+                if dataset.mode == 'image':
+                    cv2.imwrite(save_path, im0)
+                else:
+                    if vid_path != save_path:
+                        vid_path = save_path
+                        if isinstance(vid_writer, cv2.VideoWriter):
+                            vid_writer.release()
+                        if vid_cap:
+                            fps = vid_cap.get(cv2.CAP_PROP_FPS)
+                            w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                            h = int(vid_cap.get(CV2.CAP_PROP_FRAME_HEIGHT))
+                        else:
+                            fps, w, h = 30, im0.shape[1], im0.shape[0]
+                            save_path += '.mp4'
+                        vid_writer = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+                    vid_writer.write(im0)
+
+    print(f'Done. ({time.time() - t0:.3f}s)')
     return predictions

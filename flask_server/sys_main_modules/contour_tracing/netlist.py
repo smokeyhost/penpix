@@ -81,8 +81,8 @@ def process_circuit_connection(image_bytes: BytesIO, predictions: list) -> tuple
         #     cv.line(image_copy, start, end, (0,0,255), 2)
         
 
-        # for point in line_boundary:
-        #     cv.circle(image_copy, point, 1, (0, 0, 255), -1)
+        for point in line_boundary:
+            cv.circle(image_copy, point, 1, (0, 0, 255), -1)
         
         # # Get the boolean function and display truth table
         

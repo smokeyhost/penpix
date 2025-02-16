@@ -40,7 +40,7 @@ const ClassPage = () => {
   };
 
   return (
-    <div className="w-full p-10 bg-[#EFEFEF] min-h-screen">
+    <div className="w-full p-10 bg-[#EFEFEF] h-screen overflow-y-auto">
       {loading ? (
         <div className="flex flex-wrap gap-10 justify-center sm:justify-start">
           {[...Array(5)].map((_, index) => (

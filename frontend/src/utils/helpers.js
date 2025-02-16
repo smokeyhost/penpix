@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+export const formatFilename = (filename) => filename.replace(/\.[^/.]+$/, '');
+
 export const formatDueDateTime = (dateString) => {
   const date = new Date(dateString);
 

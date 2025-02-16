@@ -3,14 +3,15 @@ import PreviewNetlist from "./PreviewNetlist";
 import UnifiedComponent from "./UnifiedComponent";
 import { FaTableColumns } from "react-icons/fa6";
 import { GiCircuitry } from "react-icons/gi";
+import { ImSpinner9 } from "react-icons/im";
 import { MdOutlineGrading } from "react-icons/md";
-// import styles from './styles/component.module.css';
 import { useState, useEffect } from "react";
 import axios from "axios";
 import GradeTableModal from "./GradeTableModal";  
 
 const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
   const [showCompareTable, setShowCompareTable] = useState(false);
+  const [loadingGrade, setLoadingGrade] = useState(false);
   const [expressions, setExpressions] = useState([]);
   const [answerTable, setAnswerTable] = useState([]);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -64,6 +65,7 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
   };
 
   const updateGrade = async (fileId, totalGrade) => {
+    setLoadingGrade(true);
     try {
       const response = await axios.put(`/files/update-grade/${fileId}`, { total_grade: totalGrade });
   
@@ -74,6 +76,8 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
       }
     } catch (error) {
       console.error("Error updating grade:", error.message);
+    } finally{
+      setLoadingGrade(false)
     }
   };
 
@@ -94,7 +98,6 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
       let isMatch = false;
       let matchedKey = null;
   
-      // Compare tableRow to all rows in circuitData.truth_table
       Object.entries(circuitData.truth_table).forEach(([truthKey, truthRow]) => {
         if (JSON.stringify(tableRow) === JSON.stringify(truthRow)) {
           isMatch = true;
@@ -122,7 +125,6 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
       }
     });
   
-    // Check for missing rows in the submitted table
     Object.entries(circuitData.truth_table).forEach(([_ , truthRow], index) => {
       const isMissing = !Object.entries(answerTable).some(([_ , tableRow]) => JSON.stringify(tableRow) === JSON.stringify(truthRow));
   
@@ -193,7 +195,7 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
           className="flex flex-col items-center p-4 bg-white rounded-lg shadow hover:shadow-lg cursor-pointer transition"
           onClick={handleGradeSubmission}
         >
-          <MdOutlineGrading size={40} className="text-yellow-500 mb-2" />
+          {!loadingGrade ? <MdOutlineGrading size={40} className="text-yellow-500 mb-2" /> : <ImSpinner9 size={40} className="animate-spin" /> }
           <span className="font-semibold text-gray-700 text-center text-sm">Grade Submission</span>
         </div>
       </div>

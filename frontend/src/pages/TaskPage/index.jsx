@@ -147,9 +147,8 @@ const TaskPage = () => {
     );
   }
   return (
-    <div className="bg-[#EFEFEF] min-h-screen w-full p-4 sm:p-6 md:p-10">
+    <div className="bg-[#EFEFEF] h-screen w-full p-4 sm:p-6 md:p-10 overflow-y-auto">
       <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* Task Details Section */}
         <div className="lg:col-span-2 bg-white shadow-lg p-4 md:p-6 rounded-lg">
           <div className="space-y-4">
             <h1 className="text-lg md:text-xl font-bold">{task.title}</h1>
@@ -204,7 +203,7 @@ const TaskPage = () => {
       </div>
 
       {/* Files List Section */}
-      <div className="w-full bg-white shadow-lg p-4 mt-4 md:mt-6 rounded-lg">
+      <div className="w-full bg-white shadow-lg p-4 mt-4 md:mt-6 rounded-lg mb-10">
         <FilesList files={files} refreshFiles={refreshFiles} task={task}/>
       </div>
 

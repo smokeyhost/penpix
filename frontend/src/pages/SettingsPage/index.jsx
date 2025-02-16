@@ -87,14 +87,14 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#EFEFEF] p-10">
-      <div className="relative w-full h-full text-customBlack1 bg-white mb-10 rounded-lg p-10">
+    <div className="w-full h-screen bg-[#EFEFEF] p-5 overflow-y-auto">
+      <div className="relative w-full h-full text-customBlack1 bg-white mb-10 rounded-lg p-10 max-md:p-5">
         <div className="absolute top-2 right-2 cursor-pointer">
           <IoIosClose size={35} onClick={() => navigate(`/dashboard/${profile.id}`)}/>
         </div>
         <h2 className="text-customGray2 text-3xl font-medium">Settings</h2>
-        <div className="flex h-full w-full gap-4 max-md:flex-col max-md:gap-10">
-          <div className="w-[700px] ml-5 h-full overflow-y-auto pr-20 pb-10 pt-5 flex flex-col max-md:overflow-y-hidden max-md:h-fit max-md:w-[420px]">
+        <div className="flex h-full w-full gap-2  max-md:gap-10 max-md:flex-col-reverse">
+          <div className="ml-5 h-full overflow-y-auto pr-20 pb-10 pt-5 flex flex-col max-md:overflow-y-hidden max-md:h-fit max-sm:w-full">
             <div>
               <ProfileSection profile={profile} onSave={handleSetProfile} />
             </div>
@@ -118,7 +118,7 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <div className="flex-1 border-l-4 border-customGray1 px-10">
+          <div className="flex-1 border-l-4 border-customGray1 px-10 max-md:w-full max-md:border-none max-md:mt-10 w-[200px]">
             <AccountDisplay profile={profile} onUploadProfileImage={handlepUloadProfileImage}/>
           </div>
         </div>

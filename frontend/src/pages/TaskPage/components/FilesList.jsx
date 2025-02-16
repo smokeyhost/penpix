@@ -3,6 +3,7 @@ import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useConfirm } from "../../../contexts/ConfirmContext";
+import { formatFilename } from '../../../utils/helpers';
 import useToast from '../../../hooks/useToast';
 
 const FilesList = ({ files, refreshFiles, task }) => {
@@ -18,6 +19,7 @@ const FilesList = ({ files, refreshFiles, task }) => {
   useEffect(() => {
     const storedSimilarFiles = JSON.parse(sessionStorage.getItem('similarFiles')) || [];
     setSimilarFiles(storedSimilarFiles);
+    console.log(files)
   }, []);
 
   useEffect(() => {
@@ -92,8 +94,6 @@ const FilesList = ({ files, refreshFiles, task }) => {
     acc[file.item_number].push(file);
     return acc;
   }, {});
-
-  const formatFilename = (filename) => filename.replace(/\.[^/.]+$/, '');
 
   const renderEmptyMessage = () => {
     if (filterOption === 'graded') {
