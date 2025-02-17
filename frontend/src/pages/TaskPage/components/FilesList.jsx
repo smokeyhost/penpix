@@ -11,6 +11,7 @@ const FilesList = ({ files, refreshFiles, task }) => {
   const [filterOption, setFilterOption] = useState('all');
   const [similarFiles, setSimilarFiles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [deletingFiles, setDeletingFiles] = useState([]);
   const [filesPerPage] = useState(5);
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -19,7 +20,6 @@ const FilesList = ({ files, refreshFiles, task }) => {
   useEffect(() => {
     const storedSimilarFiles = JSON.parse(sessionStorage.getItem('similarFiles')) || [];
     setSimilarFiles(storedSimilarFiles);
-    console.log(files)
   }, []);
 
   useEffect(() => {
@@ -39,10 +39,11 @@ const FilesList = ({ files, refreshFiles, task }) => {
 
   const handleDeleteFile = async (event, fileId) => {
     event.preventDefault();
-
+    
     const isConfirmed = await confirm('This submission will be completely removed from the system. Are you sure you want to delete this file?', false, '');
     if (!isConfirmed) return;
 
+    setDeletingFiles((prev) => [...prev, fileId]); 
     try {
       await axios.delete(`/files/delete-file/${fileId}`);
       refreshFiles();
@@ -50,6 +51,8 @@ const FilesList = ({ files, refreshFiles, task }) => {
     } catch (error) {
       console.error('Error deleting file:', error);
       alert('An error occurred while deleting the file.');
+    } finally{
+      setDeletingFiles((prev) => prev.filter((id) => id !== fileId)); 
     }
   };
 
@@ -251,7 +254,7 @@ const FilesList = ({ files, refreshFiles, task }) => {
                     </td>
                     <td className="border border-gray-300 px-2 py-1">
                       <button onClick={(e) => handleDeleteFile(e, file.id)} className="text-red-500 hover:text-red-700">
-                        <FaTrash />
+                      {deletingFiles.includes(file.id) ? "Deleting..." : <FaTrash />}
                       </button>
                     </td>
                   </tr>

@@ -40,7 +40,7 @@ const ClassPage = () => {
   };
 
   return (
-    <div className="h-screen overflow-y-auto pb-24">
+    <div className="min-h-screen overflow-y-auto">
       <div className="w-full p-10 bg-[#EFEFEF] h-full">
         {loading ? (
           <div className="flex flex-wrap gap-10 justify-center sm:justify-start">

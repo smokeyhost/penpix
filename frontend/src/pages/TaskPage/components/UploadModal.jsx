@@ -1,7 +1,7 @@
 import { useState } from "react";
 import useToast from '../../../hooks/useToast';
 
-const UploadModal = ({ isOpen, onClose, items, onUploadFiles, task }) => {
+const UploadModal = ({ isOpen, onClose, items, onUploadFiles, task, uploading }) => {
   const [fileMappings, setFileMappings] = useState({});
   const { toastWarning, toastError } = useToast();
 
@@ -41,7 +41,6 @@ const UploadModal = ({ isOpen, onClose, items, onUploadFiles, task }) => {
       toastError(`The following files do not follow the proper naming convention: ${invalidFilenames.join(', ')}. Please rename them to follow the convention: id_number_typeOfActivity[#itemNumber].png/jpg/jpeg/pdf`);
     }
 
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -86,7 +85,7 @@ const UploadModal = ({ isOpen, onClose, items, onUploadFiles, task }) => {
             onClick={handleUpload}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            Upload Files
+            {!uploading ? "Upload Files":"Uploading..."}
           </button>
         </div>
       </div>

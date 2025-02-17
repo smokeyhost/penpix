@@ -33,6 +33,7 @@ const TaskPage = () => {
   const { handleDeleteTask: deleteTask } = useDeleteTask();
   const {toastSuccess, toastError, toastInfo} = useToast()
   const {downloadTemplate, loading: isTemplateDownloading} = useTemplateDownloader(); 
+  const [uploading, setUploading] = useState(false);
   const { getTask } = useGetTask()
 
   const items = task.answer_keys?.map((key) => key.item) || [];
@@ -72,7 +73,8 @@ const TaskPage = () => {
   
     formData.append("task_id", taskId);
     formData.append("item_number", item); 
-  
+    
+    setUploading(true)
     try {
       const response = await axios.post("/files/upload-files", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -94,6 +96,9 @@ const TaskPage = () => {
     } catch (error) {
       console.error("Error uploading files:", error?.response?.message);
       toastError("Error uploading files. Please try again.");
+    } finally{
+      setUploading(false)
+      setUploadModalOpen(false)
     }
   };
 
@@ -230,6 +235,7 @@ const TaskPage = () => {
           items={items}
           onUploadFiles={handleUploadFiles}
           task={task}
+          uploading={uploading}
         />
       )}
     </div>

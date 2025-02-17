@@ -76,7 +76,7 @@ const TaskList = ({ filter, tasks, refreshTasks}) => {
   };
 
   const getGradedFilesCount = (task) => {
-    return task?.files?.filter(file => file.graded).length;
+    return task?.files?.filter(file => file.graded).length || 0;
   }
 
   return (
