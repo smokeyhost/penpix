@@ -267,7 +267,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
     </div>
       {isClassSelectorOpen && (
         <ClassSelector prediction={selectedPrediction} onClassChange={handleClassChange} position={position} onCancel={handleCloseClassSelector} 
-        onRemoveClass={handleRemoveClass} setEditing={editing}/>
+        onRemoveClass={handleRemoveClass} editing={editing}/>
       )}
     </div>
   );
