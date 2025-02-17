@@ -62,21 +62,28 @@ def upload_files():
             if file_ext == '.pdf':
                 # Convert the first page of the PDF to an image using PyMuPDF
                 pdf_document = fitz.open(stream=file.read(), filetype="pdf")
-                page = pdf_document.load_page(0)  # Load the first page
-                pix = page.get_pixmap()
+                page = pdf_document.load_page(0)
+
+                zoom = 1  # 3x zoom for better quality
+                mat = fitz.Matrix(zoom, zoom)
+
+                pix = page.get_pixmap(matrix=mat, alpha=False)
+
+                # Convert the pixmap to an image
                 image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
+                # Proceed with your existing processing
                 corrected_image, qr_data = determine_proper_orientation(image)
                 if qr_data is None:
                     raise ValueError("No QR Code found in the file or Invalid.")
-
+                
                 qr_task_id, qr_class_id = qr_data.split('|')
                 if str(qr_task_id) != str(task_id) or str(qr_class_id) != str(class_id):
                     raise ValueError("The submitted file does not belong to the task")
-
+                
                 image_filename = f"{os.path.splitext(filename)[0]}.png"
                 image_path = os.path.join(TASK_FOLDER, image_filename)
-                corrected_image.save(image_path)
+                corrected_image.save(image_path, "PNG", quality=100)
                 uploaded_files.append(image_filename)
                 stored_filename = image_filename
                 

@@ -102,7 +102,7 @@ const MessageForm = () => {
             name="message"
             value={formData.message}
             onChange={handleChange}
-            className="w-full p-2 border rounded-md h-[150px]"
+            className="w-full p-2 border rounded-md h-[150px] max-sm:h-[90px]"
             required
           ></textarea>
         </div>

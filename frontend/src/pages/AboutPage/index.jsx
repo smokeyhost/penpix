@@ -6,8 +6,8 @@ const AboutPage = () => {
   };
 
   return (
-    <div className="h-screen overflow-y-auto">
-      <div className="mx-auto p-6 sm:px-4 md:px-6 lg:px-10 container">
+    <div className="w-full h-screen overflow-y-auto pb-24">
+      <div className="mx-auto p-6 sm:px-4 md:px-6 lg:px-10 container w-full h-full">
         <h1 className="text-3xl sm:text-2xl md:text-3xl font-bold mb-6">About PenPix</h1>
         <nav className="mb-8">
           <ul className="flex flex-wrap max-md:flex-col gap-5 max-md:gap-1">

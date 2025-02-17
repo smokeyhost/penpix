@@ -87,7 +87,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-[#EFEFEF] p-5 overflow-y-auto">
+    <div className="w-full min-h-screen bg-[#EFEFEF] p-5">
       <div className="relative w-full h-full text-customBlack1 bg-white mb-10 rounded-lg p-10 max-md:p-5">
         <div className="absolute top-2 right-2 cursor-pointer">
           <IoIosClose size={35} onClick={() => navigate(`/dashboard/${profile.id}`)}/>
@@ -100,7 +100,7 @@ const SettingsPage = () => {
             </div>
 
             <div className="mt-7">
-              <AccountSetting
+              <AccountSetting 
                 profile={profile}
                 isChangePassword={isChangePassword}
                 isChangeRecoveryEmail={isChangeRecoveryEmail}
