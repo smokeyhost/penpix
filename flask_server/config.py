@@ -7,7 +7,7 @@ load_dotenv()
 
 class Config:
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///users.db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI', 'mysql+pymysql://root:TriuneGod143@localhost/penpix_db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Security configuration
