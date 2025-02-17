@@ -22,7 +22,7 @@ flask_server/traced_model.pt
 flask_server/sys_main_modules/weight/best.pt
 flask_server/sys_main_modules/weight/
 flask_server/venv/Lib/site-packages/cv2/cv2.pyd
-flask_server/instance/users.db
+flask_server/instance/
 flask_server/pycache/
 flask_server/runs/
 flask_server/static/
