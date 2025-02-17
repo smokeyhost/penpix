@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const ClassSelector = ({ prediction, position, onClassChange, onRemoveClass, onCancel }) => {
+const ClassSelector = ({ prediction, position, onClassChange, onRemoveClass, onCancel, editing }) => {
   const options = [
     'input', 'output', 'intersection', 'junction', 
     'AND', 'OR', 'NOT', 'NAND', 'NOR', 'XOR', 'XNOR'
@@ -29,7 +29,7 @@ const ClassSelector = ({ prediction, position, onClassChange, onRemoveClass, onC
 
   const handleSave = () => {
     onClassChange(selectedClass); 
-    onCancel()
+    onCancel();
   };
 
   const handleSelectedOption = (option) => {
@@ -44,10 +44,19 @@ const ClassSelector = ({ prediction, position, onClassChange, onRemoveClass, onC
         left: `${position.left}px`,
         maxWidth: '250px',
         zIndex: '1000',
+        position: 'relative' // Ensure overlay positions relative to this container
       }}
       onMouseDown={(e) => e.stopPropagation()}
       onMouseUp={(e) => e.stopPropagation()}
     >
+      {editing && (
+        <div 
+          className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-10"
+        >
+          <span className="text-white text-xl">Loading...</span>
+        </div>
+      )}
+
       <h3 className="text-sm font-semibold mb-3">Select Class</h3>
       <div
         className="space-y-2"
@@ -78,18 +87,21 @@ const ClassSelector = ({ prediction, position, onClassChange, onRemoveClass, onC
         <button
           className="px-2 py-1 bg-gray-600 text-xs rounded-lg hover:bg-gray-500 transition ease-in-out duration-200 w-full"
           onClick={onCancel}
+          disabled={editing} // Disable during loading state
         >
           Cancel
         </button>
         <button
           className="px-2 py-1 bg-red-500 text-xs text-white rounded-lg hover:bg-transparent border border-transparent hover:border-primaryColor transition ease-in-out duration-200 w-full"
           onClick={() => onRemoveClass(prediction.id)}
+          disabled={editing} 
         >
           Remove
         </button>
         <button
           className="px-2 py-1 bg-primaryColor text-xs text-white rounded-lg hover:bg-transparent border border-transparent hover:border-primaryColor transition ease-in-out duration-200 w-full"
           onClick={handleSave}
+          disabled={editing} 
         >
           Save
         </button>

@@ -40,8 +40,7 @@ const ClassPage = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-y-auto">
-      <div className="w-full p-10 bg-[#EFEFEF] h-full">
+      <div className="w-full p-10 bg-[#EFEFEF] min-h-screen">
         {loading ? (
           <div className="flex flex-wrap gap-10 justify-center sm:justify-start">
             {[...Array(5)].map((_, index) => (
@@ -86,7 +85,6 @@ const ClassPage = () => {
           </div>
         )}
       </div>
-    </div>
   );
 };
 

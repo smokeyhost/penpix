@@ -17,6 +17,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
   const [isClassSelectorOpen, setIsClassSelectorOpen] = useState(false);
   const [isUpdatedPrediction, setIsUpdatedPrediction] = useState(false);
   const [imgLoading, setImgLoading] = useState(true);
+  const [editing, setEditing] = useState(false) 
 
   useEffect(()=>{
     setImgLoading(true);
@@ -202,7 +203,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
         console.error("No prediction selected or missing ID");
         return;
       }
-
+      setEditing(true)
       const response = await axios.put(`/detect-gates/edit-prediction/${selectedPrediction.circuit_analysis_id}`, {
         className: selectedClass,
         predictionId: selectedPrediction.id
@@ -217,6 +218,8 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
       }
     } catch (error) {
       console.error("Error updating class:", error.message);
+    } finally{
+      setEditing(false)
     }
   };
 
@@ -226,12 +229,15 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
 
   const handleRemoveClass = async (predictionId) => {
     try {
+      setEditing(true)
       const response = await axios.delete(`detect-gates/delete-prediction/${predictionId}`);
       onSetPredictions(response.data.filtered_predictions);
       setIsUpdatedPrediction(!isUpdatedPrediction);
       setIsClassSelectorOpen(false);
     } catch (error) {
       console.error(error.message);
+    } finally{
+      setEditing(false);
     }
   };
 
@@ -261,7 +267,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
     </div>
       {isClassSelectorOpen && (
         <ClassSelector prediction={selectedPrediction} onClassChange={handleClassChange} position={position} onCancel={handleCloseClassSelector} 
-        onRemoveClass={handleRemoveClass}/>
+        onRemoveClass={handleRemoveClass} setEditing={editing}/>
       )}
     </div>
   );
