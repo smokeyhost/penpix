@@ -424,8 +424,6 @@ def delete_prediction(prediction_id):
         return jsonify({"error": "Failed to delete prediction", "details": str(e)}), 500
     
     
-    
-    
 def are_predictions_similar(pred1, pred2, margin_of_error=5):
     similar = (
         pred1['class_name'] == pred2['class_name'] and
@@ -436,6 +434,9 @@ def are_predictions_similar(pred1, pred2, margin_of_error=5):
     return similar
 
 def are_all_predictions_similar(predictions1, predictions2, margin_of_error=5):
+    if not predictions1 or not predictions2:
+        return False
+    
     if len(predictions1) != len(predictions2):
         print(f"Different number of predictions: {len(predictions1)} vs {len(predictions2)}")
         return False
@@ -450,10 +451,13 @@ def flag_similar_circuits():
     try:
         margin_of_error = request.args.get('margin_of_error', default=5, type=int)
         circuit_analyses = CircuitAnalysis.query.all()
+        
+        valid_circuits = [c for c in circuit_analyses if c.predictions]
+        
         flagged_circuits = []
 
-        for i, circuit1 in enumerate(circuit_analyses):
-            for j, circuit2 in enumerate(circuit_analyses):
+        for i, circuit1 in enumerate(valid_circuits):
+            for j, circuit2 in enumerate(valid_circuits):
                 if i >= j:
                     continue
                 if are_all_predictions_similar(circuit1.predictions, circuit2.predictions, margin_of_error):

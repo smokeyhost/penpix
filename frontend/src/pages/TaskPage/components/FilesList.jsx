@@ -9,6 +9,7 @@ import useToast from '../../../hooks/useToast';
 const FilesList = ({ files, refreshFiles, task }) => {
   const [sortOption, setSortOption] = useState('desc');
   const [filterOption, setFilterOption] = useState('all');
+  const [fetchedSimilarFiles, setFetchedSimilarFiles] = useState([]);
   const [similarFiles, setSimilarFiles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingFiles, setDeletingFiles] = useState([]);
@@ -18,13 +19,19 @@ const FilesList = ({ files, refreshFiles, task }) => {
   const { toastInfo } = useToast();
 
   useEffect(() => {
-    const storedSimilarFiles = JSON.parse(sessionStorage.getItem('similarFiles')) || [];
-    setSimilarFiles(storedSimilarFiles);
+    const fetchSimilarFiles = async () => {
+      try {
+        const response = await axios.get('/detect-gates/flag-similar-circuits', {
+          params: { margin_of_error: 5 },
+        });
+        setFetchedSimilarFiles(response.data.flagged_circuits.flat());
+      } catch (error) {
+        console.error('Error fetching similar files:', error);
+      }
+    };
+  
+    fetchSimilarFiles();
   }, []);
-
-  useEffect(() => {
-    sessionStorage.setItem('similarFiles', JSON.stringify(similarFiles));
-  }, [similarFiles]);
 
   const calculateTotalGrade = () => {
     const grades = {};
@@ -57,27 +64,13 @@ const FilesList = ({ files, refreshFiles, task }) => {
   };
 
   const handleComparePredictions = async () => {
-    try {
-      const response = await axios.get('/detect-gates/flag-similar-circuits', {
-        params: {
-          margin_of_error: 5, 
-        },
-      });
-  
-      const { flagged_circuits } = response.data;
-  
-      if (flagged_circuits.length === 0) {
-        toastInfo('No similarities found.');
-      } else {
-        const similarFileIds = flagged_circuits.flat();
-        setSimilarFiles(similarFileIds);
-        toastInfo('Similarities detected in submissions.');
-      }
-    } catch (error) {
-      console.error('Error comparing predictions:', error);
-      toastInfo('An error occurred while comparing predictions.', 'error');
+    if (fetchedSimilarFiles.length === 0) {
+      toastInfo('No similarities found.');
+    } else {
+      setSimilarFiles(fetchedSimilarFiles);
+      toastInfo('Similarities detected in submissions.');
     }
-  };;
+  }
 
   const filteredFiles = files
     .filter((file) => {

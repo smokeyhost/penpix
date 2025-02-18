@@ -80,7 +80,7 @@ const TaskList = ({ filter, tasks, refreshTasks}) => {
   }
 
   return (
-    <div>
+    <div className="w-full h-full">
       <div className="max-w-7xl mx-auto px-4 py-7 max-md:hidden">
         <div className="grid grid-cols-7 gap-4 font-semibold text-sm border-b-2 pb-2">
           <div className="text-left text-gray-500">Course | Group</div>

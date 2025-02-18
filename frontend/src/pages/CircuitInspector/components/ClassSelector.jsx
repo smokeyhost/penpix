@@ -29,7 +29,6 @@ const ClassSelector = ({ prediction, position, onClassChange, onRemoveClass, onC
 
   const handleSave = () => {
     onClassChange(selectedClass); 
-    onCancel()
   };
 
   const handleSelectedOption = (option) => {
