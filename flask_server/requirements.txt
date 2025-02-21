@@ -33,7 +33,7 @@ six
 pytz
 reportlab
 pymupdf
-mysqlclient
+onnxruntime
 pymysql
 
 pandas>=1.1.4

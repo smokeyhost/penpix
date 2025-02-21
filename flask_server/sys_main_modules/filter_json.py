@@ -59,7 +59,6 @@ def add_color_property_and_ids(detections):
         # groups['other'] = left_column + right_column
 
 def filter_detections(detections):
-    # Group detections by their position with a specified threshold
     grouped_detections = defaultdict(list)
     threshold = 10  # Adjust threshold as needed
 

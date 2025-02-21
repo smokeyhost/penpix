@@ -136,8 +136,8 @@ def detect_logic_gates(file_id):
 
             predictions = PredictionResult.query.filter_by(circuit_analysis_id=circuit_analysis.id).all()
             prediction_dicts = [prediction.to_dict() for prediction in predictions]
-
-            circuit_analysis.predictions = prediction_dicts
+            filtered_predictions = filter_detections(prediction_dicts)
+            circuit_analysis.predictions = filtered_predictions
             db.session.commit()
             
         elif mode == "multiple":

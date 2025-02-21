@@ -22,7 +22,7 @@ def extract_qr_code_data(image):
 
     qr_code = decoded_objects[0]
     qr_data = qr_code.data.decode('utf-8')
-    
+
     if qr_data is None:
         return None, None
     
@@ -57,11 +57,12 @@ def determine_rotation_from_orientation(orientation):
 
 def determine_proper_orientation(image):
     """Analyze and correct the orientation of the QR code in the image."""
-    qr_data, qr_code = extract_qr_code_data(image)
     
-    if qr_data is None:
-        return image, None
-
+    qr_data, qr_code = extract_qr_code_data(image)
+      
+    if not qr_data:
+        return None, None
+    
     if hasattr(qr_code, 'orientation') and qr_code.orientation:
         angle = determine_rotation_from_orientation(qr_code.orientation)
     else:

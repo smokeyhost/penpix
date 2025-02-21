@@ -38,6 +38,7 @@ def upload_files():
     uploaded_files = []
     invalid_files_not_enrolled = []
     invalid_files_not_belonging = []
+    invalid_files_unreadable_QR = []
     
     TASK_FOLDER = os.path.join('static', 'images', str(task_id))
 
@@ -51,7 +52,7 @@ def upload_files():
         filename = secure_filename(file.filename)
         filename_, _ = os.path.splitext(filename)
         student_id = filename_.split('_')[0].strip().lower()  
-        print(f"Extracted student_id: {student_id}, Student list: {student_list}")
+        # print(f"Extracted student_id: {student_id}, Student list: {student_list}")
 
         if student_id not in student_list:
             invalid_files_not_enrolled.append(filename)
@@ -91,11 +92,13 @@ def upload_files():
                 image = Image.open(file)
                 corrected_image, qr_data = determine_proper_orientation(image)
                 if qr_data is None:
+                    invalid_files_unreadable_QR.append(filename)
                     raise ValueError("No QR Code found in the file or Invalid.")
                 
                 qr_task_id, qr_class_id = qr_data.split('|') 
 
                 if str(qr_task_id) != str(task_id) or str(qr_class_id) != str(class_id):
+                    invalid_files_not_belonging.append(filename)
                     raise ValueError("The submitted file does not belong to the task")
                 
                 # Save the corrected image
@@ -105,10 +108,6 @@ def upload_files():
                 stored_filename = filename
                 
         except ValueError as e:
-            invalid_files_not_belonging.append(filename)
-            continue
-        except Exception as e:
-            invalid_files_not_enrolled.append(filename)
             continue
         
         existing_file = UploadedFile.query.filter_by(
@@ -205,6 +204,7 @@ def upload_files():
         "files_uploaded": uploaded_files,
         "invalid_files_not_enrolled": invalid_files_not_enrolled,
         "invalid_files_not_belonging": invalid_files_not_belonging,
+        "invalid_files_unreadable_QR": invalid_files_unreadable_QR
     }
     
     return jsonify(response), 200
