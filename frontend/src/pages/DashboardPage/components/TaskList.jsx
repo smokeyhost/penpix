@@ -7,7 +7,7 @@ import useToast from "../../../hooks/useToast";
 import TaskLinkModal from "./TaskLinkModal";
 import useTemplateDownloader from "../../../hooks/useTemplateDownloader";
 
-const TaskList = ({ filter, tasks, refreshTasks}) => {
+const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
   const { downloadTemplate } = useTemplateDownloader();
   const [openTask, setOpenTask] = useState(null);
   const [modalTaskId, setModalTaskId] = useState(null);
@@ -92,14 +92,14 @@ const TaskList = ({ filter, tasks, refreshTasks}) => {
         </div>
 
         {
-          tasks &&
+          classList && tasks &&
           filteredTasks.map((task) => (
             <div
               key={task?.id}
               className="grid grid-cols-7 gap-4 text-sm border-b py-5 hover:bg-gray-200 rounded-b-sm cursor-pointer items-center relative"
               onClick={() => handleSelectedTask(task?.id)}
             >
-              <TaskItem task={task} onHandleMenu={handleMenu} />
+              <TaskItem task={task} onHandleMenu={handleMenu} classList={classList} loading={loading}/>
               {openTask === task && (
                 <div className="absolute right-0 top-0 mt-8" ref={menuRefDesktop}>
                   <div className="absolute h-fit right-0 -bottom-32 bg-white border border-gray-300 shadow-lg rounded-md p-2 w-48 z-50 max-md:top-8 max-md:right-3">

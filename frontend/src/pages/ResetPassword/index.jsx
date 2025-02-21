@@ -19,6 +19,13 @@ const ResetPasswordPage = () => {
   const token = queryParams.get("token");
 
   useEffect(() => {
+    document.body.style.overflowY = "hidden"; 
+    return () => {
+      document.body.style.overflowY = "auto"; // Restore when unmounting
+    };
+  }, []);
+
+  useEffect(() => {
     const verifyToken = async () => {
       if (token) {
         try {
@@ -39,7 +46,7 @@ const ResetPasswordPage = () => {
     };
 
     verifyToken();
-  }, [token, navigate, toastError, toastSuccess]);
+  }, [token]);
 
   const validatePassword = (password) => {
     const minLength = 8;

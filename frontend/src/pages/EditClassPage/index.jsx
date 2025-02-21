@@ -102,7 +102,9 @@ const EditClassPage = () => {
       return;
     }
   
-    const existingStudents = new Set(classData.studentList);
+    const existingStudents = new Set(classData?.studentList);
+    console.log(existingStudents)
+    console.log(validStudentIds)
     const uniqueNewStudents = validStudentIds.filter(id => !existingStudents.has(id));
   
     if (uniqueNewStudents.length === 0) {

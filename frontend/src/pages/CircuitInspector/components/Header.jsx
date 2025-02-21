@@ -47,7 +47,7 @@ const Header = ({ task, files, onCurrentFileChange, gradedFilesCount, fileIndex 
       onCurrentFileChange(currentFile);
     }
   };
-
+  
   return (
     <div className="flex justify-between items-center gap-8 max-sm:gap-3 bg-white w-full h-[50px] border-b border-borderGray px-5 py-8 max-sm:p-2 font-sans text-customBlack1">
       <div className="cursor-pointer max-sm:hidden">

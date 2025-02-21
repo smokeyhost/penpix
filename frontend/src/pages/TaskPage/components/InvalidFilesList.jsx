@@ -7,7 +7,7 @@ const InvalidFilesList = ({ invalidFiles, onClose }) => {
         <ul className="list-disc pl-5 mt-2">
           {invalidFiles.notEnrolled.length > 0 && (
             <>
-              <li className="font-semibold">Not enrolled:</li>
+              <li className="font-semibold mt-2">Not enrolled:</li>
               {invalidFiles.notEnrolled.map((file, index) => (
                 <li key={index}>{file}</li>
               ))}
@@ -15,8 +15,16 @@ const InvalidFilesList = ({ invalidFiles, onClose }) => {
           )}
           {invalidFiles.notBelonging.length > 0 && (
             <>
-              <li className="font-semibold">Does not belong to the task. Please use the template provided:</li>
+              <li className="font-semibold mt-2">Does not belong to the task. Please use the template provided:</li>
               {invalidFiles.notBelonging.map((file, index) => (
+                <li key={index}>{file}</li>
+              ))}
+            </>
+          )}
+          {invalidFiles.invalidQR.length > 0 && (
+            <>
+              <li className="font-semibold mt-2">No QR Code found in the file or unreadable:</li>
+              {invalidFiles.invalidQR.map((file, index) => (
                 <li key={index}>{file}</li>
               ))}
             </>

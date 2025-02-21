@@ -18,7 +18,7 @@ const useNotifications = () => {
         }
       );
       setNotifications(response.data?.notifications || []);
-      console.log("Notifications", response.data?.notifications);
+      // console.log("Notifications", response.data?.notifications);
     } catch (error) {
       console.error('Error fetching notifications:', error.message);
     }

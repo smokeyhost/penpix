@@ -140,36 +140,8 @@ const LeftSidebar = ({
         <h3 className={`${styles.tool_label} text-xs max-sm:hidden`}>Analyze Circuit</h3>
       </div>
 
-      {/* <div
-        className={`${styles.tool} ${
-          selectedTool === "truthTable"
-            ? "bg-gray-600 text-white"
-            : "hover:bg-gray-200 hover:text-gray-800"
-        } ${disabledStates.truthTable ? "opacity-50 cursor-not-allowed" : ""}`}
-        onClick={() =>
-          !disabledStates.truthTable && handleToolClick("truthTable")
-        }
-      >
-        <FaTable size={20} />
-        <h3 className={`${styles.tool_label} text-xs`}>Truth Table</h3>
-      </div> */}
-
-      {/* <div
-        className={`${styles.tool} ${
-          disabledStates.exportVerilog
-            ? "opacity-50 cursor-not-allowed"
-            : "hover:bg-gray-200 hover:text-gray-800"
-        }`}
-        onClick={() =>
-          !disabledStates.exportVerilog && handleToolClick("exportVerilog")
-        }
-      >
-        <FaFileExport size={20} />
-        <h3 className={`${styles.tool_label} text-xs`}>Export Netlist</h3>
-      </div> */}
-
       {selectedTool === "threshold" && (
-        <div className="absolute -right-64">
+        <div className="absolute -right-52">
           <SetThresholdSlider
             onApplyThreshold={handleApplyThreshold}
             value={circuitData.threshold_value}
@@ -179,7 +151,7 @@ const LeftSidebar = ({
       )}
 
       {selectedTool === "logicGates" && (
-        <div className="absolute -right-64 top-28">
+        <div className="absolute  top-28 -right-52">
           <DetectLogicGatesOption
             onDetectLogicGates={onDetectLogicGates}
             loading={loading}
@@ -187,11 +159,6 @@ const LeftSidebar = ({
         </div>
       )}
 
-      {/* {selectedTool === "truthTable" && (
-        <div className="absolute -right-64 top-48">
-          <TruthTable data={circuitData.truth_table} onClose={handleCloseTable}/>
-        </div>
-      )} */}
     </div>
   );
 };

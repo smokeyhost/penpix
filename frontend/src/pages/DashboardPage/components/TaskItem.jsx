@@ -1,14 +1,16 @@
-import useClassData from "../../../hooks/useClassData";
 import { formatDueDateTime, truncateText } from "../../../utils/helpers";
 
-const TaskItem = ({ task, onHandleMenu }) => {
-  const { classData, loading } = useClassData(Number(task?.class_id));
+const TaskItem = ({ task, onHandleMenu, classList, loading }) => {
+  const classData = classList?.find(
+    (cls) => cls.id === Number(task?.class_id)
+  );
+
   const gradedFilesCount = task?.files?.filter(file => file.graded).length;
   const dueDate = new Date(task?.due_date);
   const currentDate = new Date();
   const isPastDue = currentDate > dueDate;
 
-  if (loading || !task)
+  if (loading)
     return (
       <>
         <div className="pl-3 bg-gray-300 rounded h-6 w-32 animate-pulse"></div>
@@ -25,10 +27,10 @@ const TaskItem = ({ task, onHandleMenu }) => {
   return (
     <>
       <div className="text-left pl-3 font-semibold text-gray-500">
-        {classData?.class_code} | {truncateText(classData?.class_group, 10)}
+        {classData?.class_code} | {truncateText(classData?.class_group || '', 15)}
       </div>
       <div className="col-span-2 font-semibold text-left">
-        {truncateText(task?.title, 15)}
+        {truncateText(task?.title, 20)}
       </div>
       <div className="text-center border border-gray-300 rounded-md w-16 py-1 mx-auto">
         <p>

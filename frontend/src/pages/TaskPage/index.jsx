@@ -81,12 +81,13 @@ const TaskPage = () => {
         withCredentials: true, 
       });
   
-      const { invalid_files_not_enrolled, invalid_files_not_belonging } = response.data;
+      const { invalid_files_not_enrolled, invalid_files_not_belonging, invalid_files_unreadable_QR } = response.data;
   
-      if (invalid_files_not_enrolled.length > 0 || invalid_files_not_belonging.length > 0) {
+      if (invalid_files_not_enrolled.length > 0 || invalid_files_not_belonging.length > 0 || invalid_files_unreadable_QR.length > 0) {
         setInvalidFiles({
           notEnrolled: invalid_files_not_enrolled,
           notBelonging: invalid_files_not_belonging,
+          invalidQR: invalid_files_unreadable_QR
         });
         setShowInvalidFiles(true);
       } else {
@@ -141,7 +142,7 @@ const TaskPage = () => {
 
   const closeInvalidFilesList = () => {
     setShowInvalidFiles(false);
-    setInvalidFiles({ notEnrolled: [], notBelonging: [] });
+    setInvalidFiles({ notEnrolled: [], notBelonging: [], invalidQR:[] });
   };
 
   if (loading || !task?.id) {

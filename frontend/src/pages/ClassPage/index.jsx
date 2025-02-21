@@ -15,10 +15,10 @@ const ClassPage = () => {
       try {
         const response = await axios.get("/classes/get-classes");
         setClasses(response.data);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching classes:", error);
-        setLoading(false);
+      } finally{
+        setLoading(false)
       }
     };
 

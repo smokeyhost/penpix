@@ -1,15 +1,6 @@
 import MessageForm from './components/MessageForm';
-import { useEffect } from 'react';
 
 const ContactPage = () => {
-  
-  useEffect(() => {
-      document.body.style.overflowY = "hidden"; 
-      return () => {
-        document.body.style.overflowY = "auto"; // Restore when unmounting
-      };
-    }, []);
-
   return (
     <div className="w-full h-screen">
        <div className="bg-gray-100 flex items-center justify-center p-6 w-full h-full">

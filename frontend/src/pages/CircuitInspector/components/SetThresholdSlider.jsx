@@ -12,8 +12,8 @@ const SetThresholdSlider = ({ onApplyThreshold, value, loadingThreshold }) => {
   };
 
   return (
-    <div className='bg-gray-800 bg-opacity-85 p-4 rounded-lg w-[250px] flex flex-col gap-4 text-white'>
-      <h1 className='font-semibold'>Set Threshold (0 - 255):</h1>
+    <div className='bg-gray-800 bg-opacity-85 p-4 rounded-lg flex flex-col gap-4 text-white w-[200px]'>
+      <h1 className='font-semibold text-sm'>Set Threshold (0 - 255):</h1>
       <div className='flex items-center gap-5'>
         <ReactSlider
           className="w-full h-2 rounded-lg items-center flex cursor-pointer" 
@@ -24,10 +24,10 @@ const SetThresholdSlider = ({ onApplyThreshold, value, loadingThreshold }) => {
           onChange={(value) => setThresholdValue(value)}
           value={thresholdValue}
         />
-        <span className='w-[55px] bg-gray-100 text-secondaryBg text-center p-1 rounded-lg text-sm'>{thresholdValue}</span>
+        <span className='w-[55px] bg-gray-100 text-secondaryBg text-center p-1 rounded-lg text-xs'>{thresholdValue}</span>
       </div>
       <div className='flex flex-col gap-2 justify-between text-sm'>
-        <button className='bg-primaryColor p-2 rounded-lg hover:bg-[#c9512a]' onClick={() => applyThreshold('single')}>{!loadingThreshold ? "Apply": "Applying....."}</button>
+        <button className='bg-primaryColor p-2 rounded-lg hover:bg-[#c9512a] text-xs' onClick={() => applyThreshold('single')}>{!loadingThreshold ? "Apply": "Applying....."}</button>
         {/* <button className='bg-thirdBg p-2 rounded-lg' onClick={() => applyThreshold('multiple')}>Apply to all images</button> */}
       </div>
     </div>

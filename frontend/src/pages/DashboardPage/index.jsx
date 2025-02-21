@@ -7,26 +7,25 @@ import FilterCreateNav from './components/FilterCreateNav.jsx';
 import TaskList from './components/TaskList.jsx';
 import { UserAtom } from '../../atoms/UserAtom';
 import { TasksAtom } from '../../atoms/TasksAtom.js';
+import { ClassesAtom } from '../../atoms/ClassesAtom.js';
 import useGetTasks from '../../hooks/useGetTasks.jsx';
+import useGetClasses from '../../hooks/useGetClasses.jsx'
 import EmptyTasksPlaceholder from './components/EmptyTaskPlaceholder.jsx';
-import { ImSpinner9 } from "react-icons/im";
-
 
 const Dashboard = () => {
   const { userId } = useParams();
   const [currentUser, setCurrentUser] = useRecoilState(UserAtom);
   const tasks = useRecoilValue(TasksAtom);
+  const classList = useRecoilValue(ClassesAtom);
   const [filter, setFilter] = useState('All');
   const [isLoading, setIsLoading] = useState(true);
   const { handleError } = useErrorHandler();
   const getTasks = useGetTasks();
+  const getClasses = useGetClasses();
 
   const refreshTasks = async () => {
-    setIsLoading(true);
     await getTasks();
-    setIsLoading(false);
   };
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,6 +40,8 @@ const Dashboard = () => {
         }
 
         setCurrentUser(fetchedUser);
+        await getTasks()
+        await getClasses()
       } catch (error) {
         if (error.response?.status === 401) {
           handleError('unauthorized', 'Your session has expired. Login again.');
@@ -55,28 +56,19 @@ const Dashboard = () => {
     };
 
     fetchData();
-    refreshTasks()
   }, [userId]);
 
   const handleFilterChange = (filter) => {
     setFilter(filter);
   };
 
-  if (isLoading) {
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <ImSpinner9 className="animate-spin text-4xl text-black" />
-        </div>
-      );
-    }
-
   return (
     <div id="dashboard-page" className="flex flex-col w-full min-h-screen bg-white p-10 max-w-screen-xl mx-auto">
       <FilterCreateNav onFilterChange={handleFilterChange} />
-      {tasks?.length === 0 ? (
+      {!isLoading && tasks?.length === 0 ? (
         <EmptyTasksPlaceholder />
       ) : (
-        <TaskList filter={filter} tasks={tasks} refreshTasks={refreshTasks}/>
+        <TaskList filter={filter} tasks={tasks} classList={classList} refreshTasks={refreshTasks} loading={isLoading}/>
       )}
     </div>
   );

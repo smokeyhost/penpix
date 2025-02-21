@@ -31,7 +31,6 @@ const CircuitInspectorPage = () => {
     const index = storedId ? files.findIndex(file => file.id === JSON.parse(storedId)) : 0;
     return index;
   });
-  console.log(currentFile)
 
   const handleApplyThreshold = async (thresholdValue, mode = 'single') => {
     setLoadingThreshold(true);
@@ -87,7 +86,6 @@ const CircuitInspectorPage = () => {
     try {
       const response = await axios.post(`/detect-gates/analyze-circuit/${currentFile.id}`)
       setCurrentCircuitData({...currentCircuitData, boolean_expressions:response.data.boolean_expressions, truth_table: response.data.truth_table})
-
       toastSuccess("Circuit Analysis is Completed.")
     } catch (error) {
       toastError(error?.response?.data?.error)
@@ -101,7 +99,6 @@ const CircuitInspectorPage = () => {
     setCurrentPredictions(updatedPredictions)
   }
 
-
   useEffect(() => {
     if (files.length > 0) {
       setCurrentFile(files[fileIndex]);
@@ -114,7 +111,7 @@ const CircuitInspectorPage = () => {
       if (currentFile?.id) {
         // setLoading(true); // Set loading to true when fetching data
         try {
-          const response = await axios.get(`/detect-gates/get-circuit-data/${currentFile.id}`);
+          const response = await axios.get(`/detect-gates/get-circuit-data/${currentFile?.id}`);
           setCurrentCircuitData(response.data.circuit_analysis);
           setCurrentPredictions(response.data.circuit_analysis.predictions);
           handleApplyThreshold(response.data.circuit_analysis.threshold_value);
@@ -161,7 +158,7 @@ const CircuitInspectorPage = () => {
   
 
   return (
-    <div className="bg-[#eeeded] flex flex-col text  h-screen overflow-y-auto">
+    <div className="bg-[#eeeded] flex flex-col text  h-screen">
       <header className="bg-[#333]">
         <Header task={task} files={files} onCurrentFileChange={handleCurrentFile} gradedFilesCount={gradedFilesCount} fileIndex={fileIndex}/>
       </header>
@@ -184,10 +181,10 @@ const CircuitInspectorPage = () => {
         </div>
 
         <div className="w-full">
-          <ImageDisplay img_url={filteredImgUrl} predictions={currentPredictions} isPredictionVisible={isVisibilityToggled} confidenceThreshold={confidence} onSetPredictions={handleSetCurrentPredictions}/>
+          <ImageDisplay img_url={filteredImgUrl} predictions={currentPredictions} isPredictionVisible={isVisibilityToggled} confidenceThreshold={confidence} onSetPredictions={handleSetCurrentPredictions} loadingThreshold={loadingThreshold}/>
         </div>
 
-        <div className="w-[600px] h-full">
+        <div className="w-[600px] h-full max-lg:w-full max-lg:border-t-2">
           <RightSideBar 
             circuitData={currentCircuitData}
             task={task}

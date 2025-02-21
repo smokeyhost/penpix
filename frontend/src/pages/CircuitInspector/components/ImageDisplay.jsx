@@ -4,7 +4,7 @@ import { convertExpressionToUserFormat } from '../../../utils/helpers';
 import { ImSpinner9 } from "react-icons/im";
 import axios from 'axios';
 
-const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confidenceThreshold, onSetPredictions }) => {
+const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confidenceThreshold, onSetPredictions, loadingThreshold }) => {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [canvasSize, setCanvasSize] = useState({ width: 950, height: 800 });
@@ -21,7 +21,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
 
   useEffect(()=>{
     setImgLoading(true);
-  },[img_url])
+  },[img_url, loadingThreshold])
 
   useEffect(() => {
     const resizeCanvas = () => {

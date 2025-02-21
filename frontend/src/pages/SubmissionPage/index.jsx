@@ -19,7 +19,7 @@ const SubmissionPage = () => {
   const [isTaskNotFound, setIsTaskNotFound] = useState(false);
   const [owner, setOwner] = useState(null);
   const [classInfo, setClassInfo] = useState(null);
-  const [invalidFiles, setInvalidFiles] = useState({ notEnrolled: [], notBelonging: [] });
+  const [invalidFiles, setInvalidFiles] = useState({ notEnrolled: [], notBelonging: [], invalidQR:[] });
   const [showInvalidFiles, setShowInvalidFiles] = useState(false);
   const { downloadTemplate } = useTemplateDownloader();
   const { toastSuccess, toastError, toastWarning } = useToast();
@@ -94,11 +94,12 @@ const SubmissionPage = () => {
       const response = await axios.post('/files/upload-files', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      const { files_uploaded, invalid_files_not_enrolled, invalid_files_not_belonging } = response.data;
-      if (invalid_files_not_enrolled.length > 0 || invalid_files_not_belonging.length > 0) {
+      const { files_uploaded, invalid_files_not_enrolled, invalid_files_not_belonging, invalid_files_unreadable_QR } = response.data;
+      if (invalid_files_not_enrolled.length > 0 || invalid_files_not_belonging.length > 0 || invalid_files_unreadable_QR.length > 0) {
         setInvalidFiles({
           notEnrolled: invalid_files_not_enrolled,
           notBelonging: invalid_files_not_belonging,
+          invalidQR: invalid_files_unreadable_QR
         });
         setShowInvalidFiles(true);
       } else if (files_uploaded.length > 0) {

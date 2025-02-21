@@ -168,8 +168,8 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
   return (
     <div className="bg-white flex flex-col gap-6 relative border-l border-gray-300 w-full h-full p-6 text-gray-700">
       <div className="text-center mb-2">
-        <h1 className="text-xl font-bold text-gray-800">Assessment Tools</h1>
-        <p className="text-sm text-gray-500">
+        <h1 className="text-xl font-bold text-gray-800 max-sm:text-lg">Assessment Tools</h1>
+        <p className="text-sm text-gray-500 max-sm:text-xs">
           Use the tools below to assess and analyze the circuit data.
         </p>
       </div>
@@ -180,7 +180,7 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
           onClick={handleShowCompareTable}
         >
           <FaTableColumns size={40} className="text-blue-500 mb-2" />
-          <span className="font-semibold text-gray-700 text-center text-sm ">Compare Tables</span>
+          <span className="font-semibold text-gray-700 text-center text-sm max-sm:text-xs">Compare Tables</span>
         </div>
 
         <div
@@ -188,7 +188,7 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
           onClick={handleGenerateNetlist}
         >
           <GiCircuitry size={40} className="text-green-500 mb-2" />
-          <span className="font-semibold text-gray-700 text-center text-sm">Preview Netlist</span>
+          <span className="font-semibold text-gray-700 text-center text-sm max-sm:text-xs">Preview Netlist</span>
         </div>
 
         <div
@@ -196,7 +196,7 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
           onClick={handleGradeSubmission}
         >
           {!loadingGrade ? <MdOutlineGrading size={40} className="text-yellow-500 mb-2" /> : <ImSpinner9 size={40} className="animate-spin" /> }
-          <span className="font-semibold text-gray-700 text-center text-sm">Grade Submission</span>
+          <span className="font-semibold text-gray-700 text-center text-sm max-sm:text-xs">Grade Submission</span>
         </div>
       </div>
 
