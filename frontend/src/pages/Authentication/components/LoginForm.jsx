@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserAtom } from '../../../atoms/UserAtom';
 import { useSetRecoilState } from "recoil";
@@ -14,20 +14,24 @@ const LoginForm = ({ onViewChange }) => {
   const navigate = useNavigate();
 
   
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        await axios.get('auth/check-session', { withCredentials: true });
-      } catch (error) {
-        if (error.response?.status === 401) {
-          navigate(`/auth`);
-          console.error('Session expired');
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const checkSession = async () => {
+  //     try {
+  //       const response = await axios.get('/auth/check-session', { withCredentials: true });
+  //       if (response.status === 200) {
+  //         setUser({ id: response.data.user_id }); 
+  //       }
+  //     } catch (error) {
+  //       if (error.response?.status === 401) {
+  //         setUser(null); 
+  //         navigate('/auth'); 
+  //         console.error('Session expired');
+  //       }
+  //     }
+  //   };
 
-    checkSession();
-  }, []);
+  //   checkSession();
+  // }, [navigate, setUser]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

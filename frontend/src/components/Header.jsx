@@ -75,6 +75,15 @@ const Header = () => {
       toastError("Logout failed");
     }
   };
+  if (!currentUser) {
+    return (
+      <header className="flex justify-center items-center h-[60px] border-b-2 px-5 py-4 w-full bg-white shadow-md">
+        <Link to="/">
+          <img src="/icons/PenPix-txt.png" alt="Logo" className="h-8" />
+        </Link>
+      </header>
+    );
+  }
 
   return (
     <header className="flex justify-between items-center h-[60px] border-b-2 px-5 py-4 w-full bg-white shadow-md relative">

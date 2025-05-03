@@ -18,8 +18,12 @@ const RightSideBar = ({ task, file, circuitData, onGradeUpdate }) => {
   const [netlistContent, setNetlistContent] = useState('');
   const [showGradeModal, setShowGradeModal] = useState(false);  
   const [gradeResults, setGradeResults] = useState([]);  
+  const [hasAnswerKeys, setAnswerKeys] = useState([])
 
-  const hasAnswerKeys = task?.answer_keys?.length > 0;
+  useEffect(()=>{
+    setAnswerKeys(task?.answer_keys?.length > 0)
+  }, [task])
+
   const relevantAnswerKey = hasAnswerKeys
     ? task.answer_keys.find((key) => key.item === `Item ${file?.item_number}`)
     : null;

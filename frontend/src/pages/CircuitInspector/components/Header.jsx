@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 
 const Header = ({ task, files, onCurrentFileChange, gradedFilesCount, fileIndex }) => {
   const currentUser = useRecoilValue(UserAtom);
+  const [graded, setGraded] = useState(gradedFilesCount)
   const formattedOptions = files?.map((file) => ({
     id: file.id,
     value: file.file_url,
@@ -21,6 +22,7 @@ const Header = ({ task, files, onCurrentFileChange, gradedFilesCount, fileIndex 
 
   useEffect(() => {
     setAnimateGraded(true);
+    setGraded(gradedFilesCount)
     const timeout = setTimeout(() => setAnimateGraded(false), 500);
     return () => clearTimeout(timeout);
   }, [gradedFilesCount]);
@@ -64,7 +66,7 @@ const Header = ({ task, files, onCurrentFileChange, gradedFilesCount, fileIndex 
         <div className="flex items-center justify-between gap-10 w-[150px] max-lg:w-full">
           <div className="flex flex-col items-center text-sm max-sm:text-xs">
             <p className={animateGraded ? "animate-pulse" : ""}>
-              {gradedFilesCount}/{files.length}
+              {graded}/{files.length}
             </p>
             <label>Graded</label>
           </div>

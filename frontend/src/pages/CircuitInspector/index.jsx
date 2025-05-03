@@ -115,7 +115,6 @@ const CircuitInspectorPage = () => {
           setCurrentCircuitData(response.data.circuit_analysis);
           setCurrentPredictions(response.data.circuit_analysis.predictions);
           handleApplyThreshold(response.data.circuit_analysis.threshold_value);
-
           const gradedCount = files.filter((file) => file.graded).length;
           setGradedFilesCount(gradedCount); 
           setFileIndex(files[files.indexOf(currentFile)])
@@ -133,7 +132,7 @@ const CircuitInspectorPage = () => {
     );
   
     const gradedCount = updatedFiles.filter((file) => file.graded).length;
-    setGradedFilesCount(gradedCount); 
+    setGradedFilesCount(() => gradedCount); 
   };
 
   const handleSliderChange = (value) => {
@@ -176,11 +175,11 @@ const CircuitInspectorPage = () => {
           />
         </div>
 
-        <div className="fixed left-1/2 bottom-5  -translate-x-1/2 z-50">
+        <div className="fixed left-1/2 bottom-5  -translate-x-1/2 z-40">
           <ConfidenceSlider onChange={handleSliderChange} />
         </div>
 
-        <div className="w-full">
+        <div className="w-full h-full">
           <ImageDisplay img_url={filteredImgUrl} predictions={currentPredictions} isPredictionVisible={isVisibilityToggled} confidenceThreshold={confidence} onSetPredictions={handleSetCurrentPredictions} loadingThreshold={loadingThreshold}/>
         </div>
 

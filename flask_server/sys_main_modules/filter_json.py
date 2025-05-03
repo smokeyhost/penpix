@@ -22,6 +22,19 @@ def add_color_property_and_ids(detections):
     for detection in detections:
         class_name = detection.get('class', detection.get('class_name'))
         detection['color'] = class_colors.get(class_name, (255, 255, 255))
+
+        if class_name == 'intersection':
+            detection['x'] -= 1
+            detection['y'] -= 1
+            detection['width'] += 1
+            detection['height'] += 1
+        
+        if class_name == 'junction':
+            detection['x'] -= 1
+            detection['y'] -= 1
+            detection['width'] += 1
+            detection['height'] += 1
+            
         if class_name in groups:
             groups[class_name].append(detection)
         else:

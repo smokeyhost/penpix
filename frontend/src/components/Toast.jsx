@@ -23,7 +23,7 @@ const Toast = ({ message, type, onClose }) => {
 
   return (
     <div
-      className={`fixed bottom-4 right-4 p-4 rounded-lg text-white shadow-lg ${getTypeClass()} transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed z-50 bottom-4 right-4 p-4 rounded-lg text-white shadow-lg ${getTypeClass()} transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
       style={{ minWidth: '200px' }}
     >
       <div className="flex justify-between items-center">

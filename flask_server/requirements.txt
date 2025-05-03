@@ -35,6 +35,7 @@ reportlab
 pymupdf
 onnxruntime
 pymysql
+cryptography
 
 pandas>=1.1.4
 seaborn>=0.11.0

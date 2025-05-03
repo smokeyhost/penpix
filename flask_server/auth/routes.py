@@ -7,12 +7,15 @@ from config import Config
 import os
 from datetime import datetime
 
-@auth_bp.route('/check-session',methods=["GET"])
+# @gitdocs/checkSession
+# if this hovered will open a tab in vs code where the user can edit the file
+@auth_bp.route('/check-session', methods=["GET"])
 def check_session():
-    if 'user_id' in session:
-        return "Session is active", 201
+    user_id = session.get('user_id')
+    if user_id:
+        return jsonify({"message": "Session is active", "user_id": user_id}), 200
     else:
-        return "Session has expired or doesn't exist", 401
+        return jsonify({"message": "Session has expired or doesn't exist"}), 401
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
@@ -83,7 +86,7 @@ def forgot_password():
     user = User.query.filter_by(email=email).first()
     if user:
         token = user.generate_reset_token()
-        reset_link = f"https://uscpenpix.online/reset-password?token={token}"
+        reset_link = f"http://localhost:5173/reset-password?token={token}"
         
         msg = EmailMessage(
             "Password Recovery",

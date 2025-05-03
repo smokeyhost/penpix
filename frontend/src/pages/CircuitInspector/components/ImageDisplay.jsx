@@ -37,6 +37,13 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
   }, []);
 
   useEffect(() => {
+    setImgLoading(true);
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }, [img_url]);
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const img = new Image();
@@ -67,7 +74,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
 
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
         ctx.drawImage(img, x, y, drawWidth, drawHeight);
-
+        setImgLoading(true)
         if (isPredictionVisible && predictions && predictions.length) {
           predictions.forEach((prediction) => {
             const { x: bx, y: by, width, height, class_name, confidence, color, object_id, label } = prediction;
@@ -124,6 +131,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
             };
           });
         }
+        setImgLoading(false)
       };
 
       drawImageAndPredictions();
@@ -246,7 +254,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
   return (
     <div
       ref={containerRef}
-      className={`image-canvas w-full h-full flex justify-center cursor-pointer  ${
+      className={`image-canvas w-full h-full flex justify-center cursor-pointer bg-[#eeeded] ${imgLoading && 'pointer-events-none'} ${
         startDrag ? 'cursor-grab' : ''
       }`}
       onMouseDown={handleMouseDown}
