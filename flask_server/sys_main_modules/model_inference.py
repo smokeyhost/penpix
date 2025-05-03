@@ -10,7 +10,7 @@ import os
 
 sys.path.insert(0, './sys_main_modules')
 weights = './sys_main_modules/weight/logic_gate.pt'
-onnx_path = './sys_main_modules/weight/yolov7-simplified.onnx'
+onnx_path = './sys_main_modules/weight/yolov7-simplified_none.onnx'
 
 session = None
 if os.path.exists(onnx_path):
