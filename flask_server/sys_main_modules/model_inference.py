@@ -10,21 +10,21 @@ import os
 
 sys.path.insert(0, './sys_main_modules')
 weights = './sys_main_modules/weight/logic_gate.pt'
-onnx_path = './sys_main_modules/weight/yolov7-simplified_none.onnx'
+# onnx_path = './sys_main_modules/weight/yolov7-simplified.onnx'
 
-session = None
-if os.path.exists(onnx_path):
-    try:
-        session = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
-        dummy_input = np.random.rand(1, 3, 640, 640).astype(np.float32)
-        input_name = session.get_inputs()[0].name
-        output_name = session.get_outputs()[0].name
-        session.run([output_name], {input_name: dummy_input})
-        print("Running ONNX session")
-    except Exception as e:
-        print(f"Error loading ONNX model: {str(e)}")
-else:
-    print(f"ONNX model file not found: {onnx_path}")
+# session = None
+# if os.path.exists(onnx_path):
+#     try:
+#         session = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
+#         dummy_input = np.random.rand(1, 3, 640, 640).astype(np.float32)
+#         input_name = session.get_inputs()[0].name
+#         output_name = session.get_outputs()[0].name
+#         session.run([output_name], {input_name: dummy_input})
+#         print("Running ONNX session")
+#     except Exception as e:
+#         print(f"Error loading ONNX model: {str(e)}")
+# else:
+#     print(f"ONNX model file not found: {onnx_path}")
 
 model = None
 device=None
