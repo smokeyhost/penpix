@@ -1,5 +1,6 @@
 
 const InvalidFilesList = ({ invalidFiles, onClose }) => {
+  console.log("invalid files", invalidFiles)
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative max-w-lg w-full">
@@ -17,6 +18,14 @@ const InvalidFilesList = ({ invalidFiles, onClose }) => {
             <>
               <li className="font-semibold">Does not belong to the task. Please use the template provided:</li>
               {invalidFiles.notBelonging.map((file, index) => (
+                <li key={index}>{file}</li>
+              ))}
+            </>
+          )}
+          {invalidFiles.invalidQR.length > 0 && (
+            <>
+              <li className="font-semibold">Does not belong to the task. Please use the template provided:</li>
+              {invalidFiles.invalidQR.map((file, index) => (
                 <li key={index}>{file}</li>
               ))}
             </>

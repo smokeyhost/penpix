@@ -2,7 +2,7 @@ from werkzeug.utils import secure_filename
 import os
 from files import files_bp
 from utils.auth_helpers import login_required
-from model import db, UploadedFile, Task, CircuitAnalysis, Notification, Classes
+from model import db, UploadedFile, Task, CircuitAnalysis, Notification, Classes, PredictionResult
 from flask import jsonify, request, send_from_directory
 from sys_main_modules.qr_code.qr_code import determine_proper_orientation, extract_qr_code_data
 from PIL import Image
@@ -21,7 +21,7 @@ def upload_files():
         return jsonify({"message": "No files part"}), 400
 
     files = request.files.getlist('files')
-    task_id = request.form.get('task_id')
+    task_id = request.form.get('task_id')   
     item_number = request.form.get('item_number')  # Expect item_number from the client
     
     if not task_id or not item_number:
@@ -76,11 +76,13 @@ def upload_files():
                 # Proceed with your existing processing
                 corrected_image, qr_data = determine_proper_orientation(image)
                 if qr_data is None:
-                    raise ValueError("No QR Code found in the file or Invalid.")
+                    invalid_files_unreadable_QR.append(filename)
+                    continue
                 
                 qr_task_id, qr_class_id = qr_data.split('|')
                 if str(qr_task_id) != str(task_id) or str(qr_class_id) != str(class_id):
-                    raise ValueError("The submitted file does not belong to the task")
+                    invalid_files_not_belonging(filename)
+                    continue
                 
                 image_filename = f"{os.path.splitext(filename)[0]}.png"
                 image_path = os.path.join(TASK_FOLDER, image_filename)
@@ -93,18 +95,19 @@ def upload_files():
                 corrected_image, qr_data = determine_proper_orientation(image)
                 if qr_data is None:
                     invalid_files_unreadable_QR.append(filename)
-                    raise ValueError("No QR Code found in the file or Invalid.")
+                    continue
                 
-                qr_task_id, qr_class_id = qr_data.split('|') 
+                if qr_data is not None:
+                    qr_task_id, qr_class_id = qr_data.split('|') 
 
-                if str(qr_task_id) != str(task_id) or str(qr_class_id) != str(class_id):
-                    invalid_files_not_belonging.append(filename)
-                    raise ValueError("The submitted file does not belong to the task")
-                
-                # Save the corrected image
-                filepath = os.path.join(TASK_FOLDER, filename)
-                corrected_image.save(filepath)
-                uploaded_files.append(filename)
+                    if str(qr_task_id) != str(task_id) or str(qr_class_id) != str(class_id):
+                        invalid_files_not_belonging.append(filename)
+                        continue    
+                    
+                    # Save the corrected image
+                    filepath = os.path.join(TASK_FOLDER, filename)
+                    corrected_image.save(filepath)
+                    uploaded_files.append(filename)
                 stored_filename = filename
                 
         except ValueError as e:
@@ -227,36 +230,39 @@ def get_files(task_id):
 @files_bp.route('/delete-file/<int:file_id>', methods=['DELETE'])
 def delete_file(file_id):
     file = UploadedFile.query.get(file_id)
-
     if not file:
         return jsonify({"message": "File not found"}), 404
 
     task = Task.query.get(file.task_id)
     if not task:
         return jsonify({"message": "Associated task not found"}), 404
-    
+
+    circuit_analysis = CircuitAnalysis.query.filter_by(uploaded_file_id=file.id).first()
+    if circuit_analysis:
+        PredictionResult.query.filter_by(circuit_analysis_id=circuit_analysis.id).delete()
+        db.session.delete(circuit_analysis)
+
     reviewed_count = UploadedFile.query.filter_by(task_id=file.task_id, graded=True).count()
     task.reviewed_submissions = reviewed_count
-    
+
     if task.reviewed_submissions == task.total_submissions:
         task.status = "Completed"
     elif task.reviewed_submissions < task.total_submissions:
         task.status = "Ongoing"
-        
+
     try:
         os.remove(os.path.join('static', file.filepath))
         db.session.delete(file)
-        
+
         task.total_submissions = len(task.attached_files)
         db.session.add(task)
-        
+
         db.session.commit()
     except Exception as e:
         db.session.rollback()
         return jsonify({"message": f"Error deleting file: {str(e)}"}), 500
 
-    return jsonify({"message": "File deleted successfully"})
-
+    return jsonify({"message": "File and its associations deleted successfully"})
 
 @login_required
 @files_bp.route('/update-grade/<int:file_id>', methods=['PUT'])

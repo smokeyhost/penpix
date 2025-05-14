@@ -5,58 +5,130 @@ import { FaPlus } from "react-icons/fa";
 
 const FilterCreateNav = ({ onFilterChange }) => {
   const [selectedFilter, setSelectedFilter] = useState('All');
+  const [selectedGroup, setSelectedGroup] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedTaskType, setSelectedTaskType] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [showCreateTaskForm, setShowCreateTaskForm] = useState(false);
   const navigate = useNavigate();
 
-  const handleFilterChange = (filter) => {
-    setSelectedFilter(filter);
-    onFilterChange(filter);
+  const handleFilterChange = (e) => {
+    const value = e.target.value;
+    setSelectedFilter(value);
+    onFilterChange(value);
   };
 
   const handleCreateTask = () => {
     navigate('/create-task');
-    setShowCreateTaskForm(true); 
+    setShowCreateTaskForm(true);
   };
 
   const handleCloseForm = () => {
-    setShowCreateTaskForm(false); 
+    setShowCreateTaskForm(false);
   };
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col sm:flex-row gap-4 sm:gap-10 w-full justify-between">
-        <div className="flex flex-wrap gap-2 sm:gap-10 justify-between w-full sm:w-auto h-full">
-          <div className="flex items-center justify-between bg-gray-200 rounded-md text-sm font-light border-2 border-customGray2 overflow-hidden w-full sm:w-auto">
-            <button
-              className={`px-4 py-1 w-full sm:w-auto rounded-l-md ${selectedFilter === 'All' ? 'bg-white text-gray-900' : 'hover:bg-white text-gray-900'}`}
-              onClick={() => handleFilterChange('All')}
-            >
-              All
-            </button>
-            <button
-              className={`px-3 py-1 w-full sm:w-auto border-r-2 border-l-2 border-customGray2 ${selectedFilter === 'Completed' ? 'bg-white text-gray-900' : 'hover:bg-white text-gray-900'}`}
-              onClick={() => handleFilterChange('Completed')}
-            >
-              Completed
-            </button>
-            <button
-              className={`px-3 py-1 w-full sm:w-auto rounded-r-md ${selectedFilter === 'Ongoing' ? 'bg-white text-gray-900' : 'hover:bg-white text-gray-900'}`}
-              onClick={() => handleFilterChange('Ongoing')}
-            >
-              Ongoing
-            </button>
-          </div>
+      <div className="flex flex-col gap-4">
+        {/* Filter title */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold">Filter</h2>
+          <div>
+          <button
+            className="bg-primaryColor text-white rounded px-4 py-2 text-sm font-semibold flex items-center gap-2"
+            onClick={handleCreateTask}
+          >
+            <FaPlus /> Create New Task
+          </button>
+        </div>
         </div>
 
-        <button 
-          className="bg-primaryColor text-white rounded-md px-5 py-2 font-semibold flex items-center gap-2 w-full sm:w-auto max-sm:text-sm" 
-          onClick={handleCreateTask}
-        >
-          <FaPlus /> Create New Task
-        </button>
+        {/* Filter bar */}
+        <div className="flex justify-between flex-wrap items-center gap-4">
+
+
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-1 text-sm">
+              <label className="font-medium">Course</label>
+              <select
+                value={selectedCourse}
+                onChange={(e) => setSelectedCourse(e.target.value)}
+                className="border border-gray-300 rounded px-2 py-1 text-sm"
+              >
+                <option value="">All</option>
+                <option value="Course A">Course A</option>
+                <option value="Course B">Course B</option>
+                <option value="Course C">Course C</option>
+                <option value="Course D">Course D</option>
+                <option value="Course E">Course E</option>
+              </select>
+            </div>
+
+            {/* Group */}
+            <div className="flex items-center gap-1 text-sm">
+              <label className="font-medium">Group</label>
+              <select
+                value={selectedGroup}
+                onChange={(e) => setSelectedGroup(e.target.value)}
+                className="border border-gray-300 rounded px-2 py-1 text-sm"
+              >
+                <option value="">All</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </div>
+
+            {/* Task Type */}
+            <div className="flex items-center gap-1 text-sm">
+              <label className="font-medium">Type</label>
+              <select
+                value={selectedTaskType}
+                onChange={(e) => setSelectedTaskType(e.target.value)}
+                className="border border-gray-300 rounded px-2 py-1 text-sm"
+              >
+                <option value="">All</option>
+                <option value="Quiz">Quiz</option>
+                <option value="Exercise">Exercise</option>
+                <option value="Midterm">Midterm</option>
+                <option value="Finals">Finals</option>
+                <option value="Assignment">Assignment</option>
+                <option value="Lab Exercise">Lab Exercise</option>
+                <option value="Activity">Activity</option>
+              </select>
+            </div>
+
+            {/* Status */}
+            <div className="flex items-center gap-1 text-sm">
+              <label className="font-medium">Status</label>
+              <select
+                value={selectedFilter}
+                onChange={handleFilterChange}
+                className="border border-gray-300 rounded px-2 py-1 text-sm"
+              >
+                <option value="All">All</option>
+                <option value="Completed">Completed</option>
+                <option value="Ongoing">Ongoing</option>
+              </select>
+            </div>
+
+            {/* Search bar */}
+          </div>
+          <div className="flex items-center gap-1 text-sm">
+            <label className="font-medium">Search</label>
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="border border-gray-300 rounded px-2 py-1 text-sm"
+            />
+          </div>
+        </div>
       </div>
 
-      {showCreateTaskForm && (<CreateTaskForm onClose={handleCloseForm} />)}
+      {showCreateTaskForm && <CreateTaskForm onClose={handleCloseForm} />}
     </div>
   );
 };

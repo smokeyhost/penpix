@@ -74,16 +74,17 @@ const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
     await downloadTemplate(taskId)
     toastSuccess("Template is being downloaded")
   };
-
+  
   const getGradedFilesCount = (task) => {
-    return task?.files?.filter(file => file.graded).length || 0;
+    console.log(task)
+    return task?.files?.filter(file => file.graded).length;
   }
 
   return (
     <div className="w-full h-full">
       <div className="max-w-7xl mx-auto px-4 py-7 max-md:hidden">
         <div className="grid grid-cols-7 gap-4 font-semibold text-sm border-b-2 pb-2">
-          <div className="text-left text-gray-500">Course | Group</div>
+          <div className="text-left pl-3 text-gray-500">Course | Group</div>
           <div className="text-left col-span-2">Title</div>
           <div className="text-center">Graded Submissions</div>
           <div className="text-center">Due Date</div>
@@ -150,7 +151,7 @@ const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
                 {truncateText(task?.title, 20)}
               </h3>
               <p className="text-gray-600">
-                Due Date: {formatDueDateTime(task?.due_date)}
+                Due Date: {formatDueDateTime(task?.due_date)} asddsa
               </p>
               <p
                 className={`font-semibold ${
@@ -161,7 +162,7 @@ const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
               </p>
               <div className="flex justify-between items-center mt-2">
                 <p className="text-sm">
-                  Submissions: {getGradedFilesCount()}/{task?.total_submissions}
+                  Submissions: {getGradedFilesCount(task)}/{task?.total_submissions}
                 </p>
                 <button
                   className="text-gray-500"

@@ -95,6 +95,7 @@ const SubmissionPage = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       const { files_uploaded, invalid_files_not_enrolled, invalid_files_not_belonging, invalid_files_unreadable_QR } = response.data;
+      console.log(response.data)
       if (invalid_files_not_enrolled.length > 0 || invalid_files_not_belonging.length > 0 || invalid_files_unreadable_QR.length > 0) {
         setInvalidFiles({
           notEnrolled: invalid_files_not_enrolled,

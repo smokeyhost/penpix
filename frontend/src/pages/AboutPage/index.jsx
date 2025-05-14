@@ -34,6 +34,7 @@ const AboutPage = () => {
             <FaTools className="mr-2 text-primaryColor" /> User Guide
           </h2>
           <p className="text-sm sm:text-base md:text-lg mb-2">Follow these steps to manage tasks, classes, and circuit evaluations:</p>
+          <i className="mb-2">Note: Please always check the spam folder for emails sent by the system.</i>
           <ol className="list-decimal list-inside mb-4">
             <li className="text-sm sm:text-base md:text-lg">Navigate to Classes page to view your class.</li>
             <li className="text-sm sm:text-base md:text-lg">Click the &quot;Add Class&quot; card to create a new class.</li>

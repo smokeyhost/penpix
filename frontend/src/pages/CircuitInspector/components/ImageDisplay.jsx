@@ -38,6 +38,7 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
 
   useEffect(() => {
     setImgLoading(true);
+    setIsClassSelectorOpen(false)
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);

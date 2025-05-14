@@ -33,6 +33,9 @@ app.register_blueprint(notification_bp, url_prefix='/notification')
 app.register_blueprint(contact_bp, url_prefix='/contact')
 app.register_blueprint(classes_bp, url_prefix='/classes')
 
+@app.route("/health", methods=["GET"])
+def health_check():
+    return {"status": "ok"}, 200
 
 if __name__ == "__main__":
     with app.app_context():
