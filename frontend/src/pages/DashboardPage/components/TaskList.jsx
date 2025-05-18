@@ -7,7 +7,7 @@ import useToast from "../../../hooks/useToast";
 import TaskLinkModal from "./TaskLinkModal";
 import useTemplateDownloader from "../../../hooks/useTemplateDownloader";
 
-const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
+const TaskList = ({ filter, tasks, classList, refreshTasks, loading, selectedCourse, selectedGroup, selectedTaskType, searchTerm}) => {
   const { downloadTemplate } = useTemplateDownloader();
   const [openTask, setOpenTask] = useState(null);
   const [modalTaskId, setModalTaskId] = useState(null);
@@ -16,7 +16,6 @@ const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
   const menuRefDesktop = useRef(null);
   const menuRefMobile = useRef(null);
   const {toastSuccess, toastInfo} = useToast()
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -33,12 +32,44 @@ const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
     };
   }, []);
 
-  const filteredTasks =
-    tasks &&
-    tasks.filter((task) => {
-      if (filter === "All") return true;
-      return task?.status === filter;
-    });
+  const filteredTasks = (tasks || [])
+  .filter((task) => {
+    const taskClass = classList.find(cls => cls.id === task.class_id);
+    if (filter && filter !== "All" && task?.status !== filter) return false;
+    if (selectedCourse) {
+      const taskClass = classList.find(cls => cls.id === task.class_id);
+      if (!taskClass || taskClass.class_code !== selectedCourse) return false;
+    }
+
+    if (selectedGroup) {
+      if (!taskClass || String(taskClass.class_group) !== String(selectedGroup)) return false;
+    }
+
+    if (selectedTaskType && task?.exam_type?.toLowerCase() !== selectedTaskType.toLowerCase()) return false;
+    if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
+      const matches =
+        (task.title && task.title.toLowerCase().includes(lower)) ||
+        (task.due_date && new Date(task.due_date).toLocaleString().toLowerCase().includes(lower)) ||
+        (task.exam_type && task.exam_type.toLowerCase().includes(lower)) ||
+        (task.status && task.status.toLowerCase().includes(lower)) ||
+        (taskClass && taskClass.class_code && taskClass.class_code.toLowerCase().includes(lower)) ||
+        (taskClass && String(taskClass.class_group) === lower);
+      if (!matches) return false;
+    }
+    return true;
+  })
+  .sort((a, b) => {
+    const classA = classList.find(cls => cls.id === a.class_id);
+    const classB = classList.find(cls => cls.id === b.class_id);
+    if (classA?.class_code < classB?.class_code) return -1;
+    if (classA?.class_code > classB?.class_code) return 1;
+    if ((classA?.class_group || 0) < (classB?.class_group || 0)) return -1;
+    if ((classA?.class_group || 0) > (classB?.class_group || 0)) return 1;
+    if (a.title < b.title) return -1;
+    if (a.title > b.title) return 1;
+    return 0;
+  });
 
   const handleMenu = (event, task) => {
     event.preventDefault();
@@ -74,16 +105,17 @@ const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
     await downloadTemplate(taskId)
     toastSuccess("Template is being downloaded")
   };
-
+  
   const getGradedFilesCount = (task) => {
-    return task?.files?.filter(file => file.graded).length || 0;
+    console.log(task)
+    return task?.files?.filter(file => file.graded).length;
   }
 
   return (
     <div className="w-full h-full">
       <div className="max-w-7xl mx-auto px-4 py-7 max-md:hidden">
         <div className="grid grid-cols-7 gap-4 font-semibold text-sm border-b-2 pb-2">
-          <div className="text-left text-gray-500">Course | Group</div>
+          <div className="text-left pl-3 text-gray-500">Course | Group</div>
           <div className="text-left col-span-2">Title</div>
           <div className="text-center">Graded Submissions</div>
           <div className="text-center">Due Date</div>
@@ -91,7 +123,11 @@ const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
           <div className="text-right pr-3"></div>
         </div>
 
-        {
+        {filteredTasks.length === 0 ? (
+        <div className="text-center text-gray-500 py-10">
+          No tasks found matching your filters.
+        </div>
+         ) : (
           classList && tasks &&
           filteredTasks.map((task) => (
             <div
@@ -134,7 +170,7 @@ const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
               )}
             </div>
           ))
-        }
+        )}
       </div>
 
       <div className="hidden max-md:block">
@@ -150,7 +186,7 @@ const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
                 {truncateText(task?.title, 20)}
               </h3>
               <p className="text-gray-600">
-                Due Date: {formatDueDateTime(task?.due_date)}
+                Due Date: {formatDueDateTime(task?.due_date)} asddsa
               </p>
               <p
                 className={`font-semibold ${
@@ -161,7 +197,7 @@ const TaskList = ({ filter, tasks, classList, refreshTasks, loading}) => {
               </p>
               <div className="flex justify-between items-center mt-2">
                 <p className="text-sm">
-                  Submissions: {getGradedFilesCount()}/{task?.total_submissions}
+                  Submissions: {getGradedFilesCount(task)}/{task?.total_submissions}
                 </p>
                 <button
                   className="text-gray-500"

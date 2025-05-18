@@ -2,6 +2,7 @@ import { FaTrash, FaInfoCircle } from "react-icons/fa";
 import { IoMdRemoveCircle } from "react-icons/io";
 import { IoIosAddCircle } from "react-icons/io";
 import Combobox from "./components/Combobox";
+import LogicExpressionLegend from "./components/LogicExpressionLegend";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
@@ -22,6 +23,7 @@ const taskTypeOptions = [
   { value: "assignment", label: "Assignment" },
   { value: "review", label: "Review" },
   { value: "lab", label: "Laboratory Task" },
+  { value: "mockexam", label: "Mock Exam" },
 ];
 
 const getLabelFromValue = (value, options) => {
@@ -303,11 +305,7 @@ const CreateTaskPage = () => {
                 <h2 className="text-md font-medium">Answer Keys</h2>
                 <div className="relative group">
                   <FaInfoCircle className="text-gray-500 cursor-pointer" />
-                  <div className="absolute left-0 bottom-full mb-2 w-64 p-2 bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <p className="text-sm text-gray-700">Accepted symbols: ~ | & ^</p>
-                    <p className="text-sm text-gray-700">Inputs should be labeled A, B, C, ... G</p>
-                    <p className="text-sm text-gray-700">Example: A ^ B | (C & A)</p>
-                  </div>
+                  <LogicExpressionLegend />
                 </div>
               </div>
               <div className="flex flex-col gap-4 mt-3">

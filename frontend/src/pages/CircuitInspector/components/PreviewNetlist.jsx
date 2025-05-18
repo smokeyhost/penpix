@@ -13,12 +13,6 @@ const PreviewNetlist = ({ netlistContent, onClose, onDownload }) => {
           >
             Close
           </button>
-          <button
-            onClick={onDownload}
-            className="bg-gray-800 text-white py-2 px-4 rounded hover:shadow-md transition"
-          >
-            Download
-          </button>
         </div>
       </div>
     </div>

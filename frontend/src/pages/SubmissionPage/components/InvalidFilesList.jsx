@@ -21,6 +21,14 @@ const InvalidFilesList = ({ invalidFiles, onClose }) => {
               ))}
             </>
           )}
+          {invalidFiles.invalidQR.length > 0 && (
+            <>
+              <li className="font-semibold">Does not belong to the task. Please use the template provided:</li>
+              {invalidFiles.invalidQR.map((file, index) => (
+                <li key={index}>{file}</li>
+              ))}
+            </>
+          )}
         </ul>
         <span
           className="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer"

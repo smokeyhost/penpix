@@ -21,15 +21,16 @@ const CircuitInspectorPage = () => {
   const [loading, setLoading] = useState(false); 
   const [isVisibilityToggled, setIsVisibilityToggled] = useState(true); 
   const [confidence, setConfidence] = useState(50);
-  const { task, loading: taskLoading} = useGetTask(taskId);
+  const { task, loading: taskLoading, getTask} = useGetTask(taskId);
   const files = useRecoilValue(FilesAtom);
   const [gradedFilesCount, setGradedFilesCount] = useState(0)
   const {toastSuccess, toastError} = useToast()
 
   const [fileIndex, setFileIndex] = useState(() => {
     const storedId = sessionStorage.getItem("fileId");
-    const index = storedId ? files.findIndex(file => file.id === JSON.parse(storedId)) : 0;
-    return index;
+    return storedId
+      ? Math.max(0, files.findIndex(file => file.id === JSON.parse(storedId)))
+      : 0;
   });
 
   const handleApplyThreshold = async (thresholdValue, mode = 'single') => {
@@ -74,9 +75,12 @@ const CircuitInspectorPage = () => {
   };
 
   const handleCurrentFile = (file) => {
-    setCurrentFile(file);
+    const idx = files.findIndex(f => f.id === file.id);
+    if (idx !== -1) {
+      setFileIndex(idx);
+      setCurrentFile(files[idx]);
+    }
   };
-
   const handlePredictionVisibility = () => {
     setIsVisibilityToggled(!isVisibilityToggled)
   }
@@ -99,12 +103,28 @@ const CircuitInspectorPage = () => {
     setCurrentPredictions(updatedPredictions)
   }
 
-  useEffect(() => {
-    if (files.length > 0) {
-      setCurrentFile(files[fileIndex]);
-      sessionStorage.removeItem("fileId");
+  useEffect(()=>{
+    if (!task){
+      getTask(taskId)
     }
+  }, [])
+
+  useEffect(() => {
+    if (files.length === 0) return;
+    // If fileIndex is invalid, reset to 0
+    let idx = fileIndex;
+    if (idx < 0 || idx >= files.length) idx = 0;
+    setFileIndex(idx);
+    setCurrentFile(files[idx]);
+    sessionStorage.removeItem("fileId");
   }, [files]);
+
+  useEffect(() => {
+    if (files.length === 0) return;
+    let idx = fileIndex;
+    if (idx < 0 || idx >= files.length) idx = 0;
+    setCurrentFile(files[idx]);
+  }, [fileIndex, files]);
 
   useEffect(() => {
     const getCircuitData = async () => {
@@ -117,7 +137,7 @@ const CircuitInspectorPage = () => {
           handleApplyThreshold(response.data.circuit_analysis.threshold_value);
           const gradedCount = files.filter((file) => file.graded).length;
           setGradedFilesCount(gradedCount); 
-          setFileIndex(files[files.indexOf(currentFile)])
+          // setFileIndex(files[files.indexOf(currentFile)])
         } catch (error) {
           console.error(error.message);
         } 
@@ -140,7 +160,7 @@ const CircuitInspectorPage = () => {
   };
 
 
-  if (taskLoading) {
+  if (!task && taskLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <div className="mt-4 text-2xl font-bold text-primaryColor animate-pulse">
@@ -155,7 +175,6 @@ const CircuitInspectorPage = () => {
     );
   }
   
-
   return (
     <div className="bg-[#eeeded] flex flex-col text  h-screen">
       <header className="bg-[#333]">

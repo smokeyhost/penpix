@@ -9,34 +9,34 @@ import onnxruntime as ort
 import os
 
 sys.path.insert(0, './sys_main_modules')
-weights = './sys_main_modules/weight/logic_gate.pt'
-# onnx_path = './sys_main_modules/weight/yolov7-simplified.onnx'
+# weights = './sys_main_modules/weight/logic_gate.pt'
+onnx_path = './sys_main_modules/weight/yolov7-simplified.onnx'
 
-# session = None
-# if os.path.exists(onnx_path):
-#     try:
-#         session = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
-#         dummy_input = np.random.rand(1, 3, 640, 640).astype(np.float32)
-#         input_name = session.get_inputs()[0].name
-#         output_name = session.get_outputs()[0].name
-#         session.run([output_name], {input_name: dummy_input})
-#         print("Running ONNX session")
-#     except Exception as e:
-#         print(f"Error loading ONNX model: {str(e)}")
-# else:
-#     print(f"ONNX model file not found: {onnx_path}")
-
-model = None
-device=None
-if os.path.exists(weights):
+session = None
+if os.path.exists(onnx_path):
     try:
-        device = select_device('cpu')
-        model = attempt_load(weights, map_location=device)
-        print("PyTorch model loaded")
+        session = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
+        dummy_input = np.random.rand(1, 3, 640, 640).astype(np.float32)
+        input_name = session.get_inputs()[0].name
+        output_name = session.get_outputs()[0].name
+        session.run([output_name], {input_name: dummy_input})
+        print("Running ONNX session")
     except Exception as e:
-        print(f"Error loading PyTorch model: {str(e)}")
+        print(f"Error loading ONNX model: {str(e)}")
 else:
-    print(f"PyTorch weights file not found: {weights}")
+    print(f"ONNX model file not found: {onnx_path}")
+
+# model = None
+# device=None
+# if os.path.exists(weights):
+#     try:
+#         device = select_device('cpu')
+#         model = attempt_load(weights, map_location=device)
+#         print("PyTorch model loaded")
+#     except Exception as e:
+#         print(f"Error loading PyTorch model: {str(e)}")
+# else:
+#     print(f"PyTorch weights file not found: {weights}")
 
 
 def infer_image(image_bytes, crop_coords):
@@ -55,8 +55,8 @@ def infer_image(image_bytes, crop_coords):
         # data = model_detection.detect(source=temp_filepath, weights=weights, img_size=img_size,
         #                               save_img=False, view_img=False, save_txt=False, save_trace=False)
         
-        data = model_detection.detect_objects(img_path=temp_filepath, model=model, device=device, img_size=img_size)
-        # data = model_detection.detect_objects_onnx(img_path=temp_filepath, img_size=img_size, session=session)
+        # data = model_detection.detect_objects(img_path=temp_filepath, model=model, device=device, img_size=img_size)
+        data = model_detection.detect_objects_onnx(img_path=temp_filepath, img_size=img_size, session=session)
         
         
         if not data:

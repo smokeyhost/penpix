@@ -25,7 +25,7 @@ const AboutPage = () => {
           </h2>
           <p className="text-sm sm:text-base md:text-lg mb-2">PenPix is developed to assist in the evaluation of hand-drawn logic circuit diagrams. The system streamlines task and class management, enhancing interaction for educators and students.</p>
           <p className="text-sm sm:text-base md:text-lg mb-2">Developed by Carolinian students of the Computer Engineering Department, this project aims to improve educational workflows efficiently.</p>
-          <p className="text-sm sm:text-base md:text-lg mb-2">Special thanks to advisers Dr. Luis Gerardo Canete and Engineer Elline Fabian for their invaluable guidance and support.</p>
+          <p className="text-sm sm:text-base md:text-lg mb-2">Special thanks to advisers Engineer Elline Fabian and Dr. Luis Gerardo Cañete for their invaluable guidance and support.</p>
           <p className="text-sm sm:text-base md:text-lg mb-2">For inquiries, contact us at <span className="text-primaryColor font-bold">contact@uscpenpix.online</span> or visit the Contact Page.</p>
         </section>
 
@@ -34,6 +34,7 @@ const AboutPage = () => {
             <FaTools className="mr-2 text-primaryColor" /> User Guide
           </h2>
           <p className="text-sm sm:text-base md:text-lg mb-2">Follow these steps to manage tasks, classes, and circuit evaluations:</p>
+          <i className="mb-2">Note: Please always check the spam folder for emails sent by the system.</i>
           <ol className="list-decimal list-inside mb-4">
             <li className="text-sm sm:text-base md:text-lg">Navigate to Classes page to view your class.</li>
             <li className="text-sm sm:text-base md:text-lg">Click the &quot;Add Class&quot; card to create a new class.</li>
@@ -42,7 +43,9 @@ const AboutPage = () => {
             <li className="text-sm sm:text-base md:text-lg">Submit assignments through the &quot;Submission&quot; or &quot;Task&quot; page.</li>
             <li className="text-sm sm:text-base md:text-lg">Assess and grade submissions in the &quot;Circuit Evaluator&quot; page.</li>
           </ol>
-          <p className="text-sm sm:text-base md:text-lg mb-2">For detailed instructions, view the user manual here...</p>
+          <p className="text-sm sm:text-base md:text-lg mb-2">For detailed instructions, view the user manual here: <a href="https://docs.google.com/document/d/1OQ8zHrusSQagN-1RTRxVYKzEAhhuWPIkX6IyFPgPgFE/edit?usp=sharing" className="text-blue-600 underline"
+    target="_blank"
+    rel="noopener noreferrer">Read Manual</a></p>
         </section>
 
         <section id="limitations" className="mb-8">
@@ -76,7 +79,8 @@ const AboutPage = () => {
             <li>Follow the template traces to improve detection accuracy.</li>
             <li>Avoid overlapping wires and maintain consistent spacing.</li>
             <li>Keep logic gates within their predefined shapes and sizes.</li>
-          </ul>
+	    <li>Refrain from adding labels on the template because it interferes with the detection.</li> 
+         </ul>
         </section>
 
         <section id="issues" className="mb-8">

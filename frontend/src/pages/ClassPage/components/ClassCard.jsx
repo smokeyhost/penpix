@@ -1,68 +1,39 @@
-import { FaTrash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import { useConfirm } from "../../../contexts/ConfirmContext"
-import useToast from '../../../hooks/useToast'
 import { truncateText } from '../../../utils/helpers'
-import axios from "axios";
 
-const ClassCard = ({ classData, onDelete, recentTasks }) => {
-  const navigate = useNavigate();
-  const confirm = useConfirm();
-  const {toastSuccess} = useToast();
-
-  const handleCardClick = () => {
-    navigate(`/edit-class/${classData.id}`);
-  };
-
-  const handleDeleteTask = async (e) => {
-    e.stopPropagation();
-    const verificationText = `${classData.class_code}_${classData.class_schedule}_remove`;
-
-    const message =`Deleting the class will remove all the tasks associated to it. Please type "${verificationText}" to confirm deletion.`
-    const result = await confirm(message, true, verificationText);
-    if (!result) return
-
-    try {
-      const response = await axios.delete(`/classes/delete-class/${classData.id}`);
-      if (response.status === 200) {
-        toastSuccess(`Class ${classData.class_code} was deleted successfully.`)
-        onDelete(classData.id); 
-      }
-    } catch (error) {
-      console.error("Error deleting class:", error);
-      alert("Failed to delete the class. Please try again.");
-    }
-  };
-
+const ClassCard = ({ classData, onClick, groupCount, groupPreview }) => {
   return (
     <div
-      className="group relative shadow-xl rounded-lg w-full sm:w-[250px] lg:w-[300px] h-auto sm:h-[270px] lg:h-[300px] p-4 sm:p-5 cursor-pointer transform hover:scale-105 duration-200 bg-white"
-      onClick={handleCardClick}
+      className="group relative shadow-xl rounded-lg w-full sm:w-[250px] lg:w-[300px] h-auto sm:h-[270px] lg:h-[300px] p-4 sm:p-5 cursor-pointer transform hover:scale-105 duration-200 bg-white overflow-hidden"
+      onClick={onClick}
     >
-      <div
-        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 duration-200"
-        onClick={handleDeleteTask}
-      >
-        <FaTrash className="text-gray-500 cursor-pointer" />
+      <div className="mb-2">
+        <h3 className="font-bold text-2xl sm:text-3xl text-customBlack1">{classData.class_code}</h3>
+        <span className="block text-xs sm:text-sm text-gray-500 font-medium">Course Code</span>
       </div>
 
-      <div>
-        <span className="text-xs sm:text-sm font-light text-gray-500">{truncateText(classData.class_schedule, 20)}</span>
-        <div className="mt-2">
-          <h3 className="font-semibold text-xl sm:text-2xl lg:text-3xl inline-block">{`Group ${classData.class_group}`}</h3>
-          <span className="ml-2 text-xs sm:text-sm font-medium">{truncateText(classData.class_code, 15)}</span>
-        </div>
+      <div className="mb-4">
+        <span className="inline-block bg-gray-100 text-gray-700 rounded px-2 py-1 text-xs sm:text-sm font-semibold">
+          {groupCount} {groupCount === 1 ? "Group" : "Groups"}
+        </span>
       </div>
 
+      {/* Group Preview Section */}
       <div className="mt-5">
-        <h4 className="text-xs sm:text-sm font-semibold">Recent Tasks</h4>
-        <ul className="text-gray-500 list-disc list-inside pl-5 h-[120px] mt-2 flex flex-col gap-2">
-          {recentTasks.length === 0 ? (
-            <li>No tasks available</li> 
-          ) : (
-            recentTasks.map((taskTitle, index) => (
-              <li key={index}>{truncateText(taskTitle, 13)}</li> 
+        <h4 className="text-xs sm:text-sm font-semibold mb-1">Groups Preview</h4>
+        <ul className="text-gray-500 list-disc list-inside pl-5 flex flex-col gap-1">
+          {groupPreview && groupPreview.length > 0 ? (
+            groupPreview.map((group, idx) => (
+              <li key={idx}>
+                Group {group.class_group}
+                {group.class_schedule && (
+                  <span className="ml-2 text-xs text-gray-400">
+                    ({truncateText(group.class_schedule, 20)})
+                  </span>
+                )}
+              </li>
             ))
+          ) : (
+            <li>No groups available</li>
           )}
         </ul>
       </div>

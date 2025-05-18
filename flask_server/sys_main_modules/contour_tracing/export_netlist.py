@@ -31,7 +31,7 @@ def export_to_verilog(expression_dict):
     return ''.join(verilog_content)
 
 def generate_ltspice_netlist(expression_dict):
-    netlist = ["* LTSpice Netlist generated from expressions"]
+    netlist = ["* Netlist generated from expressions"]
 
     symbol_map = {
         '&': 'AND',

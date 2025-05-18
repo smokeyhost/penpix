@@ -1,0 +1,38 @@
+Collecting flask
+  Downloading flask-3.1.0-py3-none-any.whl (102 kB)
+Collecting gunicorn
+  Downloading gunicorn-23.0.0-py3-none-any.whl (85 kB)
+Collecting Flask-Mailman
+  Downloading flask_mailman-1.1.1-py3-none-any.whl (17 kB)
+Collecting python-dotenv
+  Downloading python_dotenv-1.1.0-py3-none-any.whl (20 kB)
+Collecting SQLAlchemy
+  Downloading sqlalchemy-2.0.40-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.1 MB)
+Collecting flask_sqlalchemy
+  Downloading flask_sqlalchemy-3.1.1-py3-none-any.whl (25 kB)
+Collecting PyJWT
+  Downloading PyJWT-2.10.1-py3-none-any.whl (22 kB)
+Collecting flask-cors
+  Downloading flask_cors-5.0.1-py3-none-any.whl (11 kB)
+Collecting flask_migrate
+  Downloading Flask_Migrate-4.1.0-py3-none-any.whl (21 kB)
+Collecting pyzbar
+  Downloading pyzbar-0.1.9-py2.py3-none-any.whl (32 kB)
+Collecting qrcode
+  Downloading qrcode-8.2-py3-none-any.whl (45 kB)
+Collecting matplotlib
+  Downloading matplotlib-3.10.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (8.6 MB)
+Collecting numpy
+  Downloading numpy-2.2.5-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (16.4 MB)
+Collecting opencv-python
+  Downloading opencv_python-4.11.0.86-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (63.0 MB)
+Collecting Pillow
+  Downloading pillow-11.2.1-cp310-cp310-manylinux_2_28_x86_64.whl (4.6 MB)
+Collecting PyYAML
+  Downloading PyYAML-6.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (751 kB)
+Collecting requests
+  Downloading requests-2.32.3-py3-none-any.whl (64 kB)
+Collecting scipy
+  Downloading scipy-1.15.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (37.6 MB)
+Collecting torch
+  Downloading torch-2.7.0-cp310-cp310-manylinux_2_28_x86_64.whl (865.2 MB)

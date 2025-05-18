@@ -2,11 +2,12 @@ import StudentList from "./components/StudentList";
 import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from 'recoil';
 import { UserAtom } from '../../atoms/UserAtom';
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useToast from "../../hooks/useToast";
 import axios from "axios";
 import { FaInfoCircle } from "react-icons/fa";
 import InvalidStudentIdsList from "./components/InvalidStudentIdsList";
+import CreatableSelect from "react-select/creatable";
 
 const CreateClassPage = () => {
   const [classData, setClassData] = useState({
@@ -20,10 +21,97 @@ const CreateClassPage = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [invalidStudentIds, setInvalidStudentIds] = useState([]);
-  
+  const [existingClasses, setExistingClasses] = useState([]);
+  const [groupOptions, setGroupOptions] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const groupInputRef = useRef(null);
+
   const user = useRecoilValue(UserAtom);
-  const { toastSuccess, toastWarning} = useToast();
+  const { toastSuccess, toastWarning } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const res = await axios.get("/classes/get-classes");
+        setExistingClasses(res.data || []);
+      } catch (e) {
+        console.error("Error fetching classes:", e);
+      }
+    };
+    fetchClasses();
+  }, []);
+
+  useEffect(() => {
+    if (!classData.classCode) {
+      setGroupOptions([]);
+      setClassData((prev) => ({ ...prev, classGroup: "" }));
+      setSelectedCourse(null);
+      return;
+    }
+    const courseGroups = existingClasses
+      .filter(cls => cls.class_code === classData.classCode)
+      .map(cls => Number(cls.class_group));
+    if (courseGroups.length > 0) {
+      setSelectedCourse(classData.classCode);
+      // Find the lowest available group number
+      let group = 1;
+      while (courseGroups.includes(group)) group++;
+      setClassData((prev) => ({ ...prev, classGroup: group.toString() }));
+      setGroupOptions(courseGroups);
+    } else {
+      setSelectedCourse(null);
+      setGroupOptions([]);
+    }
+  }, [classData.classCode, existingClasses]);
+
+  function getNextAvailableGroup(current, taken, dir) {
+    let next = current;
+    for (let i = 0; i < 99; i++) {
+      next += dir;
+      if (next < 1) next = 1;
+      if (!taken.includes(next)) return next;
+    }
+    return current;
+  }
+  const handleGroupKeyDown = (e) => {
+    if (!selectedCourse) return;
+    const taken = groupOptions;
+    let current = Number(classData.classGroup) || 1;
+
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      e.preventDefault();
+      let dir = e.key === "ArrowUp" ? 1 : -1;
+      let next = getNextAvailableGroup(current, taken, dir);
+      if (next !== current) {
+        setClassData((prev) => ({ ...prev, classGroup: next.toString() }));
+      }
+    } else if (
+      !["Tab", "Backspace", "Delete"].includes(e.key) &&
+      (e.key < "0" || e.key > "9")
+    ) {
+      e.preventDefault();
+    }
+  };
+
+  const handleGroupChange = (e) => {
+    let value = e.target.value.replace(/^0+/, "");
+    if (!/^\d+$/.test(value) && value !== "") return;
+
+    if (selectedCourse && groupOptions.includes(Number(value))) {
+      // Find next available group in the direction of change
+      let prev = Number(classData.classGroup) || 1;
+      let dir = Number(value) > prev ? 1 : -1;
+      let next = getNextAvailableGroup(prev, groupOptions, dir);
+      setClassData({ ...classData, classGroup: next.toString() });
+    } else {
+      setClassData({ ...classData, classGroup: value });
+    }
+  };
+
+  const courseOptions = Array.from(
+    new Set(existingClasses.map(cls => cls.class_code))
+  ).map(code => ({ value: code, label: code }));
 
   const handleCreateClass = async () => {
     const newErrors = {};
@@ -120,37 +208,34 @@ const CreateClassPage = () => {
         <div className="flex flex-col gap-2">
           <label className="text-md font-medium">Class Details</label>
           <div className="flex flex-col md:flex-row gap-4">
-            <input
-              type="text"
-              placeholder="Course Code"
-              maxLength={30}
-              className={`flex-1 placeholder-gray-500 placeholder-opacity-75 focus:placeholder-opacity-50 border ${errors.classCode ? 'border-red-500' : 'border-gray-300'} rounded-lg px-2 py-1 focus:outline-none text-md`}
-              value={classData.classCode}
-              onChange={(e) => setClassData({ ...classData, classCode: e.target.value })}
-            />
+            <div className="flex-1">
+              <CreatableSelect
+                options={courseOptions}
+                value={courseOptions.find(opt => opt.value === classData.classCode) || (classData.classCode ? { value: classData.classCode, label: classData.classCode } : null)}
+                onChange={selectedOption => {
+                  setClassData(prev => ({
+                    ...prev,
+                    classCode: selectedOption ? selectedOption.value : "",
+                  }));
+                }}
+                placeholder="Course Code"
+                isClearable
+                isSearchable
+                noOptionsMessage={() => "Type to create new course code"}
+                formatCreateLabel={input => `Create "${input}"`}
+              />
+            </div>
             <input
               type="number"
               min="1"
               placeholder="Group"
+              ref={groupInputRef}
               className={`w-full md:w-[100px] border ${errors.classGroup ? 'border-red-500' : 'border-gray-300'} rounded-lg px-2 py-1 focus:outline-none text-md`}
               value={classData.classGroup || ""}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (/^\d+$/.test(value) || value === "") {  
-                  setClassData({ ...classData, classGroup: value });
-                }
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "-" || e.key === "e" || e.key === ".") {
-                  e.preventDefault(); 
-                }
-              }}
-              onPaste={(e) => {
-                const paste = e.clipboardData.getData("text");
-                if (!/^\d+$/.test(paste)) {
-                  e.preventDefault(); 
-                }
-              }}
+              onChange={handleGroupChange}
+              onKeyDown={handleGroupKeyDown}
+              onPaste={e => e.preventDefault()}
+              disabled={selectedCourse && groupOptions.length > 0 && groupOptions.length >= 99}
             />
           </div>
           {errors.classCode && <p className="text-red-500 text-sm">{errors.classCode}</p>}
@@ -207,7 +292,7 @@ const CreateClassPage = () => {
             className="px-6 py-2 bg-black text-white rounded-lg w-full md:w-auto"
             onClick={handleCreateClass}
           >
-            {!loading ? "Create Class" : "Creating..."}
+            {!loading ? selectedCourse ? 'Add Group': 'Create Class': "Creating..."}
           </button>
         </div>
 

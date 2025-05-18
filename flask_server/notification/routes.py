@@ -37,7 +37,7 @@ def mark_as_unread(notification_id):
 
     return jsonify({"message": "Notification marked as unread successfully", "notification": notification.to_dict()})
 
-# @login_required
+@login_required
 @notification_bp.route('/get-read-notifications', methods=['GET'])
 def get_read_notifications():
     user_id = session['user_id']

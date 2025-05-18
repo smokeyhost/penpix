@@ -50,7 +50,7 @@ const NotificationPage = () => {
     
     const fetchTasks = async () => {
       try {
-        const response = await axios.get('/task/get-tasks', { withCredentials: true });
+        const response = await axios.get('/task/get-tasks');
         setTasks(response.data);
       } catch (error) {
         if (error.response?.status === 401) {

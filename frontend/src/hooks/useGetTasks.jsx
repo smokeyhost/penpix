@@ -10,7 +10,7 @@ const useGetTasks = () => {
 
   const getTasks = useCallback(async () => {
     try {
-      const response = await axios.get('/task/get-tasks', { withCredentials: true });
+      const response = await axios.get('/task/get-tasks');
       const tasks = response.data;
       setTasks(tasks); 
     } catch (error) {

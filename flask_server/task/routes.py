@@ -4,6 +4,7 @@ from model import db, Task, Classes, Notification
 from task import task_bp
 from utils.auth_helpers import login_required
 from sys_main_modules.qr_code.qr_code import append_qr_code_to_template
+from flask_cors import cross_origin
 
 from datetime import datetime
 import shutil
@@ -54,6 +55,7 @@ import datetime
 
 @login_required
 @task_bp.route('/get-tasks', methods=['GET'])
+@cross_origin()
 def list_tasks():
     user_id = session.get('user_id')
     if not user_id:
@@ -90,7 +92,6 @@ def list_tasks():
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": f"Database commit error: {str(e)}"}), 500
-
     return jsonify([task.to_dict() for task in tasks])
 
 @login_required
@@ -103,10 +104,16 @@ def get_task(task_id):
     
     return jsonify(task.to_dict())  
 
+@task_bp.route('/get-tasks-by-class/<int:class_id>', methods=['GET'])
+def get_tasks_by_class(class_id):
+    tasks = Task.query.filter_by(class_id=class_id).all()
+    return jsonify({"tasks": [task.to_dict() for task in tasks]})
+
 @login_required
 @task_bp.route('/edit-task/<int:task_id>', methods=['PATCH'])
 def edit_task(task_id):
     try:
+        print("here")
         task = Task.query.get(task_id)
         if not task:
             return jsonify({"message": "Task not found"}), 404

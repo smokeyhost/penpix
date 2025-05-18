@@ -450,7 +450,14 @@ def are_all_predictions_similar(predictions1, predictions2, margin_of_error=5):
 def flag_similar_circuits():
     try:
         margin_of_error = request.args.get('margin_of_error', default=5, type=int)
-        circuit_analyses = CircuitAnalysis.query.all()
+        task_id = request.args.get('task_id', type=int)
+        if not task_id:
+            return jsonify({"error": "task_id is required"}), 400
+
+        # Only get files for this task
+        uploaded_files = UploadedFile.query.filter_by(task_id=task_id).all()
+        uploaded_file_ids = [f.id for f in uploaded_files]
+        circuit_analyses = CircuitAnalysis.query.filter(CircuitAnalysis.uploaded_file_id.in_(uploaded_file_ids)).all()
         
         valid_circuits = [c for c in circuit_analyses if c.predictions]
         
@@ -461,7 +468,7 @@ def flag_similar_circuits():
                 if i >= j:
                     continue
                 if are_all_predictions_similar(circuit1.predictions, circuit2.predictions, margin_of_error):
-                    flagged_circuits.append((circuit1.id, circuit2.id))
+                    flagged_circuits.append((circuit1.uploaded_file_id, circuit2.uploaded_file_id))
         return jsonify({"flagged_circuits": flagged_circuits})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

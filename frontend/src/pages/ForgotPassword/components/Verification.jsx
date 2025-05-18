@@ -42,7 +42,7 @@ const Verification = ({ onButtonClick, recoveryEmail, email, contactNumber }) =>
             Send password recovery link to {email.replace(/(.{2}).+@/, "$1*****@")}
           </p>
 
-          {contactNumber && (
+          {/* {contactNumber && (
             <p
               className={`border-t border-customGray1 py-2 px-1 ${
                 selectedMethod === contactNumber ? "bg-customGray1 border-l-4 border-r-4 border-[#953867]" : "hover:bg-customGray1"
@@ -51,7 +51,7 @@ const Verification = ({ onButtonClick, recoveryEmail, email, contactNumber }) =>
             >
               Get a verification code at {contactNumber.replace(/.(?=.{2})/g, "*")}
             </p>
-          )}
+          )} */}
         </div>
       </div>
       <div className="flex gap-2 mt-5">

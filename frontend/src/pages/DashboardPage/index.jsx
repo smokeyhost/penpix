@@ -15,6 +15,10 @@ const Dashboard = () => {
   const classList = useRecoilValue(ClassesAtom);
   const [filter, setFilter] = useState('All');
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState('');
+  const [selectedTaskType, setSelectedTaskType] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const getTasks = useGetTasks();
   const getClasses = useGetClasses();
 
@@ -38,17 +42,46 @@ const Dashboard = () => {
     fetchData();
   }, [userId]);
 
-  const handleFilterChange = (filter) => {
-    setFilter(filter);
-  };
-
+  const handleFilterChange = ({
+      status,
+      course,
+      group,
+      type,
+      search
+    }) => {
+      setFilter(status || 'All');
+      setSelectedCourse(course || '');
+      setSelectedGroup(group || '');
+      setSelectedTaskType(type || '');
+      setSearchTerm(search || '');
+};
   return (
     <div id="dashboard-page" className="flex flex-col w-full min-h-screen bg-white p-10 max-w-screen-xl mx-auto">
-      <FilterCreateNav onFilterChange={handleFilterChange} />
+      <FilterCreateNav onFilterChange={handleFilterChange}
+                        filter={filter}
+                        selectedCourse={selectedCourse}
+                        setSelectedCourse={setSelectedCourse}
+                        selectedGroup={selectedGroup}
+                        setSelectedGroup={setSelectedGroup}
+                        selectedTaskType={selectedTaskType}
+                        setSelectedTaskType={setSelectedTaskType}
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        classList={classList}
+                        />
       {!isLoading && tasks?.length === 0 ? (
         <EmptyTasksPlaceholder />
       ) : (
-        <TaskList filter={filter} tasks={tasks} classList={classList} refreshTasks={refreshTasks} loading={isLoading}/>
+        <TaskList filter={filter} 
+                  tasks={tasks} 
+                  classList={classList} 
+                  refreshTasks={refreshTasks} 
+                  loading={isLoading}
+                  selectedCourse={selectedCourse}
+                  selectedGroup={selectedGroup}
+                  selectedTaskType={selectedTaskType}
+                  searchTerm={searchTerm}
+                  />
       )}
     </div>
   );

@@ -272,6 +272,23 @@ const ImageDisplay = ({ img_url, predictions = [], isPredictionVisible, confiden
           <p>Loading Image...</p>
         </div>
       )}
+      {!imgLoading && !img_url && ( 
+          <div className="absolute inset-0 flex justify-center items-center flex-col gap-2">
+            <p className="text-gray-500">No Image Available</p>
+          </div>
+        )}
+        {!imgLoading && img_url && predictions.length === 0 && (
+          <div className="absolute inset-0 flex justify-center items-center flex-col gap-2">
+            <p className="text-gray-500">No Predictions Available</p>
+          </div>
+        )} 
+        {
+          !imgLoading && predictions.length > 0 && (
+            <div className="absolute top-2 right-2 bg-white p-2 rounded shadow">
+              <p className="text-sm text-gray-700">Click on the flagged prediction to edit or remove it.</p>
+            </div>
+          )
+      }
     </div>
       {isClassSelectorOpen && (
         <ClassSelector prediction={selectedPrediction} onClassChange={handleClassChange} position={position} onCancel={handleCloseClassSelector} 

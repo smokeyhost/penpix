@@ -22,7 +22,7 @@ const FilesList = ({ files, refreshFiles, task }) => {
     const fetchSimilarFiles = async () => {
       try {
         const response = await axios.get('/detect-gates/flag-similar-circuits', {
-          params: { margin_of_error: 5 },
+          params: { margin_of_error: 5, task_id: task.id },
         });
         setFetchedSimilarFiles(response.data.flagged_circuits.flat());
       } catch (error) {
@@ -68,6 +68,9 @@ const FilesList = ({ files, refreshFiles, task }) => {
       toastInfo('No similarities found.');
     } else {
       setSimilarFiles(fetchedSimilarFiles);
+      console.log("similar files",fetchedSimilarFiles)
+      console.log("files",files)
+      console.log("Current",currentFiles)
       toastInfo('Similarities detected in submissions.');
     }
   }
@@ -168,13 +171,14 @@ const FilesList = ({ files, refreshFiles, task }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {currentFiles.map((fileId) => {
               const file = files.find((f) => f.id === fileId);
+              if (!file) return null; // Prevent error if file not found
               return (
                 <div key={file.id} className="border p-2 rounded">
                   <img
-                    src={file.file_url}
+                    src={file.file_url.replace('http://api.uscpenpix.online,api.uscpenpix.online', 'https://api.uscpenpix.online')}
                     alt={file.filename}
                     className="w-full h-48 object-cover mb-2 cursor-pointer"
-                    onClick={() => handleImageClick(file.file_url)}
+                    onClick={() => handleImageClick(file.file_url.replace('http://api.uscpenpix.online,api.uscpenpix.online', 'https://api.uscpenpix.online'))}
                   />
                   <p className="text-sm">{file.filename}</p>
                 </div>

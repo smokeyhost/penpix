@@ -10,7 +10,7 @@ const AddClass = () => {
       onClick={() => navigate('/create-class')}
     >
       <IoMdAddCircleOutline size={100} className="sm:size-[120px] lg:size-[140px]" color="gray" />
-      <p className="font-semibold text-customGray3 text-base sm:text-lg lg:text-xl">Add Class</p>
+      <p className="font-semibold text-customGray3 text-base sm:text-lg lg:text-xl">Add Class/Group</p>
     </button>
   );
 }
